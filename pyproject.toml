@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "mpl-stereo"
+version = "0.1.0"
+description = "Matplotlib extension to make stereograms"
+authors = ["Scott Shambaugh <scottshambaugh@users.noreply.github.com>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+matplotlib = "^3.8.2"
+numpy = "^1.26.2"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.4.3"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
