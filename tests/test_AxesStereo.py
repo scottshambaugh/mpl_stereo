@@ -44,6 +44,11 @@ def test_AxesStereo2D():
     axstereo.plot(x, y, z)
     assert True
 
+    # Smoke test scatter sorting
+    axstereo = AxesStereo2D()
+    axstereo.scatter(x, y, z, c=z, cmap='viridis')
+    assert True
+
     # Smoke test non-plotting methods
     axstereo.set_title('title')
     assert True
