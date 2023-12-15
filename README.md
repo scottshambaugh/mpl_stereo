@@ -7,7 +7,7 @@
 # mpl_stereo
 Matplotlib add-on to make [stereograms](https://en.wikipedia.org/wiki/Stereoscopy).
 
-Stereograms can significantly enhance the interpretability of 3D data by leveraging human binocular vision. Instead of trying to imagine how the flat projection on a page would look in real life, stereograms give us "3D glasses" for 2D data with just our eyes.
+Stereograms can significantly enhance the interpretability of 3D data by leveraging human binocular vision. Instead of looking at a flat projection on a page, stereograms give us "3D glasses" for 2D data with just our eyes.
 
 It takes some practice to be able to view the stereoscopic effect for the first time, but the effort is well worth it!
 
@@ -20,7 +20,7 @@ pip install mpl_stereo
 ```python
 import numpy as np
 from mpl_stereo import AxesStereo2D, AxesStereo3D
-# Generate some data, we'll make a (3,2) trefoil knot
+# Generate some data, we'll make a trefoil knot
 t = np.linspace(0, 2*np.pi, 100)
 x = np.cos(2*t) * (3 + np.cos(3*t))
 y = np.sin(2*t) * (3 + np.cos(3*t))
@@ -28,7 +28,7 @@ z = np.sin(3*t)
 ```
 
 ### 2D plots
-Currently, only a subset of matplotlib's 2D plots are officially supported. See the list by calling `axstereo.known_methods`.
+Currently, only a subset of matplotlib's 2D plots are officially supported. See the list in `axstereo.known_methods`.
 ```python
 axstereo = AxesStereo2D()
 axstereo.plot(x, y, z, c='k', alpha=0.2)
@@ -53,7 +53,7 @@ axstereo.scatter(x, y, z, c=z, cmap='viridis', s=10)
 </p>
 
 ### Working With Plots
-Calling any method on an `AxesStereo2D` or `AxesStereo3D` object will pass that method call onto both of the left and right subplot axes and be applied to both of them. In the 2D case, it's only the plotting methods which take in `x` and `y` arguments that are intercepted and the additional `z` data is processed.
+Calling any method on an `AxesStereo2D` or `AxesStereo3D` object will pass that method call onto both of the left and right subplot axes. In the 2D case, the plotting methods which take in `x` and `y` arguments are intercepted and the additional `z` data is processed to obtain appropriate horizontal offsets.
 
 The figure and two subplot axes can be accessed with the following:
 ```python
