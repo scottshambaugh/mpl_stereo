@@ -59,9 +59,11 @@ class AxesStereo2D(AxesStereo):
 
     def __getattr__(self, name):
         """
-        Delegate method calls to the left and right axes if the method is not defined in AxesStereo.
-        If the method has 'x' and 'y' as arguments, and either there is a third argument or 'z' is a keyword argument,
-        then the z data will be used to offset the x data for the left and right axes and create the stereoscopic effect.
+        Delegate method calls to the left and right axes if the method is not
+        defined in AxesStereo. If the method has 'x' and 'y' as arguments, and
+        either there is a third argument or 'z' is a keyword argument, then the
+        z data will be used to offset the x data for the left and right axes
+        and create the stereoscopic effect.
         """
 
         def method(*args, **kwargs):
@@ -79,7 +81,8 @@ class AxesStereo2D(AxesStereo):
             elif 'y' in parameters:
                 y, *args = args
 
-            # Check if 'z' is in the keyword arguments or if there is a third argument of the same shape as x
+            # Check if 'z' is in the keyword arguments or if there is a third
+            # argument of the same shape as x
             if 'z' in kwargs:
                 z = kwargs.pop('z')
             elif len(args) > 0 and (np.array(args[0]).shape == np.array(x).shape):
@@ -98,7 +101,7 @@ class AxesStereo2D(AxesStereo):
                 return getattr(self.ax_right, name)(*args, **kwargs)
 
         return method
-    
+
 
 class AxesStereo3D(AxesStereo):
     def __init__(self, fig=None, focal_plane=-1, ipd=65):
@@ -119,9 +122,11 @@ class AxesStereo3D(AxesStereo):
 
     def __getattr__(self, name):
         """
-        Delegate method calls to the left and right axes if the method is not defined in AxesStereo.
-        If the method has 'x' and 'y' as arguments, and either there is a third argument or 'z' is a keyword argument,
-        then the z data will be used to offset the x data for the left and right axes and create the stereoscopic effect.
+        Delegate method calls to the left and right axes if the method is not
+        defined in AxesStereo. If the method has 'x' and 'y' as arguments, and
+        either there is a third argument or 'z' is a keyword argument, then the
+        z data will be used to offset the x data for the left and right axes
+        and create the stereoscopic effect.
         """
 
         def method(*args, **kwargs):
@@ -136,7 +141,7 @@ class AxesStereo3D(AxesStereo):
                     is_plottable = True
 
             if (ax_method and is_plottable):
-                offset = 5 # [deg]
+                offset = 5  # [deg]
                 offset_left = (self.focal_plane + 1)/2 * offset
                 offset_right = (1 - self.focal_plane)/2 * offset
 
@@ -144,7 +149,7 @@ class AxesStereo3D(AxesStereo):
                 elev_init = self.ax_left.elev
                 roll_init = self.ax_left.roll
                 self.ax_left.view_init(elev=elev_init,
-                                       azim=azim_init - offset_left, 
+                                       azim=azim_init - offset_left,
                                        roll=roll_init)
                 self.ax_right.view_init(elev=elev_init,
                                         azim=azim_init + offset_right,
