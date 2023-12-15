@@ -70,7 +70,7 @@ jobs:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         with:
           name: code-coverage-report
-          path: htmlcov
+          directory: htmlcov
 
       - name: Archive code coverage results
         uses: actions/upload-artifact@v3
