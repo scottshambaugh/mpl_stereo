@@ -2,7 +2,7 @@
 
 ## Future Work
 ### Features & Maintenance:
-- Better docs
+- Better docs & stereogram example
 - Figure out axis labels floating at midpoint and not being anchored to page
 - Double check calcs for z_scale
 - Add on more known 2D plotting functions

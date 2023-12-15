@@ -59,7 +59,7 @@ class AxesStereo(ABC):
         self.d = d
         self.ipd = ipd
         self.is_3d = is_3d
-        self.known_methods = []
+        self.known_methods: list[str] = []
 
 
 class AxesStereo2D(AxesStereo):

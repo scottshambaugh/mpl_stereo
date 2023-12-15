@@ -16,6 +16,7 @@ pytest = "^7.4.3"
 pytest-cov = "^4.0.0"
 flake8 = "^6"
 pre-commit = "^3"
+mypy = "^1.7"
 
 [build-system]
 requires = ["poetry-core"]
