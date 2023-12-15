@@ -17,6 +17,6 @@
 ### Removed    
 
 
-## [0.1.0] - NOT YET RELEASED
+## [0.1.0] - 2023-12-15
 ### Added
 * Initial release!
