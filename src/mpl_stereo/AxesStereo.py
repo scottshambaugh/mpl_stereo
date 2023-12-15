@@ -28,14 +28,19 @@ class AxesStereo(ABC):
             if not is_3d:
                 fig, axs = plt.subplots(1, 2, sharex=True, sharey=True)
             else:
-                fig, axs = plt.subplots(1, 2, subplot_kw={'projection': '3d'},
+                fig, axs = plt.subplots(1, 2,
+                                        subplot_kw={'projection': '3d'},
                                         sharex=True, sharey=True)
+                axs[0].sharez(axs[1])
             self.ax_left = axs[0]
             self.ax_right = axs[1]
         else:
             if not is_3d:
                 self.ax_left = fig.add_subplot(121)
-                self.ax_right = fig.add_subplot(122, sharex=self.ax_left, sharey=self.ax_left)
+                self.ax_right = fig.add_subplot(122,
+                                                sharex=self.ax_left,
+                                                sharey=self.ax_left,
+                                                sharez=self.ax_left)
             else:
                 self.ax_left = fig.add_subplot(121, projection='3d')
                 self.ax_right = fig.add_subplot(122, projection='3d',
@@ -46,6 +51,7 @@ class AxesStereo(ABC):
         self.d = d
         self.ipd = ipd
         self.is_3d = is_3d
+        self.known_methods = []
 
 
 class AxesStereo2D(AxesStereo):
@@ -73,6 +79,7 @@ class AxesStereo2D(AxesStereo):
         """
         super().__init__(fig=fig, focal_plane=focal_plane, z_scale=z_scale, d=d, ipd=ipd,
                          is_3d=False)
+        self.known_methods = ['plot', 'scatter', 'stem', 'bar']
 
     def __getattr__(self, name):
         """
@@ -89,13 +96,14 @@ class AxesStereo2D(AxesStereo):
             parameters = inspect.signature(ax_method).parameters
 
             x = y = z = None
+            args_original = args
             if 'x' in kwargs:
                 x = kwargs.pop('x')
-            elif 'x' in parameters:
+            elif 'x' in parameters or name in self.known_methods:
                 x, *args = args
             if 'y' in kwargs:
                 y = kwargs.pop('y')
-            elif 'y' in parameters:
+            elif 'y' in parameters or name in self.known_methods:
                 y, *args = args
 
             # Check if 'z' is in the keyword arguments or if there is a third
@@ -111,12 +119,12 @@ class AxesStereo2D(AxesStereo):
                 offset_left = (self.focal_plane + 1)/2 * offset
                 offset_right = (1 - self.focal_plane)/2 * offset
 
-                getattr(self.ax_left, name)(x - offset_left, y, *args, **kwargs)
-                return getattr(self.ax_right, name)(x + offset_right, y, *args, **kwargs)
+                getattr(self.ax_left, name)(x + offset_left, y, *args, **kwargs)
+                return getattr(self.ax_right, name)(x - offset_right, y, *args, **kwargs)
             else:
-                # For methods that do not involve 'x' and 'y'
-                getattr(self.ax_left, name)(*args, **kwargs)
-                return getattr(self.ax_right, name)(*args, **kwargs)
+                # For methods that don't plot x-y data
+                getattr(self.ax_left, name)(*args_original, **kwargs)
+                return getattr(self.ax_right, name)(*args_original, **kwargs)
 
         return method
 
@@ -136,17 +144,17 @@ class AxesStereo3D(AxesStereo):
             and only the right axis labels are accurate.
             A value of 0 puts the focal plane on the pagem and neither axes'
             labels are accurate.
-        - focal_plane : float, optional
-            Location of the focal plane, from -1 to 1. A value of -1 means all
-            data will float above the plane. A value of 1 means all data will
-            float below the plane. A value of 0 puts the focal plane on the
-            page.
+        - z_scale : float, optional
+            Scaling factor for the z-data (in millimeters). Default is 2.
+        - d : float, optional
+            Distance from the focal plane to the viewer (in millimeters).
         - ipd : float, optional
             Interpupillary distance (in millimeters). Default is 65. Negative
             values for cross-view.
         """
         super().__init__(fig=fig, focal_plane=focal_plane, z_scale=z_scale, d=d, ipd=ipd,
                          is_3d=True)
+        self.known_methods = ['plot', 'scatter']
 
 
     def __getattr__(self, name):
