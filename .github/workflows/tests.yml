@@ -62,15 +62,13 @@ jobs:
         run: |
           poetry run coverage run --source=mpl_stereo -m pytest
           poetry run coverage report -m
+          poetry run coverage xml
           poetry run coverage html
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v3
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-        with:
-          name: code-coverage-report
-          directory: htmlcov
 
       - name: Archive code coverage results
         uses: actions/upload-artifact@v3
