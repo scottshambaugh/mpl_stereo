@@ -1,11 +1,22 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import inspect
+
 from abc import ABC
+from typing import Optional
+from matplotlib.figure import Figure
 
 class AxesStereo(ABC):
-    def __init__(self, fig=None, focal_plane=-1, z_scale=2, d=350, ipd=65, is_3d=False):
+    def __init__(self,
+                 fig: Optional[Figure] = None,
+                 focal_plane: float = -1,
+                 z_scale: float = 2,
+                 d: float = 350,
+                 ipd: float = 65,
+                 is_3d: bool = False):
         """
+        Parameters
+        ----------
         - fig : matplotlib.figure.Figure
             The figure object to which these axes belong.
         - focal_plane : float, optional
@@ -51,10 +62,17 @@ class AxesStereo(ABC):
 
 
 class AxesStereo2D(AxesStereo):
-    def __init__(self, fig=None, focal_plane=-1, z_scale=2, d=350, ipd=65):
+    def __init__(self,
+                 fig: Optional[Figure] = None,
+                 focal_plane: float = -1,
+                 z_scale: float = 2,
+                 d: float = 350,
+                 ipd: float = 65):
         """
         A class for creating stereoscopic 2D plots.
 
+        Parameters
+        ----------
         - fig : matplotlib.figure.Figure
             The figure object to which these axes belong.
         - focal_plane : float, optional
@@ -83,7 +101,7 @@ class AxesStereo2D(AxesStereo):
         self.set_axlabel_alphas(0.5)
         self.known_methods = ['plot', 'scatter', 'stem', 'bar']
 
-    def __getattr__(self, name):
+    def __getattr__(self, name: str):
         """
         Delegate method calls to the left and right axes if the method is not
         defined in AxesStereo. If the method has 'x' and 'y' as arguments, and
@@ -130,7 +148,7 @@ class AxesStereo2D(AxesStereo):
 
         return method
 
-    def set_axlabel_alphas(self, alpha):
+    def set_axlabel_alphas(self, alpha: float):
         if self.focal_plane != -1:
             for label in self.ax_left.get_xticklabels():
                 label.set_alpha(alpha)
@@ -144,10 +162,17 @@ class AxesStereo2D(AxesStereo):
 
 
 class AxesStereo3D(AxesStereo):
-    def __init__(self, fig=None, focal_plane=-1, z_scale=2, d=350, ipd=65):
+    def __init__(self,
+                 fig: Optional[Figure] = None,
+                 focal_plane: float = -1,
+                 z_scale: float = 2,
+                 d: float = 350,
+                 ipd: float = 65):
         """
         A class for creating stereoscopic 3D plots.
 
+        Parameters
+        ----------
         - fig : matplotlib.figure.Figure
             The figure object to which these axes belong.
         - focal_plane : float, optional
@@ -169,7 +194,7 @@ class AxesStereo3D(AxesStereo):
         self.known_methods = ['plot', 'scatter', 'stem', 'voxels', 'plot_wireframe',
                               'plot_surface', 'plot_trisurf', 'contour', 'contourf']
 
-    def __getattr__(self, name):
+    def __getattr__(self, name: str):
         """
         Delegate method calls to the left and right axes if the method is not
         defined in AxesStereo. If the method has 'x' and 'y' as arguments, and
