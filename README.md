@@ -38,10 +38,10 @@ axstereo.scatter(x, y, z, c=z, cmap='viridis', s=10)
 </p>
 When you are viewing the stereogram properly, you should see the knot weave in and out of the page!
 
-*Warning*: Please note that for 2D plots the stereoscopic effect requires shifting data, so the data will *not* necessarily line up with the axis labels! Right now this can be controlled with the `focal_plane` parameter. Calling `AxesStereo2D(focal_plane=-1)` (the default) will ensure that the left axes data is not shifted, whereas `AxesStereo2D(focal_plane=1)` will lock down the right axes data. The tick labels for axes where the data is not aligned will have transparency applied. So in the plot above, the right side labels being lighter gray indicates that you should not trust that data to be positioned correctly, but the left subplot with its black labeling is accurate.
+*Warning*: Please note that for 2D plots the stereoscopic effect requires shifting data, so the data will *not* necessarily line up with the axis labels! Right now this is controlled with the `focal_plane` parameter. Calling `AxesStereo2D(focal_plane=-1)` (the default) will ensure that the left axes data is not shifted, whereas `AxesStereo2D(focal_plane=1)` will lock down the right axes data. The tick labels for axes where the data is not aligned will have transparency applied. So in the plot above, the right side labels being lighter gray indicates that you should not trust that data to be positioned correctly, but the left subplot with its black labeling is accurate.
 
 ### 3D plots
-The stereoscopic effect in 3D can be made just by rotating the plot view, so all of matplotlib's 3D plot types are supported.
+The stereoscopic effect in 3D is made just by rotating the plot view, so all of matplotlib's 3D plot types are supported, and there are no concerns about data not lining up with the axis labels.
 ```python
 axstereo = AxesStereo3D()
 axstereo.plot(x, y, z, c='k', alpha=0.2)
@@ -50,6 +50,16 @@ axstereo.scatter(x, y, z, c=z, cmap='viridis', s=10)
 <p float="left" align="center">
 <img width="500" height="250" src="https://raw.githubusercontent.com/scottshambaugh/mpl_stereo/main/docs/trefoil_3d.png">
 </p>
+
+### Working With Plots
+Calling any method on an `AxesStereo2D` or `AxesStereo3D` object will pass that method call onto both of the left and right subplot axes and be applied to both of them. In the 2D case, it's only the plotting methods which take in `x` and `y` arguments that are intercepted and the additional `z` data is processed.
+
+The figure and two subplot axes can be accessed with the following:
+```python
+axstereo.fig
+axstereo.ax_left
+axstereo.ax_right
+```
 
 ## Viewing Stereograms
 
@@ -64,3 +74,6 @@ These are not [*auto*stereograms](https://en.wikipedia.org/wiki/Autostereogram),
 
 ### Parallel vs Cross-Eyed Viewing
 By default, the stereograms are set up for "parallel" viewing method as described above. For "cross-eyed" viewing, initialize with a negative `ipd` parameter. An ipd (Inter-Pupilary Distance) of 65 millimeters is the default, so call `AxesStereo2D(ipd=-65)` for the default cross-eyed viewing.
+
+### Derivation of Geometry
+TODO
