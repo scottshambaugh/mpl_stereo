@@ -5,6 +5,11 @@ description = "Matplotlib extension to make stereograms"
 authors = ["Scott Shambaugh <scottshambaugh@users.noreply.github.com>"]
 license = "MIT"
 readme = "README.md"
+classifiers = [
+    "Framework :: Matplotlib",
+    # Classifier for Python 3.12 can be removed after Poetry 1.8.0 has been released.
+    "Programming Language :: Python :: 3.12",
+]
 
 [tool.poetry.dependencies]
 python = "^3.9"
