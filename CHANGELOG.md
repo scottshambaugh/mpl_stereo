@@ -14,7 +14,8 @@
 - 3D test ortho view
 - Document derivation of offsets
 - Animated stereogram example
-- Add to mpl-third-party
+- Check 2D zorder scatter
+- GH release publish to pypi
 
 ----
 
