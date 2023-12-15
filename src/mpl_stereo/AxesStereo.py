@@ -135,6 +135,9 @@ class AxesStereo2D(AxesStereo):
                 z, *args = args
 
             if (ax_method and x is not None and y is not None and z is not None):
+                # for scatter plots, sort the data by z to not occlude improperly
+                if name == 'scatter':
+                    x, y, z, kwargs = self.sort_by_z(x, y, z, kwargs)
                 z_scaled = z / np.ptp(z) * self.z_scale
                 offset = self.ipd * z_scaled / (self.d + z_scaled)
                 offset_left = (self.focal_plane + 1)/2 * offset
@@ -160,6 +163,18 @@ class AxesStereo2D(AxesStereo):
                 label.set_alpha(alpha)
             for label in self.ax_right.get_yticklabels():
                 label.set_alpha(alpha)
+
+
+    def sort_by_z(self, x, y, z, kwargs):
+        sort_idx = np.argsort(z)
+        x = x[sort_idx]
+        y = y[sort_idx]
+        z = z[sort_idx]
+        if 'c' in kwargs and np.array(kwargs['c']).shape == np.array(z).shape:
+            c = kwargs.pop('c')
+            c = c[sort_idx]
+            kwargs['c'] = c
+        return x, y, z, kwargs
 
 
 class AxesStereo3D(AxesStereo):
