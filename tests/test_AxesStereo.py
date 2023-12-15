@@ -1,11 +1,17 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-from mpl_stereo import AxesStereo
+from mpl_stereo import AxesStereo2D, AxesStereo3D
 
-def test_AxesStereo():
+def test_AxesStereo2D():
     # Smoke test
-    axstereo = AxesStereo(ipd=0.2, focal_plane=0)
+    axstereo = AxesStereo2D(ipd=0.2, focal_plane=0)
+    assert True
+
+
+def test_AxesStereo3D():
+    # Smoke test
+    axstereo = AxesStereo3D(ipd=0.2, focal_plane=0)
     assert True
 
 
@@ -25,9 +31,12 @@ def plotting_tests():
     y = radius * np.cos(theta)
     z = radius * np.sin(theta) * np.cos(phi)
     # Make the stereoscopic plots
-    axstereo = AxesStereo(ipd=0.2, focal_plane=0)
+    axstereo = AxesStereo2D(ipd=0.2, focal_plane=0)
     axstereo.scatter(x, y, z, c=z, cmap='viridis', s=10)
 
+    axstereo = AxesStereo3D(ipd=0.2, focal_plane=0)
+    axstereo.scatter(x, y, z, c=z, cmap='viridis', s=10)
 
 if __name__ == '__main__':
     plotting_tests()
+    plt.show()
