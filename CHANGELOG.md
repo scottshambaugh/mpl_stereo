@@ -2,16 +2,19 @@
 
 ## Future Work
 ### Features & Maintenance:
-- Better docs & stereogram example
-- Figure out axis labels floating at midpoint and not being anchored to page
+- Better docs
+- Better beginner instructions
+- Figure out axis labels floating at midpoint and not being anchored to page (test grid)
 - Double check calcs for z_scale
 - Add on more known 2D plotting functions
 - Flesh out testing of 3D plotting
-- Red/cyan stereograms
+- Red/cyan anaglyphs
 - 3D take into account roll angle
 - 3D shareview override
 - 3D test ortho view
 - Document derivation of offsets
+- Animated stereogram example
+- Add to mpl-third-party
 
 ----
 
