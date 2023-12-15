@@ -26,25 +26,21 @@ class AxesStereo(ABC):
         # Generate two side-by-side subplots
         if fig is None:
             if not is_3d:
-                fig, axs = plt.subplots(1, 2, sharex=True, sharey=True)
+                fig, axs = plt.subplots(1, 2)
             else:
-                fig, axs = plt.subplots(1, 2,
-                                        subplot_kw={'projection': '3d'},
-                                        sharex=True, sharey=True)
-                axs[0].sharez(axs[1])
+                fig, axs = plt.subplots(1, 2, subplot_kw={'projection': '3d'})
             self.ax_left = axs[0]
             self.ax_right = axs[1]
         else:
             if not is_3d:
                 self.ax_left = fig.add_subplot(121)
-                self.ax_right = fig.add_subplot(122,
-                                                sharex=self.ax_left,
-                                                sharey=self.ax_left,
-                                                sharez=self.ax_left)
+                self.ax_right = fig.add_subplot(122)
             else:
                 self.ax_left = fig.add_subplot(121, projection='3d')
-                self.ax_right = fig.add_subplot(122, projection='3d',
-                                                sharex=self.ax_left, sharey=self.ax_left)
+                self.ax_right = fig.add_subplot(122, projection='3d')
+
+        self.ax_left.sharex(self.ax_right)
+        self.ax_left.sharey(self.ax_right)
 
         self.focal_plane = focal_plane
         self.z_scale = z_scale
@@ -64,11 +60,13 @@ class AxesStereo2D(AxesStereo):
         - focal_plane : float, optional
             Location of the focal plane, from -1 to 1.
             A value of -1 means all data will float above the plane,
-            and only the left axis labels are accurate.
+            and only the left axis labels are accurate. (The right labels will
+            have transparancy applied)
             A value of 1 means all data will float below the plane,
-            and only the right axis labels are accurate.
-            A value of 0 puts the focal plane on the pagem and neither axes'
-            labels are accurate.
+            and only the right axis labels are accurate. (The left labels will
+            have transparancy applied)
+            A value of 0 puts the focal plane on the page and neither axes'
+            labels are accurate. (Both will have transparancy applied)
         - z_scale : float, optional
             Scaling factor for the z-data (in millimeters). Default is 2.
         - d : float, optional
@@ -79,6 +77,10 @@ class AxesStereo2D(AxesStereo):
         """
         super().__init__(fig=fig, focal_plane=focal_plane, z_scale=z_scale, d=d, ipd=ipd,
                          is_3d=False)
+
+        # Turn on all the axis labels then make semitransparent not accurate at the edges
+        self.ax_right.yaxis.set_tick_params(labelleft=True)
+        self.set_axlabel_alphas(0.5)
         self.known_methods = ['plot', 'scatter', 'stem', 'bar']
 
     def __getattr__(self, name):
@@ -128,6 +130,18 @@ class AxesStereo2D(AxesStereo):
 
         return method
 
+    def set_axlabel_alphas(self, alpha):
+        if self.focal_plane != -1:
+            for label in self.ax_left.get_xticklabels():
+                label.set_alpha(alpha)
+            for label in self.ax_left.get_yticklabels():
+                label.set_alpha(alpha)
+        elif self.focal_plane != 1:
+            for label in self.ax_right.get_xticklabels():
+                label.set_alpha(alpha)
+            for label in self.ax_right.get_yticklabels():
+                label.set_alpha(alpha)
+
 
 class AxesStereo3D(AxesStereo):
     def __init__(self, fig=None, focal_plane=-1, z_scale=2, d=350, ipd=65):
@@ -138,12 +152,9 @@ class AxesStereo3D(AxesStereo):
             The figure object to which these axes belong.
         - focal_plane : float, optional
             Location of the focal plane, from -1 to 1.
-            A value of -1 means all data will float above the plane,
-            and only the left axis labels are accurate.
-            A value of 1 means all data will float below the plane,
-            and only the right axis labels are accurate.
-            A value of 0 puts the focal plane on the pagem and neither axes'
-            labels are accurate.
+            A value of -1 means all data will float above the plane.
+            A value of 1 means all data will float below the plane.
+            A value of 0 puts the focal plane on the page.
         - z_scale : float, optional
             Scaling factor for the z-data (in millimeters). Default is 2.
         - d : float, optional
@@ -154,8 +165,9 @@ class AxesStereo3D(AxesStereo):
         """
         super().__init__(fig=fig, focal_plane=focal_plane, z_scale=z_scale, d=d, ipd=ipd,
                          is_3d=True)
-        self.known_methods = ['plot', 'scatter']
-
+        self.ax_left.sharez(self.ax_right)
+        self.known_methods = ['plot', 'scatter', 'stem', 'voxels', 'plot_wireframe',
+                              'plot_surface', 'plot_trisurf', 'contour', 'contourf']
 
     def __getattr__(self, name):
         """
