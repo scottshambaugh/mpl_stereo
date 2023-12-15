@@ -64,6 +64,11 @@ jobs:
           poetry run coverage report -m
           poetry run coverage html
 
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v3
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
       - name: Archive code coverage results
         uses: actions/upload-artifact@v3
         with:
