@@ -80,9 +80,17 @@ def test_AxesStereo3D():
 def plotting_tests_2d_pairwise():
     # test plot and scatter
     x, y, z = _testdata()['trefoil']
-    axstereo = AxesStereo2D()
+    axstereo = AxesStereo2D(focal_plane=-1.0)
     axstereo.plot(x, y, z, c='k', alpha=0.2)
     axstereo.scatter(x, y, z, c=z, cmap='viridis', s=10)
+    axstereo.grid(True)
+    axstereo.set_title('focal_plane=-1')
+
+    axstereo = AxesStereo2D(focal_plane=1.0)
+    axstereo.plot(x, y, z, c='k', alpha=0.2)
+    axstereo.scatter(x, y, z, c=z, cmap='viridis', s=10)
+    axstereo.grid(True)
+    axstereo.set_title('focal_plane=1')
 
     # test bar and stem
     x = y = z = np.arange(10)
