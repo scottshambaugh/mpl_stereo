@@ -51,13 +51,22 @@ class AxesStereo(ABC):
 class AxesStereo2D(AxesStereo):
     def __init__(self, fig=None, focal_plane=-1, z_scale=2, d=350, ipd=65):
         """
+        A class for creating stereoscopic 2D plots.
+
         - fig : matplotlib.figure.Figure
             The figure object to which these axes belong.
         - focal_plane : float, optional
-            Location of the focal plane, from -1 to 1. A value of -1 means all
-            data will float above the plane. A value of 1 means all data will
-            float below the plane. A value of 0 puts the focal plane on the
-            page.
+            Location of the focal plane, from -1 to 1.
+            A value of -1 means all data will float above the plane,
+            and only the left axis labels are accurate.
+            A value of 1 means all data will float below the plane,
+            and only the right axis labels are accurate.
+            A value of 0 puts the focal plane on the pagem and neither axes'
+            labels are accurate.
+        - z_scale : float, optional
+            Scaling factor for the z-data (in millimeters). Default is 2.
+        - d : float, optional
+            Distance from the focal plane to the viewer (in millimeters).
         - ipd : float, optional
             Interpupillary distance (in millimeters). Default is 65. Negative
             values for cross-view.
@@ -80,11 +89,11 @@ class AxesStereo2D(AxesStereo):
             parameters = inspect.signature(ax_method).parameters
 
             x = y = z = None
-            if x in kwargs:
+            if 'x' in kwargs:
                 x = kwargs.pop('x')
             elif 'x' in parameters:
                 x, *args = args
-            if y in kwargs:
+            if 'y' in kwargs:
                 y = kwargs.pop('y')
             elif 'y' in parameters:
                 y, *args = args
@@ -115,8 +124,18 @@ class AxesStereo2D(AxesStereo):
 class AxesStereo3D(AxesStereo):
     def __init__(self, fig=None, focal_plane=-1, z_scale=2, d=350, ipd=65):
         """
+        A class for creating stereoscopic 3D plots.
+
         - fig : matplotlib.figure.Figure
             The figure object to which these axes belong.
+        - focal_plane : float, optional
+            Location of the focal plane, from -1 to 1.
+            A value of -1 means all data will float above the plane,
+            and only the left axis labels are accurate.
+            A value of 1 means all data will float below the plane,
+            and only the right axis labels are accurate.
+            A value of 0 puts the focal plane on the pagem and neither axes'
+            labels are accurate.
         - focal_plane : float, optional
             Location of the focal plane, from -1 to 1. A value of -1 means all
             data will float above the plane. A value of 1 means all data will

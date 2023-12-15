@@ -5,13 +5,23 @@ from mpl_stereo import AxesStereo2D, AxesStereo3D
 
 def test_AxesStereo2D():
     # Smoke test
-    _ = AxesStereo2D(ipd=0.2, focal_plane=0)
+    x = np.linspace(0, 2*np.pi, 100)
+    y = np.sin(x)
+    z = np.cos(x)
+    axstereo = AxesStereo2D()
+    axstereo.scatter(x, y, z)
+    axstereo.scatter(x=x, y=y, z=z)
     assert True
 
 
 def test_AxesStereo3D():
     # Smoke test
-    _ = AxesStereo3D(ipd=0.2, focal_plane=0)
+    x = np.linspace(0, 2*np.pi, 100)
+    y = np.sin(x)
+    z = np.cos(x)
+    axstereo = AxesStereo3D()
+    axstereo.scatter(x, y, z)
+    axstereo.scatter(xs=x, ys=y, zs=z)
     assert True
 
 
@@ -31,10 +41,10 @@ def plotting_tests():
     y = radius * np.cos(theta)
     z = radius * np.sin(theta) * np.cos(phi)
     # Make the stereoscopic plots
-    axstereo = AxesStereo2D(focal_plane=-1)
+    axstereo = AxesStereo2D()
     axstereo.scatter(x, y, z, c=z, cmap='viridis', s=10)
 
-    axstereo = AxesStereo3D(z_scale=5, focal_plane=-1)
+    axstereo = AxesStereo3D()
     axstereo.scatter(x, y, z, c=z, cmap='viridis', s=10)
 
 
