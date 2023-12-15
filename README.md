@@ -4,11 +4,11 @@
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/mpl_stereo)
 
 # mpl_stereo
-Matplotlib add-on to make [sterograms](https://en.wikipedia.org/wiki/Stereoscopy).
+Matplotlib add-on to make [stereograms](https://en.wikipedia.org/wiki/Stereoscopy).
 
-Stereograms can significantly enhance the interpretability of 3D data by leveraging human binocular vision. Instead of trying to picture how a flat projection of 3D data on a page would look in real life, stereograms give us "3D glasses" for 2D data just by changing the focus of our eyes.
+Stereograms can significantly enhance the interpretability of 3D data by leveraging human binocular vision. Instead of trying to imagine how the flat projection of 3D data on a page would look in real life, stereograms give us "3D glasses" for 2D data with just our eyes.
 
-It takes some practice to be able to view the stereoscopic effect for the first time, but the effort is well worth it.
+It takes some practice to be able to view the stereoscopic effect for the first time, but the effort is well worth it!
 
 ## Usage
 ### Installation
@@ -28,7 +28,7 @@ z = np.sin(3*t)
 ```
 
 ### 2D plots
-Currently, only a subset of 2D plots are officially supported. See the list by calling `axstereo.known_methods`.
+Currently, only a subset of matplotlib's 2D plots are officially supported. See the list by calling `axstereo.known_methods`.
 ```python
 axstereo = AxesStereo2D()
 axstereo.plot(x, y, z, c='k', alpha=0.2)
@@ -37,9 +37,10 @@ axstereo.scatter(x, y, z, c=z, cmap='viridis', s=10)
 <p float="left" align="center">
 <img width="500" height="250" src="https://raw.githubusercontent.com/scottshambaugh/mpl_stereo/main/docs/trefoil_2d.png">
 </p>
+If you can see view the stereogram properly, you should see the knot weave in and out of the page!
 
 ### 3D plots
-The stereoscopic effect can be made just by rotating the 3D plot, so all 3D plot types are supported.
+The stereoscopic effect in 3D can be made just by rotating the plot view, so all of matplotlib's 3D plot types are supported.
 ```python
 axstereo = AxesStereo2D()
 axstereo.plot(x, y, z, c='k', alpha=0.2)
@@ -51,7 +52,7 @@ axstereo.scatter(x, y, z, c=z, cmap='viridis', s=10)
 
 ## Viewing Stereograms
 
-These are not [*auto*stereograms](https://en.wikipedia.org/wiki/Autostereogram), like the "Magic Eye" books that were popular in the 1990's. However, they use the same viewing technique. Below is ChatGPT's how-to guide, but I'll try to find a better beginner-friendly resource.
+These are not [*auto*stereograms](https://en.wikipedia.org/wiki/Autostereogram), like the "Magic Eye" books that were popular in the 1990's. However, they use the same viewing technique. Below is ChatGPT's how-to guide on viewing these, but I'll try to find a better beginner-friendly resource to put here.
 
 1) **Position the Stereogram**: Place it at arm's length and ensure it's level with your eyes.
 2) **Relax Your Focus**: Look through the image, as if focusing on something distant, rather than the stereogram itself.
