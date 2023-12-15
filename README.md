@@ -6,21 +6,20 @@
 # mpl_stereo
 Matplotlib add-on to make [stereograms](https://en.wikipedia.org/wiki/Stereoscopy).
 
-Stereograms can significantly enhance the interpretability of 3D data by leveraging human binocular vision. Instead of trying to imagine how the flat projection of 3D data on a page would look in real life, stereograms give us "3D glasses" for 2D data with just our eyes.
+Stereograms can significantly enhance the interpretability of 3D data by leveraging human binocular vision. Instead of trying to imagine how the flat projection on a page would look in real life, stereograms give us "3D glasses" for 2D data with just our eyes.
 
 It takes some practice to be able to view the stereoscopic effect for the first time, but the effort is well worth it!
 
 ## Usage
-### Installation
+**Installation**
 ```
 pip install mpl_stereo
 ```
-### Setup
+**Setup**
 ```python
 import numpy as np
 from mpl_stereo import AxesStereo2D, AxesStereo3D
-
-# Generate some data, here a (3,2) trefoil knot
+# Generate some data, we'll make a (3,2) trefoil knot
 t = np.linspace(0, 2*np.pi, 100)
 x = np.cos(2*t) * (3 + np.cos(3*t))
 y = np.sin(2*t) * (3 + np.cos(3*t))
@@ -37,12 +36,14 @@ axstereo.scatter(x, y, z, c=z, cmap='viridis', s=10)
 <p float="left" align="center">
 <img width="500" height="250" src="https://raw.githubusercontent.com/scottshambaugh/mpl_stereo/main/docs/trefoil_2d.png">
 </p>
-If you can see view the stereogram properly, you should see the knot weave in and out of the page!
+When you are viewing the stereogram properly, you should see the knot weave in and out of the page!
+
+*Warning*: Please note that for 2D plots the stereoscopic effect requires shifting data, so the data will *not* necessarily line up with the axis labels! Right now this can be controlled with the `focal_plane` parameter. Calling `AxesStereo2D(focal_plane=-1)` (the default) will ensure that the left axes data is not shifted, whereas `AxesStereo2D(focal_plane=1)` will lock down the right axes data. The tick labels for axes where the data is not aligned will have transparency applied. So in the plot above, the right side labels being lighter gray indicates that you should not trust that data to be positioned correctly, but the left subplot with its black labeling is accurate.
 
 ### 3D plots
 The stereoscopic effect in 3D can be made just by rotating the plot view, so all of matplotlib's 3D plot types are supported.
 ```python
-axstereo = AxesStereo2D()
+axstereo = AxesStereo3D()
 axstereo.plot(x, y, z, c='k', alpha=0.2)
 axstereo.scatter(x, y, z, c=z, cmap='viridis', s=10)
 ```
@@ -62,4 +63,4 @@ These are not [*auto*stereograms](https://en.wikipedia.org/wiki/Autostereogram),
 6) **Practice**: If initially unsuccessful, take breaks and try again. It might require some practice to get used to this method.
 
 ### Parallel vs Cross-Eyed Viewing
-By default, the stereograms are set up for "parallel" viewing method as described above. For "cross-eyed" viewing, initialize with a negative `ipd` "inter-pupilary distance". An ipd of 65 millimeters is the default, so call `AxesStereo2D(ipd=-65)` as a default cross-eyed method.
+By default, the stereograms are set up for "parallel" viewing method as described above. For "cross-eyed" viewing, initialize with a negative `ipd` parameter. An ipd (Inter-Pupilary Distance) of 65 millimeters is the default, so call `AxesStereo2D(ipd=-65)` for the default cross-eyed viewing.

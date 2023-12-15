@@ -96,11 +96,11 @@ class AxesStereo2D(AxesStereo):
         """
         super().__init__(fig=fig, focal_plane=focal_plane, z_scale=z_scale, d=d, ipd=ipd,
                          is_3d=False)
+        self.known_methods = ['plot', 'scatter', 'stem', 'bar']
 
         # Turn on all the axis labels then make semitransparent not accurate at the edges
         self.ax_right.yaxis.set_tick_params(labelleft=True)
         self.set_axlabel_alphas(0.5)
-        self.known_methods = ['plot', 'scatter', 'stem', 'bar']
 
     def __getattr__(self, name: str):
         """
@@ -191,9 +191,10 @@ class AxesStereo3D(AxesStereo):
         """
         super().__init__(fig=fig, focal_plane=focal_plane, z_scale=z_scale, d=d, ipd=ipd,
                          is_3d=True)
-        self.ax_left.sharez(self.ax_right)
         self.known_methods = ['plot', 'scatter', 'stem', 'voxels', 'plot_wireframe',
                               'plot_surface', 'plot_trisurf', 'contour', 'contourf']
+
+        self.ax_left.sharez(self.ax_right)
 
     def __getattr__(self, name: str):
         """

@@ -8,6 +8,7 @@
 - Add on more known 2D plotting functions
 - Flesh out testing of 3D plotting
 - Red/cyan stereograms
+- 3D shareview override
 
 ----
 
