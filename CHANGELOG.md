@@ -22,6 +22,11 @@
 ### Changed    
 ### Removed    
 
+## [0.1.2] - 2023-12-15
+### Added
+* Tests
+### Changed 
+* 2D scatter plots have their z values sorted to not improperly occlude   
 
 ## [0.1.1] - 2023-12-15
 ### Added
