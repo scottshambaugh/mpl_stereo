@@ -53,6 +53,7 @@ class AxesStereo(ABC):
         self.ax_left.sharex(self.ax_right)
         self.ax_left.sharey(self.ax_right)
 
+        self.fig = fig
         self.focal_plane = focal_plane
         self.z_scale = z_scale
         self.d = d
