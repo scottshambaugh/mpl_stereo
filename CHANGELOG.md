@@ -11,7 +11,6 @@
 - Red/cyan anaglyphs
 - 3D take into account roll angle
 - 3D shareview override
-- 3D test ortho view
 - Document derivation of offsets
 - Animated stereogram example
 - GH release publish to pypi

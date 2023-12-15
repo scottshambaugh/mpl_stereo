@@ -21,8 +21,17 @@ def _testdata():
     return data
 
 
+def test_existing_fig():
+    # Smoke tests
+    fig = plt.figure()
+    _ = AxesStereo2D(fig=fig)
+    fig = plt.figure()
+    _ = AxesStereo3D(fig=fig)
+    assert True
+
+
 def test_AxesStereo2D():
-    # Smoke test
+    # Smoke test plotting
     x, y, z = _testdata()['trefoil']
     axstereo = AxesStereo2D()
     for method in axstereo.known_methods:
@@ -30,9 +39,18 @@ def test_AxesStereo2D():
         getattr(axstereo, method)(x=x, y=y, z=z)
     assert True
 
+    # Smoke test focal plane
+    axstereo = AxesStereo2D(focal_plane=1.0)
+    axstereo.plot(x, y, z)
+    assert True
+
+    # Smoke test non-plotting methods
+    axstereo.set_title('title')
+    assert True
+
 
 def test_AxesStereo3D():
-    # Smoke test
+    # Smoke test plotting
     x, y, z = _testdata()['trefoil']
     X, Y, Z = _testdata()['3d_default']
     axstereo = AxesStereo3D()
@@ -47,6 +65,15 @@ def test_AxesStereo3D():
         elif all([keyword in parameters for keyword in ['X', 'Y', 'Z']]):
             getattr(axstereo, method)(X, Y, Z)
             getattr(axstereo, method)(X=X, Y=Y, Z=Z)
+    assert True
+
+    # Smoke test focal plane
+    axstereo = AxesStereo3D(focal_plane=1.0)
+    axstereo.plot(x, y, z)
+    assert True
+
+    # Smoke test non-plotting methods
+    axstereo.set_title('title')
     assert True
 
 
