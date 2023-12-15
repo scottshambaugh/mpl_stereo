@@ -4,7 +4,7 @@ import inspect
 from abc import ABC
 
 class AxesStereo(ABC):
-    def __init__(self, fig=None, focal_plane=-1, ipd=65, is_3d=False):
+    def __init__(self, fig=None, focal_plane=-1, z_scale=2, d=350, ipd=65, is_3d=False):
         """
         - fig : matplotlib.figure.Figure
             The figure object to which these axes belong.
@@ -13,6 +13,10 @@ class AxesStereo(ABC):
             data will float above the plane. A value of 1 means all data will
             float below the plane. A value of 0 puts the focal plane on the
             page.
+        - z_scale : float, optional
+            Scaling factor for the z-data (in millimeters). Default is 2.
+        - d : float, optional
+            Distance from the focal plane to the viewer (in millimeters).
         - ipd : float, optional
             Interpupillary distance (in millimeters). Default is 65. Negative
             values for cross-view.
@@ -36,13 +40,16 @@ class AxesStereo(ABC):
                 self.ax_left = fig.add_subplot(121, projection='3d')
                 self.ax_right = fig.add_subplot(122, projection='3d',
                                                 sharex=self.ax_left, sharey=self.ax_left)
+
         self.focal_plane = focal_plane
+        self.z_scale = z_scale
+        self.d = d
         self.ipd = ipd
         self.is_3d = is_3d
 
 
 class AxesStereo2D(AxesStereo):
-    def __init__(self, fig=None, focal_plane=-1, ipd=65):
+    def __init__(self, fig=None, focal_plane=-1, z_scale=2, d=350, ipd=65):
         """
         - fig : matplotlib.figure.Figure
             The figure object to which these axes belong.
@@ -55,7 +62,8 @@ class AxesStereo2D(AxesStereo):
             Interpupillary distance (in millimeters). Default is 65. Negative
             values for cross-view.
         """
-        super().__init__(fig=fig, focal_plane=focal_plane, ipd=ipd, is_3d=False)
+        super().__init__(fig=fig, focal_plane=focal_plane, z_scale=z_scale, d=d, ipd=ipd,
+                         is_3d=False)
 
     def __getattr__(self, name):
         """
@@ -89,7 +97,8 @@ class AxesStereo2D(AxesStereo):
                 z, *args = args
 
             if (ax_method and x is not None and y is not None and z is not None):
-                offset = z / np.ptp(z) * self.ipd
+                z_scaled = z / np.ptp(z) * self.z_scale
+                offset = self.ipd * z_scaled / (self.d + z_scaled)
                 offset_left = (self.focal_plane + 1)/2 * offset
                 offset_right = (1 - self.focal_plane)/2 * offset
 
@@ -104,7 +113,7 @@ class AxesStereo2D(AxesStereo):
 
 
 class AxesStereo3D(AxesStereo):
-    def __init__(self, fig=None, focal_plane=-1, ipd=65):
+    def __init__(self, fig=None, focal_plane=-1, z_scale=2, d=350, ipd=65):
         """
         - fig : matplotlib.figure.Figure
             The figure object to which these axes belong.
@@ -117,7 +126,8 @@ class AxesStereo3D(AxesStereo):
             Interpupillary distance (in millimeters). Default is 65. Negative
             values for cross-view.
         """
-        super().__init__(fig=fig, focal_plane=focal_plane, ipd=ipd, is_3d=True)
+        super().__init__(fig=fig, focal_plane=focal_plane, z_scale=z_scale, d=d, ipd=ipd,
+                         is_3d=True)
 
 
     def __getattr__(self, name):
@@ -141,7 +151,8 @@ class AxesStereo3D(AxesStereo):
                     is_plottable = True
 
             if (ax_method and is_plottable):
-                offset = 5  # [deg]
+                ang = 90 - np.rad2deg(np.arctan(self.d / self.ipd))
+                offset = ang * self.z_scale / self.ax_left._dist
                 offset_left = (self.focal_plane + 1)/2 * offset
                 offset_right = (1 - self.focal_plane)/2 * offset
 

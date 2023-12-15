@@ -31,10 +31,10 @@ def plotting_tests():
     y = radius * np.cos(theta)
     z = radius * np.sin(theta) * np.cos(phi)
     # Make the stereoscopic plots
-    axstereo = AxesStereo2D(ipd=0.2, focal_plane=0)
+    axstereo = AxesStereo2D(focal_plane=-1)
     axstereo.scatter(x, y, z, c=z, cmap='viridis', s=10)
 
-    axstereo = AxesStereo3D(ipd=0.2, focal_plane=0)
+    axstereo = AxesStereo3D(z_scale=5, focal_plane=-1)
     axstereo.scatter(x, y, z, c=z, cmap='viridis', s=10)
 
 
