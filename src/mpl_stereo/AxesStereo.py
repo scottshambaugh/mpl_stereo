@@ -244,13 +244,13 @@ class AxesStereo2D(AxesStereo):
                                                             self.d, self.ipd)
 
                 # Plot the data twice, once for each subplot
-                getattr(self.ax_left, name)(x + offset_left, y, *args, **kwargs)
-                result = getattr(self.ax_right, name)(x - offset_right, y, *args, **kwargs)
+                res_left = getattr(self.ax_left, name)(x + offset_left, y, *args, **kwargs)
+                res_right = getattr(self.ax_right, name)(x - offset_right, y, *args, **kwargs)
             else:
                 # For methods that don't plot x-y data
-                getattr(self.ax_left, name)(*args_original, **kwargs)
-                result = getattr(self.ax_right, name)(*args_original, **kwargs)
-            return result
+                res_left = getattr(self.ax_left, name)(*args_original, **kwargs)
+                res_right = getattr(self.ax_right, name)(*args_original, **kwargs)
+            return (res_left, res_right)
 
         return method
 
@@ -337,14 +337,14 @@ class AxesStereo3D(AxesStereo):
                 self.ax_right.stereo_offset = offset_right
 
                 # Plot the data twice, once for each subplot
-                getattr(self.ax_left, name)(*args, **kwargs)
-                result = getattr(self.ax_right, name)(*args, **kwargs)
+                res_left = getattr(self.ax_left, name)(*args, **kwargs)
+                res_right = getattr(self.ax_right, name)(*args, **kwargs)
 
             else:
                 # For methods that do not involve 'x' and 'y'
-                getattr(self.ax_left, name)(*args, **kwargs)
-                result = getattr(self.ax_right, name)(*args, **kwargs)
-            return result
+                res_left = getattr(self.ax_left, name)(*args, **kwargs)
+                res_right = getattr(self.ax_right, name)(*args, **kwargs)
+            return (res_left, res_right)
 
         return method
 
@@ -432,12 +432,13 @@ class AxesAnaglyph(AxesStereoBase):
                 self.set_axlabel_colors()
 
                 # Plot the data twice, once for each color
-                getattr(self.ax, name)(x + offset_left, y,
-                                       color=self.colors[1], alpha=self.alpha,
-                                       *args, **kwargs)
-                result = getattr(self.ax, name)(x - offset_right, y,
-                                                color=self.colors[0], alpha=self.alpha,
-                                                *args, **kwargs)
+                res_left = getattr(self.ax, name)(x + offset_left, y,
+                                                  color=self.colors[1], alpha=self.alpha,
+                                                  *args, **kwargs)
+                res_right = getattr(self.ax, name)(x - offset_right, y,
+                                                   color=self.colors[0], alpha=self.alpha,
+                                                   *args, **kwargs)
+                result = (res_left, res_right)
             else:
                 # For methods that don't plot x-y data
                 result = getattr(self.ax, name)(*args_original, **kwargs)

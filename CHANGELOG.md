@@ -20,6 +20,7 @@
 ### Changed    
 * Only apply inaccurate axis label transparency to x axis labels
 * 3D plots now share their view while rotating, with offset applied
+* Everywhere applicable, pass-through methods now return a tuple of (res_left, res_right) for the results from both axes calls
 ### Removed    
 
 
