@@ -78,8 +78,8 @@ def process_args(ax_method: Any, known_methods: list[str], args: Any, kwargs: di
     return x, y, z, args, kwargs
 
 
-def calc_2d_offsets(eye_balance: float, z: np.ndarray, z_scale: float, d: float, ipd: float,
-                    z_zero: Optional[float] = None):
+def calc_2d_offsets(eye_balance: float, z: np.ndarray, d: float, ipd: float,
+                    z_scale: Optional[float] = None, z_zero: Optional[float] = None):
     """
     Calculates the x-offsets for a 2D plot to create a stereoscopic effect
     based on the z-coordinates of the data points.
@@ -90,21 +90,26 @@ def calc_2d_offsets(eye_balance: float, z: np.ndarray, z_scale: float, d: float,
         The eye balance, a value between -1 and 1.
     z : np.ndarray
         An array of z-coordinates for the data points.
-    z_scale : float
-        A scaling factor for the z-data, in millimeters.
     d : float
         The distance from the focal plane to the viewer, in millimeters.
     ipd : float
         The interpupillary distance, in millimeters.
-    z_zero : float, optional
+    z_scale : Optional[float]
+        Scaling factor for the z-data (in x-axis units). If None, then will be
+        set to the range of the plotted z-data.
+    z_zero : Optional[float]
         The z-coordinate of the focal plane. Set to min(z) to have all the data
         float above the page, or set to max(z) to have all the data float sink
         into the page. If None, will be set to the midpoint of the z range.
     """
-    z_midpoint = np.min(z) + np.ptp(z)/2
+    z_range = np.ptp(z)
+    z_midpoint = np.min(z) + z_range/2
     if z_zero is None:
         z_zero = z_midpoint
-    z_scaled = (z + z_midpoint - z_zero) / np.ptp(z) * z_scale
+    if z_scale is None:
+        z_scale = z_range
+
+    z_scaled = (z + z_midpoint - z_zero) / z_range * z_scale
     offset = ipd * z_scaled / (d + z_scaled)
     offset_left = (eye_balance + 1)/2 * offset
     offset_right = (1 - eye_balance)/2 * offset
@@ -150,9 +155,10 @@ def view_init(self, elev=None, azim=None, roll=None, vertical_axis="z",
 class AxesStereoBase(ABC):
     def __init__(self,
                  eye_balance: float = -1,
-                 z_scale: float = 2,
                  d: float = 350,
                  ipd: float = 65,
+                 z_scale: Optional[float] = None,
+                 z_zero: Optional[float] = None,
                  is_3d: bool = False):
         """
         Parameters
@@ -162,20 +168,27 @@ class AxesStereoBase(ABC):
             left plot will have accurate x-axis labels, and a value of 1 means
             the right plot will. For any other value, both plots will have
             inaccurate x-axis labels.
-        z_scale : float
-            Scaling factor for the z-data (in millimeters). Default is 2.
         d : float
             Distance from the focal plane to the viewer (in millimeters).
         ipd : float
             Interpupillary distance (in millimeters). Default is 65. Negative
             values for cross-view.
+        z_scale : Optional[float]
+            Scaling factor for the z-data (in x-axis units) on 2D plots.
+            If None, then will be set to the range of the plotted z-data.
+        z_zero : Optional[float]
+            The z-coordinate of the focal plane for 2D plots. Set to min(z) to
+            have all the data float above the page, or set to max(z) to have
+            all the data sink into the page. If None, will be set to the
+            midpoint of the z range.
         is_3d : bool
             Whether the axes are 3D. Default is False.
         """
         self.eye_balance = eye_balance
-        self.z_scale = z_scale
         self.d = d
         self.ipd = ipd
+        self.z_scale = z_scale
+        self.z_zero = z_zero
         self.is_3d = is_3d
         self.known_methods: list[str] = []
 
@@ -185,9 +198,10 @@ class AxesStereo(AxesStereoBase):
                  fig: Optional[Figure] = None,
                  axs: Optional[tuple[Axes, Axes] | tuple[Axes3D, Axes3D]] = None,
                  eye_balance: float = -1,
-                 z_scale: float = 2,
                  d: float = 350,
                  ipd: float = 65,
+                 z_scale: Optional[float] = None,
+                 z_zero: Optional[float] = None,
                  is_3d: bool = False):
         """
         Parameters
@@ -201,17 +215,24 @@ class AxesStereo(AxesStereoBase):
             left plot will have accurate x-axis labels, and a value of 1 means
             the right plot will. For any other value, both plots will have
             inaccurate x-axis labels.
-        z_scale : float
-            Scaling factor for the z-data (in millimeters). Default is 2.
         d : float
             Distance from the focal plane to the viewer (in millimeters).
         ipd : float
             Interpupillary distance (in millimeters). Default is 65. Negative
             values for cross-view.
+        z_scale : Optional[float]
+            Scaling factor for the z-data (in x-axis units) on 2D plots.
+            If None, then will be set to the range of the plotted z-data.
+        z_zero : Optional[float]
+            The z-coordinate of the focal plane for 2D plots. Set to min(z) to
+            have all the data float above the page, or set to max(z) to have
+            all the data sink into the page. If None, will be set to the
+            midpoint of the z range.
         is_3d : bool
             Whether the axes are 3D. Default is False.
         """
-        super().__init__(eye_balance=eye_balance, z_scale=z_scale, d=d, ipd=ipd, is_3d=is_3d)
+        super().__init__(eye_balance=eye_balance, d=d, ipd=ipd, z_scale=z_scale,
+                         z_zero=z_zero, is_3d=is_3d)
 
         # Generate two side-by-side subplots
         if fig is None and axs is None:
@@ -245,9 +266,10 @@ class AxesStereo2D(AxesStereo):
                  fig: Optional[Figure] = None,
                  axs: Optional[tuple[Axes, Axes]] = None,
                  eye_balance: float = -1,
-                 z_scale: float = 2,
                  d: float = 350,
-                 ipd: float = 65):
+                 ipd: float = 65,
+                 z_scale: Optional[float] = None,
+                 z_zero: Optional[float] = None):
         """
         A class for creating stereoscopic 2D plots.
 
@@ -263,16 +285,22 @@ class AxesStereo2D(AxesStereo):
             the right plot will. For any other value, both plots will have
             inaccurate x-axis labels.
             All inaccurate axis labels will have transparency applied.
-        z_scale : float
-            Scaling factor for the z-data (in millimeters). Default is 2.
         d : float
             Distance from the focal plane to the viewer (in millimeters).
         ipd : float
             Interpupillary distance (in millimeters). Default is 65. Negative
             values for cross-view.
+        z_scale : Optional[float]
+            Scaling factor for the z-data (in x-axis units).
+            If None, then will be set to the range of the plotted z-data.
+        z_zero : Optional[float]
+            The z-coordinate of the focal plane. Set to min(z) to
+            have all the data float above the page, or set to max(z) to have
+            all the data sink into the page. If None, will be set to the
+            midpoint of the z range.
         """
-        super().__init__(fig=fig, axs=axs, eye_balance=eye_balance, z_scale=z_scale,
-                         d=d, ipd=ipd, is_3d=False)
+        super().__init__(fig=fig, axs=axs, eye_balance=eye_balance, d=d, ipd=ipd,
+                         z_scale=z_scale, z_zero=z_zero, is_3d=False)
         self.known_methods = ['plot', 'scatter', 'stem', 'bar']
 
         # Give the innacurate x-axis labels some transparency
@@ -301,12 +329,17 @@ class AxesStereo2D(AxesStereo):
                 if name == 'scatter':
                     x, y, z, kwargs = sort_by_z(x, y, z, kwargs)
 
-                # Extract the z_zero keyword argument if it exists
+                # Extract the z_zero and z_scale keyword arguments if they exist
                 z_zero = kwargs.pop('z_zero', None)
+                if z_zero is None and self.z_zero is not None:
+                    z_zero = self.z_zero
+                z_scale = kwargs.pop('z_scale', None)
+                if z_scale is None and self.z_scale is not None:
+                    z_scale = self.z_scale
 
                 # Calculate the x-offsets
-                offset_left, offset_right = calc_2d_offsets(self.eye_balance, z, self.z_scale,
-                                                            self.d, self.ipd, z_zero=z_zero)
+                offset_left, offset_right = calc_2d_offsets(self.eye_balance, z, self.d, self.ipd,
+                                                            z_scale=z_scale, z_zero=z_zero)
 
                 # Plot the data twice, once for each subplot
                 res_left = getattr(self.ax_left, name)(x + offset_left, y, *args, **kwargs)
@@ -443,9 +476,10 @@ class AxesAnaglyph(AxesStereoBase):
                  fig: Optional[Figure] = None,
                  ax: Optional[Axes] = None,
                  eye_balance: float = -1,
-                 z_scale: float = 2,
                  d: float = 350,
                  ipd: float = 65,
+                 z_scale: Optional[float] = None,
+                 z_zero: Optional[float] = None,
                  colors: list[str] = ['red', 'cyan']):
         """
         A class for creating anaglyph plots, that are viewed with red-cyan
@@ -471,6 +505,14 @@ class AxesAnaglyph(AxesStereoBase):
         ipd : float
             Interpupillary distance (in millimeters). Default is 65. Negative
             values for cross-view.
+        z_scale : Optional[float]
+            Scaling factor for the z-data (in x-axis units).
+            If None, then will be set to the range of the plotted z-data.
+        z_zero : Optional[float]
+            The z-coordinate of the focal plane. Set to min(z) to
+            have all the data float above the page, or set to max(z) to have
+            all the data sink into the page. If None, will be set to the
+            midpoint of the z range.
         colors : list[str]
             Colors for the left and right axes. Default is ['red', 'cyan'].
             The color ordering refers to the left and right glasses lens colors.
@@ -479,7 +521,8 @@ class AxesAnaglyph(AxesStereoBase):
             the left eye has a red lens and sees cyan, and the right eye has a
             cyan lens and sees red.
         """
-        super().__init__(eye_balance=eye_balance, z_scale=z_scale, d=d, ipd=ipd, is_3d=False)
+        super().__init__(eye_balance=eye_balance, d=d, ipd=ipd,
+                         z_scale=z_scale, z_zero=z_zero, is_3d=False)
 
         if fig is None and ax is None:
             self.fig, self.ax = plt.subplots()
@@ -512,11 +555,16 @@ class AxesAnaglyph(AxesStereoBase):
             x, y, z, args, kwargs = process_args(ax_method, self.known_methods, args, kwargs)
 
             if all(var is not None for var in [ax_method, x, y, z]):
-                # Extract the z_zero keyword argument if it exists
+                # Extract the z_zero and z_scale keyword arguments if they exist
                 z_zero = kwargs.pop('z_zero', None)
+                if z_zero is None and self.z_zero is not None:
+                    z_zero = self.z_zero
+                z_scale = kwargs.pop('z_scale', None)
+                if z_scale is None and self.z_scale is not None:
+                    z_scale = self.z_scale
 
-                offset_left, offset_right = calc_2d_offsets(self.eye_balance, z, self.z_scale,
-                                                            self.d, self.ipd, z_zero=z_zero)
+                offset_left, offset_right = calc_2d_offsets(self.eye_balance, z, self.d, self.ipd,
+                                                            z_scale=z_scale, z_zero=z_zero)
                 # Delete any color arguments
                 kwargs.pop('c', None)
                 kwargs.pop('color', None)

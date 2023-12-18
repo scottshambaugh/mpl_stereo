@@ -117,33 +117,20 @@ def test_AxesAnaglyph():
     # Smoke test z_zero
     axstereo = AxesAnaglyph()
     axstereo.plot(x, y, z, z_zero=min(z))
+    axstereo = AxesAnaglyph(z_zero=min(z))
+    axstereo.plot(x, y, z)
+    assert True
+
+    # Smoke test z_scale
+    axstereo = AxesAnaglyph()
+    axstereo.plot(x, y, z, z_scale=np.ptp(z))
+    axstereo = AxesAnaglyph(z_scale=np.ptp(z))
+    axstereo.plot(x, y, z)
     assert True
 
     # Smoke test non-plotting methods
     axstereo.set_title('title')
     assert True
-
-
-def plotting_tests_2d_pairwise_z_zero():
-    # test plot and scatter
-    x, y, z = _testdata()['trefoil']
-    axstereo = AxesAnaglyph()
-    axstereo.plot(x, y, z, c='k', alpha=0.2, z_zero=min(z))
-    axstereo.scatter(x, y, z, c=z, cmap='viridis', s=10, z_zero=min(z))
-    axstereo.grid(True)
-    axstereo.set_title('z_zero=min(z_zero)')
-
-    axstereo = AxesAnaglyph()
-    axstereo.plot(x, y, z, c='k', alpha=0.2, z_zero=None)
-    axstereo.scatter(x, y, z, c=z, cmap='viridis', s=10, z_zero=None)
-    axstereo.grid(True)
-    axstereo.set_title('z_zero=None')
-
-    axstereo = AxesAnaglyph()
-    axstereo.plot(x, y, z, c='k', alpha=0.2, z_zero=max(z))
-    axstereo.scatter(x, y, z, c=z, cmap='viridis', s=10, z_zero=max(z))
-    axstereo.grid(True)
-    axstereo.set_title('z_zero=max(z_zero)')
 
 
 def plotting_tests_2d_pairwise():
@@ -166,6 +153,28 @@ def plotting_tests_2d_pairwise():
     axstereo = AxesStereo2D()
     axstereo.bar(x, y, z, width=1, edgecolor="white", linewidth=0.7)
     axstereo.stem(x, y, z, 'k')
+
+
+def plotting_tests_2d_pairwise_z_zero():
+    # test plot and scatter
+    x, y, z = _testdata()['trefoil']
+    axstereo = AxesAnaglyph(z_zero=min(z))
+    axstereo.plot(x, y, z, c='k', alpha=0.2)
+    axstereo.scatter(x, y, z, c=z, cmap='viridis', s=10)
+    axstereo.grid(True)
+    axstereo.set_title('z_zero=min(z_zero)')
+
+    axstereo = AxesAnaglyph()
+    axstereo.plot(x, y, z, c='k', alpha=0.2, z_zero=None)
+    axstereo.scatter(x, y, z, c=z, cmap='viridis', s=10, z_zero=None)
+    axstereo.grid(True)
+    axstereo.set_title('z_zero=None')
+
+    axstereo = AxesAnaglyph(z_scale=np.ptp(z))
+    axstereo.plot(x, y, z, c='k', alpha=0.2, z_zero=max(z))
+    axstereo.scatter(x, y, z, c=z, cmap='viridis', s=10, z_zero=max(z))
+    axstereo.grid(True)
+    axstereo.set_title('z_zero=max(z_zero)')
 
 
 def plotting_tests_3d():
