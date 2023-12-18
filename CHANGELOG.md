@@ -9,13 +9,13 @@
 - Flesh out testing of 3D plotting
 - 3D take into account roll angle
 - Document derivation of offsets
-- Animated stereogram example
 - GH release publish to pypi
 
 ----
 
 ## [Unreleased]
 ### Added    
+* Animation example
 ### Changed    
 ### Removed    
 

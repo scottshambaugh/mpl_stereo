@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.animation as animation
 import matplotlib.pyplot as plt
 from pathlib import Path
-from mpl_stereo import AxesStereo2D, AxesStereo3D, AxesAnaglyph, calc_2d_offsets
+from mpl_stereo import AxesStereo2D, AxesStereo3D, AxesAnaglyph, calc_2d_offsets, sort_by_z
 
 N_STEPS = 10
 
@@ -60,7 +60,7 @@ def animate_2d_trefoil(savedir):
         return scatter
 
     ani = animation.FuncAnimation(axstereo.fig, animate, frames=np.arange(N_STEPS), interval=20, repeat=False)
-    ani.save(savedir / "trefoil_animation.gif", fps=10, dpi=100)
+    ani.save(savedir / "trefoil_2d_animation.gif", fps=10, dpi=100)
 
 
 def main():

@@ -87,6 +87,13 @@ axstereo.set_xlabel('X Label')
 (line_left, line_right) = axstereo.plot(x, y, z)
 ```
 
+### Animations
+See an example of how to use this with matplotlib animations in [docs/gen_graphics:animate_2d_trefoil](docs/gen_graphics.py).
+<p float="left" align="center">
+<img width="500" height="250" src="https://raw.githubusercontent.com/scottshambaugh/mpl_stereo/main/docs/trefoil_2d_animation.gif">
+</p>
+
+
 ## Viewing Stereograms
 
 These are not [*auto*stereograms](https://en.wikipedia.org/wiki/Autostereogram), like the "Magic Eye" books that were popular in the 1990's. However, they use the same viewing technique. Below is ChatGPT's how-to guide on viewing these, but I'll try to find a better beginner-friendly resource to put here.
