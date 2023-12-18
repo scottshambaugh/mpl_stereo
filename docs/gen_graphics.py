@@ -59,7 +59,7 @@ def animate_2d_trefoil(savedir):
             scat.set_facecolor(cmap(z))
         return scatter
 
-    ani = animation.FuncAnimation(axstereo.fig, animate, frames=np.arange(1, N_STEPS), interval=20, repeat=False)
+    ani = animation.FuncAnimation(axstereo.fig, animate, frames=np.arange(N_STEPS), interval=20, repeat=False)
     ani.save(savedir / "trefoil_animation.gif", fps=10, dpi=100)
 
 
