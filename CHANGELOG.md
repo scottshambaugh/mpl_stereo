@@ -2,14 +2,12 @@
 
 ## Future Work
 ### Features & Maintenance:
-- Better docs
 - Better beginner instructions
 - Figure out axis labels floating at midpoint and not being anchored to page (test grid)
 - Double check calcs for z_scale
 - Add on more known 2D plotting functions
 - Flesh out testing of 3D plotting
 - 3D take into account roll angle
-- 3D shareview override
 - Document derivation of offsets
 - Animated stereogram example
 - GH release publish to pypi
@@ -21,6 +19,7 @@
 * AxesAnaglyph for red-cyan anaglyphs
 ### Changed    
 * Only apply inaccurate axis label transparency to x axis labels
+* 3D plots now share their view while rotating, with offset applied
 ### Removed    
 
 

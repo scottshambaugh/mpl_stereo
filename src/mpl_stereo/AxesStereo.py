@@ -4,6 +4,8 @@ import inspect
 
 from abc import ABC
 from typing import Optional, Any
+from types import MethodType
+from matplotlib import _api
 from matplotlib.figure import Figure
 
 ## Functions
@@ -56,6 +58,41 @@ def calc_2d_offsets(focal_plane: float, z: np.ndarray, z_scale: float, d: float,
     offset_left = (focal_plane + 1)/2 * offset
     offset_right = (1 - focal_plane)/2 * offset
     return offset_left, offset_right
+
+
+def view_init(self, elev=None, azim=None, roll=None, vertical_axis="z",
+              share=False):
+    """
+    Overrides the Axes3D.view_init method to link the views of the left and
+    right 3D axes while maintaining the correct offset. See that method's
+    documentation for more information.
+    """
+
+    self._dist = 10  # The camera distance from origin. Behaves like zoom
+
+    if elev is None:
+        elev = self.initial_elev
+    if azim is None:
+        azim = self.initial_azim
+    if roll is None:
+        roll = self.initial_roll
+    vertical_axis = _api.check_getitem(
+        dict(x=0, y=1, z=2), vertical_axis=vertical_axis
+    )
+
+    if share:
+        axes = {sibling for sibling
+                in self._shared_axes['view'].get_siblings(self)}
+    else:
+        axes = [self]
+
+    for ax in axes:
+        ax.elev = elev
+        ax.azim = azim
+        ax.roll = roll
+        if hasattr(ax, "stereo_offset") and hasattr(self, "stereo_offset") and ax is not self:
+            ax.azim += (ax.stereo_offset - self.stereo_offset)
+        ax._vertical_axis = vertical_axis
 
 
 ## Classes
@@ -138,9 +175,10 @@ class AxesStereo(AxesStereoBase):
                 self.ax_left = fig.add_subplot(121, projection='3d')
                 self.ax_right = fig.add_subplot(122, projection='3d')
 
-        self.fig = fig
         self.ax_left.sharex(self.ax_right)
         self.ax_left.sharey(self.ax_right)
+
+        self.fig = fig
         self.axs = (self.ax_left, self.ax_right)
 
 
@@ -263,6 +301,12 @@ class AxesStereo3D(AxesStereo):
 
         self.ax_left.sharez(self.ax_right)
 
+        # Override the view_init method to link the views of the left and right
+        # 3D axes while maintaining the correct offset
+        self.ax_left.shareview(self.ax_right)
+        self.ax_left.view_init = MethodType(view_init, self.ax_left)
+        self.ax_right.view_init = MethodType(view_init, self.ax_right)
+
     def __getattr__(self, name: str):
         """
         Delegate method calls to the left and right axes if the method is not
@@ -287,15 +331,10 @@ class AxesStereo3D(AxesStereo):
                 offset_left, offset_right = self.calc_3d_offsets()
 
                 # Set the views for both subplots
-                azim_init = self.ax_left.azim
-                elev_init = self.ax_left.elev
-                roll_init = self.ax_left.roll
-                self.ax_left.view_init(elev=elev_init,
-                                       azim=azim_init - offset_left,
-                                       roll=roll_init)
-                self.ax_right.view_init(elev=elev_init,
-                                        azim=azim_init + offset_right,
-                                        roll=roll_init)
+                self.ax_left.view_init(azim=self.ax_left.azim - offset_left)
+                self.ax_right.view_init(azim=self.ax_right.azim + offset_right)
+                self.ax_left.stereo_offset = -offset_left
+                self.ax_right.stereo_offset = offset_right
 
                 # Plot the data twice, once for each subplot
                 getattr(self.ax_left, name)(*args, **kwargs)
