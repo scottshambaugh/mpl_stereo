@@ -69,19 +69,19 @@ class AxesStereoBase(ABC):
         """
         Parameters
         ----------
-        - focal_plane : float, optional
+        - focal_plane : float
             Location of the focal plane, from -1 to 1. A value of -1 means all
             data will float above the plane. A value of 1 means all data will
             float below the plane. A value of 0 puts the focal plane on the
             page.
-        - z_scale : float, optional
+        - z_scale : float
             Scaling factor for the z-data (in millimeters). Default is 2.
-        - d : float, optional
+        - d : float
             Distance from the focal plane to the viewer (in millimeters).
-        - ipd : float, optional
+        - ipd : float
             Interpupillary distance (in millimeters). Default is 65. Negative
             values for cross-view.
-        - is_3d : bool, optional
+        - is_3d : bool
             Whether the axes are 3D. Default is False.
         """
         self.focal_plane = focal_plane
@@ -103,21 +103,21 @@ class AxesStereo(AxesStereoBase):
         """
         Parameters
         ----------
-        - fig : matplotlib.figure.Figure
+        - fig : matplotlib.figure.Figure, optional
             The figure object to which these axes belong.
-        - focal_plane : float, optional
+        - focal_plane : float
             Location of the focal plane, from -1 to 1. A value of -1 means all
             data will float above the plane. A value of 1 means all data will
             float below the plane. A value of 0 puts the focal plane on the
             page.
-        - z_scale : float, optional
+        - z_scale : float
             Scaling factor for the z-data (in millimeters). Default is 2.
-        - d : float, optional
+        - d : float
             Distance from the focal plane to the viewer (in millimeters).
-        - ipd : float, optional
+        - ipd : float
             Interpupillary distance (in millimeters). Default is 65. Negative
             values for cross-view.
-        - is_3d : bool, optional
+        - is_3d : bool
             Whether the axes are 3D. Default is False.
         """
         super().__init__(focal_plane=focal_plane, z_scale=z_scale, d=d, ipd=ipd, is_3d=is_3d)
@@ -155,9 +155,9 @@ class AxesStereo2D(AxesStereo):
 
         Parameters
         ----------
-        - fig : matplotlib.figure.Figure
+        - fig : matplotlib.figure.Figure, optional
             The figure object to which these axes belong.
-        - focal_plane : float, optional
+        - focal_plane : float
             Location of the focal plane, from -1 to 1.
             A value of -1 means all data will float above the plane,
             and only the left axis labels are accurate. (The right labels will
@@ -167,11 +167,11 @@ class AxesStereo2D(AxesStereo):
             have transparancy applied)
             A value of 0 puts the focal plane on the page and neither axes'
             labels are accurate. (Both will have transparancy applied)
-        - z_scale : float, optional
+        - z_scale : float
             Scaling factor for the z-data (in millimeters). Default is 2.
-        - d : float, optional
+        - d : float
             Distance from the focal plane to the viewer (in millimeters).
-        - ipd : float, optional
+        - ipd : float
             Interpupillary distance (in millimeters). Default is 65. Negative
             values for cross-view.
         """
@@ -200,19 +200,27 @@ class AxesStereo2D(AxesStereo):
                 # for scatter plots, sort the data by z to not occlude improperly
                 if name == 'scatter':
                     x, y, z, kwargs = sort_by_z(x, y, z, kwargs)
+
+                # Calculate the x-offsets
                 offset_left, offset_right = calc_2d_offsets(self.focal_plane, z, self.z_scale,
                                                             self.d, self.ipd)
 
+                # Plot the data twice, once for each subplot
                 getattr(self.ax_left, name)(x + offset_left, y, *args, **kwargs)
-                return getattr(self.ax_right, name)(x - offset_right, y, *args, **kwargs)
+                result = getattr(self.ax_right, name)(x - offset_right, y, *args, **kwargs)
             else:
                 # For methods that don't plot x-y data
                 getattr(self.ax_left, name)(*args_original, **kwargs)
-                return getattr(self.ax_right, name)(*args_original, **kwargs)
+                result = getattr(self.ax_right, name)(*args_original, **kwargs)
+            return result
 
         return method
 
     def set_axlabel_alphas(self, alpha: float):
+        """
+        For axis labels that are not accurate to the plotted data, set their
+        alpha to a value less than 1.
+        """
         if self.focal_plane != -1:
             for label in self.ax_left.get_xticklabels():
                 label.set_alpha(alpha)
@@ -223,6 +231,7 @@ class AxesStereo2D(AxesStereo):
                 label.set_alpha(alpha)
             for label in self.ax_right.get_yticklabels():
                 label.set_alpha(alpha)
+
 
 class AxesStereo3D(AxesStereo):
     def __init__(self,
@@ -236,18 +245,18 @@ class AxesStereo3D(AxesStereo):
 
         Parameters
         ----------
-        - fig : matplotlib.figure.Figure
+        - fig : matplotlib.figure.Figure, optional
             The figure object to which these axes belong.
-        - focal_plane : float, optional
+        - focal_plane : float
             Location of the focal plane, from -1 to 1.
             A value of -1 means all data will float above the plane.
             A value of 1 means all data will float below the plane.
             A value of 0 puts the focal plane on the page.
-        - z_scale : float, optional
+        - z_scale : float
             Scaling factor for the z-data (in millimeters). Default is 2.
-        - d : float, optional
+        - d : float
             Distance from the focal plane to the viewer (in millimeters).
-        - ipd : float, optional
+        - ipd : float
             Interpupillary distance (in millimeters). Default is 65. Negative
             values for cross-view.
         """
@@ -284,6 +293,7 @@ class AxesStereo3D(AxesStereo):
                 offset_left = (self.focal_plane + 1)/2 * offset
                 offset_right = (1 - self.focal_plane)/2 * offset
 
+                # Set the views for both subplots
                 azim_init = self.ax_left.azim
                 elev_init = self.ax_left.elev
                 roll_init = self.ax_left.roll
