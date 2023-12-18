@@ -3,7 +3,7 @@ import numpy as np
 import inspect
 
 from abc import ABC
-from typing import Optional, Any
+from typing import Optional, Union, Any
 from types import MethodType
 from matplotlib import _api
 from matplotlib.axes import Axes
@@ -196,7 +196,7 @@ class AxesStereoBase(ABC):
 class AxesStereo(AxesStereoBase):
     def __init__(self,
                  fig: Optional[Figure] = None,
-                 axs: Optional[tuple[Axes, Axes] | tuple[Axes3D, Axes3D]] = None,
+                 axs: Optional[Union[tuple[Axes, Axes], tuple[Axes3D, Axes3D]]] = None,
                  eye_balance: float = -1,
                  d: float = 350,
                  ipd: float = 65,
