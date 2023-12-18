@@ -53,13 +53,21 @@ axstereo.scatter(x, y, z, c=z, cmap='viridis', s=10)
 </p>
 
 ### Working With Plots
-Calling any method on an `AxesStereo2D` or `AxesStereo3D` object will pass that method call onto both of the left and right subplot axes. In the 2D case, the plotting methods which take in `x` and `y` arguments are intercepted and the additional `z` data is processed to obtain appropriate horizontal offsets.
-
 The figure and two subplot axes can be accessed with the following:
 ```python
 axstereo.fig
-axstereo.ax_left
-axstereo.ax_right
+axstereo.axs  # (ax_left, ax_right)
+```
+
+Calling any method on an `AxesStereo2D` or `AxesStereo3D` object will pass that method call onto both the left and right subplot axes. In the 2D case, the plotting methods which take in `x` and `y` arguments are intercepted and the additional `z` data is processed to obtain appropriate horizontal offsets.
+
+```python
+# For example, instead of:
+for ax in axstereo.axs:
+    ax.set_xlabel('X Label')
+
+# You can do the equivalent:
+axstereo.set_xlabel('X Label')
 ```
 
 ## Viewing Stereograms
