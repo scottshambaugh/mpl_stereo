@@ -19,8 +19,10 @@
 
 ## [Unreleased]
 ### Added    
+* AxesAnaglyph for red-cyan anaglyphs
 ### Changed    
 ### Removed    
+
 
 ## [0.1.2] - 2023-12-15
 ### Added

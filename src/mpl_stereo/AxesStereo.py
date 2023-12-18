@@ -288,10 +288,7 @@ class AxesStereo3D(AxesStereo):
                     is_plottable = True
 
             if (ax_method and is_plottable):
-                ang = 90 - np.rad2deg(np.arctan(self.d / self.ipd))
-                offset = ang * self.z_scale / self.ax_left._dist
-                offset_left = (self.focal_plane + 1)/2 * offset
-                offset_right = (1 - self.focal_plane)/2 * offset
+                offset_left, offset_right = self.calc_3d_offsets()
 
                 # Set the views for both subplots
                 azim_init = self.ax_left.azim
@@ -304,12 +301,24 @@ class AxesStereo3D(AxesStereo):
                                         azim=azim_init + offset_right,
                                         roll=roll_init)
 
+                # Plot the data twice, once for each subplot
                 getattr(self.ax_left, name)(*args, **kwargs)
-                return getattr(self.ax_right, name)(*args, **kwargs)
+                result = getattr(self.ax_right, name)(*args, **kwargs)
 
             else:
                 # For methods that do not involve 'x' and 'y'
                 getattr(self.ax_left, name)(*args, **kwargs)
-                return getattr(self.ax_right, name)(*args, **kwargs)
+                result = getattr(self.ax_right, name)(*args, **kwargs)
+            return result
 
         return method
+
+    def calc_3d_offsets(self):
+        """
+        Calculate the angular view offsets for a 3D plot
+        """
+        ang = 90 - np.rad2deg(np.arctan(self.d / self.ipd))
+        offset = ang * self.z_scale / self.ax_left._dist
+        offset_left = (self.focal_plane + 1)/2 * offset
+        offset_right = (1 - self.focal_plane)/2 * offset
+        return offset_left, offset_right
