@@ -16,13 +16,17 @@
 
 ## [Unreleased]
 ### Added    
+### Changed    
+### Removed    
+
+## [0.2.0] - 2023-12-17
+### Added    
 * AxesAnaglyph for red-cyan anaglyphs
+* Publishing instructions
 ### Changed    
 * Only apply inaccurate axis label transparency to x axis labels
 * 3D plots now share their view while rotating, with offset applied
 * Everywhere applicable, pass-through methods now return a tuple of (res_left, res_right) for the results from both axes calls
-### Removed    
-
 
 ## [0.1.2] - 2023-12-15
 ### Added

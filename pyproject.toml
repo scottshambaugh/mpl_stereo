@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "mpl_stereo"
-version = "0.1.2"
+version = "0.2.0"
 description = "See your matplotlib plots in 3D by making stereograms"
 authors = ["Scott Shambaugh <scottshambaugh@users.noreply.github.com>"]
 license = "MIT"
