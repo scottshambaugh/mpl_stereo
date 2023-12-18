@@ -375,7 +375,6 @@ class AxesStereo3D(AxesStereo):
                  fig: Optional[Figure] = None,
                  axs: Optional[tuple[Axes3D, Axes3D]] = None,
                  eye_balance: float = -1,
-                 z_scale: float = 2,
                  d: float = 350,
                  ipd: float = 65):
         """
@@ -393,16 +392,14 @@ class AxesStereo3D(AxesStereo):
             left plot will have accurate x-axis labels, and a value of 1 means
             the right plot will. For any other value, both plots will have
             inaccurate x-axis labels.
-        z_scale : float
-            Scaling factor for the z-data (in millimeters). Default is 2.
         d : float
             Distance from the focal plane to the viewer (in millimeters).
         ipd : float
             Interpupillary distance (in millimeters). Default is 65. Negative
             values for cross-view.
         """
-        super().__init__(fig=fig, axs=axs, eye_balance=eye_balance, z_scale=z_scale,
-                         d=d, ipd=ipd, is_3d=True)
+        super().__init__(fig=fig, axs=axs, eye_balance=eye_balance, d=d, ipd=ipd,
+                         z_scale=None, z_zero=None, is_3d=True)
         self.known_methods = ['plot', 'scatter', 'stem', 'voxels', 'plot_wireframe',
                               'plot_surface', 'plot_trisurf', 'contour', 'contourf']
 
@@ -464,8 +461,8 @@ class AxesStereo3D(AxesStereo):
         """
         Calculate the angular view offsets for a 3D plot
         """
-        ang = 90 - np.rad2deg(np.arctan(self.d / self.ipd))
-        offset = ang * self.z_scale / self.ax_left._dist
+        ang = 90 - np.rad2deg(np.arctan(2 * self.d / self.ipd))
+        offset = ang / 2
         offset_left = (self.eye_balance + 1)/2 * offset
         offset_right = (1 - self.eye_balance)/2 * offset
         return offset_left, offset_right
