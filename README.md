@@ -52,7 +52,7 @@ axstereo.scatter(x, y, z, c=z, cmap='viridis', s=10)
 <img width="500" height="250" src="https://raw.githubusercontent.com/scottshambaugh/mpl_stereo/main/docs/trefoil_3d.png">
 </p>
 
-### Anaglyphs
+### Red-Cyan Anaglyphs
 Some 2D plots can also be made into anaglyphs, which are stereograms that can be viewed with red-cyan 3D glasses. While this allows for seeing the stereoscopic effect without training your eyes, it also means that the data cannot be otherwise colored.
 
 The same warning as for the 2D stereo plots about shifting data applies here as well. If `focal_plane` is -1 or +1 such that the data for one of the colors is not shifted, then that color will be applied to the x-axis tick labels to show that they are accurate.
@@ -76,7 +76,7 @@ axstereo.ax  # for AxesAnaglyph
 Calling any method on `axstereo` will pass that method call onto all the subplot axes. In the 2D cases, the plotting methods which take in `x` and `y` arguments are intercepted and the additional `z` data is processed to obtain appropriate horizontal offsets.
 
 ```python
-# For example, instead of:
+# For example instead of:
 for ax in axstereo.axs:
     ax.set_xlabel('X Label')
 
