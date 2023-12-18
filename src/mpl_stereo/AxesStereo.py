@@ -9,10 +9,27 @@ from matplotlib import _api
 from matplotlib.figure import Figure
 
 ## Functions
-def sort_by_z(x: np.ndarray, y: np.ndarray, z: np.ndarray, kwargs: dict[str, Any]):
+def sort_by_z(x: np.ndarray, y: np.ndarray, z: np.ndarray, kwargs: dict[str, Any] = None):
     """
-    Sort the data by z to not occlude improperly
+    Sorts the provided data arrays based on the z values, to avoid improper
+    occlusion in visualizations.
+
+    Parameters
+    ----------
+    x : np.ndarray
+        An array of x-coordinates for the data points.
+    y : np.ndarray
+        An array of y-coordinates for the data points.
+    z : np.ndarray
+        An array of z-coordinates for the data points. 
+        Data will be sorted based on these values.
+    kwargs : dict[str, Any], optional
+        A dictionary of additional keyword arguments. 
+        If it contains a 'c' key with an array of the same shape as z, 
+        this array will also be sorted alongside x, y, and z.
     """
+    if kwargs is None:
+        kwargs = dict()
     sort_idx = np.argsort(z)
     x = x[sort_idx]
     y = y[sort_idx]
@@ -28,6 +45,17 @@ def process_args(ax_method: Any, known_methods: list[str], args: Any, kwargs: di
     """
     Process the arguments to a method call to determine if the method is
     plotting x-y data and if there is a z argument or keyword argument.
+
+    Parameters
+    ----------
+    ax_method : Any
+        The matplotlib axes method for which the arguments are being processed.
+    known_methods : list[str]
+        A list of method names that are known to plot x-y data.
+    args : Any
+        The positional arguments passed to the ax_method.
+    kwargs : dict[str, Any]
+        The keyword arguments passed to the ax_method.
     """
     x = y = z = None
     parameters = inspect.signature(ax_method).parameters
@@ -51,7 +79,21 @@ def process_args(ax_method: Any, known_methods: list[str], args: Any, kwargs: di
 
 def calc_2d_offsets(focal_plane: float, z: np.ndarray, z_scale: float, d: float, ipd: float):
     """
-    Calculate the x-offsets for a 2D plot
+    Calculates the x-offsets for a 2D plot to create a stereoscopic effect 
+    based on the z-coordinates of the data points.
+
+    Parameters
+    ----------
+    focal_plane : float
+        The location of the focal plane, a value between -1 and 1.
+    z : np.ndarray
+        An array of z-coordinates for the data points.
+    z_scale : float
+        A scaling factor for the z-data, in millimeters.
+    d : float
+        The distance from the focal plane to the viewer, in millimeters.
+    ipd : float
+        The interpupillary distance, in millimeters.
     """
     z_scaled = z / np.ptp(z) * z_scale
     offset = ipd * z_scaled / (d + z_scaled)
@@ -106,19 +148,19 @@ class AxesStereoBase(ABC):
         """
         Parameters
         ----------
-        - focal_plane : float
+        focal_plane : float
             Location of the focal plane, from -1 to 1. A value of -1 means all
             data will float above the plane. A value of 1 means all data will
             float below the plane. A value of 0 puts the focal plane on the
             page.
-        - z_scale : float
+        z_scale : float
             Scaling factor for the z-data (in millimeters). Default is 2.
-        - d : float
+        d : float
             Distance from the focal plane to the viewer (in millimeters).
-        - ipd : float
+        ipd : float
             Interpupillary distance (in millimeters). Default is 65. Negative
             values for cross-view.
-        - is_3d : bool
+        is_3d : bool
             Whether the axes are 3D. Default is False.
         """
         self.focal_plane = focal_plane
@@ -140,21 +182,21 @@ class AxesStereo(AxesStereoBase):
         """
         Parameters
         ----------
-        - fig : matplotlib.figure.Figure, optional
+        fig : matplotlib.figure.Figure, optional
             The figure object to which these axes belong.
-        - focal_plane : float
+        focal_plane : float
             Location of the focal plane, from -1 to 1. A value of -1 means all
             data will float above the plane. A value of 1 means all data will
             float below the plane. A value of 0 puts the focal plane on the
             page.
-        - z_scale : float
+        z_scale : float
             Scaling factor for the z-data (in millimeters). Default is 2.
-        - d : float
+        d : float
             Distance from the focal plane to the viewer (in millimeters).
-        - ipd : float
+        ipd : float
             Interpupillary distance (in millimeters). Default is 65. Negative
             values for cross-view.
-        - is_3d : bool
+        is_3d : bool
             Whether the axes are 3D. Default is False.
         """
         super().__init__(focal_plane=focal_plane, z_scale=z_scale, d=d, ipd=ipd, is_3d=is_3d)
@@ -194,9 +236,9 @@ class AxesStereo2D(AxesStereo):
 
         Parameters
         ----------
-        - fig : matplotlib.figure.Figure, optional
+        fig : matplotlib.figure.Figure, optional
             The figure object to which these axes belong.
-        - focal_plane : float
+        focal_plane : float
             Location of the focal plane, from -1 to 1.
             A value of -1 means all data will float above the plane,
             and only the left axis labels are accurate. (The right labels will
@@ -206,11 +248,11 @@ class AxesStereo2D(AxesStereo):
             have transparancy applied)
             A value of 0 puts the focal plane on the page and neither axes'
             labels are accurate. (Both will have transparancy applied)
-        - z_scale : float
+        z_scale : float
             Scaling factor for the z-data (in millimeters). Default is 2.
-        - d : float
+        d : float
             Distance from the focal plane to the viewer (in millimeters).
-        - ipd : float
+        ipd : float
             Interpupillary distance (in millimeters). Default is 65. Negative
             values for cross-view.
         """
@@ -228,6 +270,11 @@ class AxesStereo2D(AxesStereo):
         either there is a third argument or 'z' is a keyword argument, then the
         z data will be used to offset the x data for the left and right axes
         and create the stereoscopic effect.
+
+        Parameters
+        ----------
+        name : str
+            The name of the attribute.
         """
         def method(*args, **kwargs):
             ax_method = getattr(self.ax_left, name, None)
@@ -258,6 +305,11 @@ class AxesStereo2D(AxesStereo):
         """
         For axis labels that are not accurate to the plotted data, set their
         alpha to a value less than 1.
+
+        Parameters
+        ----------
+        alpha : float
+            Alpha value for the inaccurate axis labels.
         """
         if self.focal_plane != -1:
             for label in self.ax_left.get_xticklabels():
@@ -279,18 +331,18 @@ class AxesStereo3D(AxesStereo):
 
         Parameters
         ----------
-        - fig : matplotlib.figure.Figure, optional
+        fig : matplotlib.figure.Figure, optional
             The figure object to which these axes belong.
-        - focal_plane : float
+        focal_plane : float
             Location of the focal plane, from -1 to 1.
             A value of -1 means all data will float above the plane.
             A value of 1 means all data will float below the plane.
             A value of 0 puts the focal plane on the page.
-        - z_scale : float
+        z_scale : float
             Scaling factor for the z-data (in millimeters). Default is 2.
-        - d : float
+        d : float
             Distance from the focal plane to the viewer (in millimeters).
-        - ipd : float
+        ipd : float
             Interpupillary distance (in millimeters). Default is 65. Negative
             values for cross-view.
         """
@@ -314,6 +366,11 @@ class AxesStereo3D(AxesStereo):
         either there is a third argument or 'z' is a keyword argument, then the
         z data will be used to offset the x data for the left and right axes
         and create the stereoscopic effect.
+
+        Parameters
+        ----------
+        name : str
+            The name of the attribute.
         """
 
         def method(*args, **kwargs):
@@ -374,21 +431,21 @@ class AxesAnaglyph(AxesStereoBase):
 
         Parameters
         ----------
-        - fig : matplotlib.figure.Figure, optional
+        fig : matplotlib.figure.Figure, optional
             The figure object to which these axes belong.
-        - focal_plane : float
+        focal_plane : float
             Location of the focal plane, from -1 to 1. A value of -1 means all
             data will float above the plane. A value of 1 means all data will
             float below the plane. A value of 0 puts the focal plane on the
             page.
-        - z_scale : float
+        z_scale : float
             Scaling factor for the z-data (in millimeters). Default is 2.
-        - d : float
+        d : float
             Distance from the focal plane to the viewer (in millimeters).
-        - ipd : float
+        ipd : float
             Interpupillary distance (in millimeters). Default is 65. Negative
             values for cross-view.
-        - colors : list[str]
+        colors : list[str]
             Colors for the left and right axes. Default is ['red', 'cyan'].
             The color ordering refers to the left and right glasses lens colors.
             Because that color prevents that eye from seeing that color data,
@@ -413,6 +470,11 @@ class AxesAnaglyph(AxesStereoBase):
         arguments, and either there is a third argument or 'z' is a keyword
         argument, then the z data will be used to offset the x data for the two
         colors and create the stereoscopic effect.
+
+        Parameters
+        ----------
+        name : str
+            The name of the attribute.
         """
         def method(*args, **kwargs):
             ax_method = getattr(self.ax, name, None)
