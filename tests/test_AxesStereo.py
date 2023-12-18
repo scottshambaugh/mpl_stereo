@@ -87,14 +87,14 @@ def test_AxesStereo3D():
 def test_AxesAnaglyph():
     # Smoke test plotting
     x, y, z = _testdata()['trefoil']
-    axanaglyph = AxesAnaglyph()
-    for method in axanaglyph.known_methods:
-        getattr(axanaglyph, method)(x, y, z)
-        getattr(axanaglyph, method)(x=x, y=y, z=z)
+    axstereo = AxesAnaglyph()
+    for method in axstereo.known_methods:
+        getattr(axstereo, method)(x, y, z)
+        getattr(axstereo, method)(x=x, y=y, z=z)
     assert True
 
     # Smoke test non-plotting methods
-    axanaglyph.set_title('title')
+    axstereo.set_title('title')
     assert True
 
 

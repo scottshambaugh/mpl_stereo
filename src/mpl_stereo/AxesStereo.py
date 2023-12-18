@@ -138,6 +138,7 @@ class AxesStereo(AxesStereoBase):
                 self.ax_left = fig.add_subplot(121, projection='3d')
                 self.ax_right = fig.add_subplot(122, projection='3d')
 
+        self.fig = fig
         self.ax_left.sharex(self.ax_right)
         self.ax_left.sharey(self.ax_right)
         self.axs = (self.ax_left, self.ax_right)
@@ -364,7 +365,7 @@ class AxesAnaglyph(AxesStereoBase):
         super().__init__(focal_plane=focal_plane, z_scale=z_scale, d=d, ipd=ipd, is_3d=False)
 
         if fig is None:
-            fig, self.ax = plt.subplots()
+            self.fig, self.ax = plt.subplots()
         else:
             self.ax = fig.add_subplot(111)
 
