@@ -6,7 +6,10 @@ from abc import ABC
 from typing import Optional, Any
 from types import MethodType
 from matplotlib import _api
+from matplotlib.axes import Axes
 from matplotlib.figure import Figure
+from mpl_toolkits.mplot3d.axes3d import Axes3D
+
 
 ## Functions
 def sort_by_z(x: np.ndarray, y: np.ndarray, z: np.ndarray, kwargs: dict[str, Any]):
@@ -21,11 +24,11 @@ def sort_by_z(x: np.ndarray, y: np.ndarray, z: np.ndarray, kwargs: dict[str, Any
     y : np.ndarray
         An array of y-coordinates for the data points.
     z : np.ndarray
-        An array of z-coordinates for the data points. 
+        An array of z-coordinates for the data points.
         Data will be sorted based on these values.
     kwargs : dict[str, Any], optional
-        A dictionary of additional keyword arguments. 
-        If it contains a 'c' key with an array of the same shape as z, 
+        A dictionary of additional keyword arguments.
+        If it contains a 'c' key with an array of the same shape as z,
         this array will also be sorted alongside x, y, and z.
     """
     sort_idx = np.argsort(z)
@@ -77,7 +80,7 @@ def process_args(ax_method: Any, known_methods: list[str], args: Any, kwargs: di
 
 def calc_2d_offsets(focal_plane: float, z: np.ndarray, z_scale: float, d: float, ipd: float):
     """
-    Calculates the x-offsets for a 2D plot to create a stereoscopic effect 
+    Calculates the x-offsets for a 2D plot to create a stereoscopic effect
     based on the z-coordinates of the data points.
 
     Parameters
@@ -172,6 +175,7 @@ class AxesStereoBase(ABC):
 class AxesStereo(AxesStereoBase):
     def __init__(self,
                  fig: Optional[Figure] = None,
+                 axs: Optional[tuple[Axes, Axes] | tuple[Axes3D, Axes3D]] = None,
                  focal_plane: float = -1,
                  z_scale: float = 2,
                  d: float = 350,
@@ -181,7 +185,9 @@ class AxesStereo(AxesStereoBase):
         Parameters
         ----------
         fig : matplotlib.figure.Figure, optional
-            The figure object to which these axes belong.
+            The figure object to plot on.
+        axs : tuple[matplotlib.axes.Axes, matplotlib.axes.Axes], optional
+            The axes objects to plot on (ax_left, ax_right).
         focal_plane : float
             Location of the focal plane, from -1 to 1. A value of -1 means all
             data will float above the plane. A value of 1 means all data will
@@ -200,20 +206,24 @@ class AxesStereo(AxesStereoBase):
         super().__init__(focal_plane=focal_plane, z_scale=z_scale, d=d, ipd=ipd, is_3d=is_3d)
 
         # Generate two side-by-side subplots
-        if fig is None:
+        if fig is None and axs is None:
             if not is_3d:
                 fig, axs = plt.subplots(1, 2)
             else:
                 fig, axs = plt.subplots(1, 2, subplot_kw={'projection': '3d'})
             self.ax_left = axs[0]
             self.ax_right = axs[1]
-        else:
+        elif axs is None:
             if not is_3d:
                 self.ax_left = fig.add_subplot(121)
                 self.ax_right = fig.add_subplot(122)
             else:
                 self.ax_left = fig.add_subplot(121, projection='3d')
                 self.ax_right = fig.add_subplot(122, projection='3d')
+        else:
+            fig = axs[0].figure
+            self.ax_left = axs[0]
+            self.ax_right = axs[1]
 
         self.ax_left.sharex(self.ax_right)
         self.ax_left.sharey(self.ax_right)
@@ -225,6 +235,7 @@ class AxesStereo(AxesStereoBase):
 class AxesStereo2D(AxesStereo):
     def __init__(self,
                  fig: Optional[Figure] = None,
+                 axs: Optional[tuple[Axes, Axes]] = None,
                  focal_plane: float = -1,
                  z_scale: float = 2,
                  d: float = 350,
@@ -235,7 +246,9 @@ class AxesStereo2D(AxesStereo):
         Parameters
         ----------
         fig : matplotlib.figure.Figure, optional
-            The figure object to which these axes belong.
+            The figure object to plot on.
+        axs : tuple[matplotlib.axes.Axes, matplotlib.axes.Axes], optional
+            The axes objects to plot on (ax_left, ax_right).
         focal_plane : float
             Location of the focal plane, from -1 to 1.
             A value of -1 means all data will float above the plane,
@@ -254,8 +267,8 @@ class AxesStereo2D(AxesStereo):
             Interpupillary distance (in millimeters). Default is 65. Negative
             values for cross-view.
         """
-        super().__init__(fig=fig, focal_plane=focal_plane, z_scale=z_scale, d=d, ipd=ipd,
-                         is_3d=False)
+        super().__init__(fig=fig, axs=axs, focal_plane=focal_plane, z_scale=z_scale,
+                         d=d, ipd=ipd, is_3d=False)
         self.known_methods = ['plot', 'scatter', 'stem', 'bar']
 
         # Give the innacurate x-axis labels some transparency
@@ -320,6 +333,7 @@ class AxesStereo2D(AxesStereo):
 class AxesStereo3D(AxesStereo):
     def __init__(self,
                  fig: Optional[Figure] = None,
+                 axs: Optional[tuple[Axes3D, Axes3D]] = None,
                  focal_plane: float = -1,
                  z_scale: float = 2,
                  d: float = 350,
@@ -330,7 +344,10 @@ class AxesStereo3D(AxesStereo):
         Parameters
         ----------
         fig : matplotlib.figure.Figure, optional
-            The figure object to which these axes belong.
+            The figure object to plot on.
+        axs : tuple[mpl_toolkits.mplot3d.axes3d.Axes3D,
+                    mpl_toolkits.mplot3d.axes3d.Axes3D], optional
+            The axes3d objects to plot on (ax_left, ax_right).
         focal_plane : float
             Location of the focal plane, from -1 to 1.
             A value of -1 means all data will float above the plane.
@@ -344,8 +361,8 @@ class AxesStereo3D(AxesStereo):
             Interpupillary distance (in millimeters). Default is 65. Negative
             values for cross-view.
         """
-        super().__init__(fig=fig, focal_plane=focal_plane, z_scale=z_scale, d=d, ipd=ipd,
-                         is_3d=True)
+        super().__init__(fig=fig, axs=axs, focal_plane=focal_plane, z_scale=z_scale,
+                         d=d, ipd=ipd, is_3d=True)
         self.known_methods = ['plot', 'scatter', 'stem', 'voxels', 'plot_wireframe',
                               'plot_surface', 'plot_trisurf', 'contour', 'contourf']
 
@@ -417,6 +434,7 @@ class AxesStereo3D(AxesStereo):
 class AxesAnaglyph(AxesStereoBase):
     def __init__(self,
                  fig: Optional[Figure] = None,
+                 ax: Optional[Axes] = None,
                  focal_plane: float = -1,
                  z_scale: float = 2,
                  d: float = 350,
@@ -430,7 +448,9 @@ class AxesAnaglyph(AxesStereoBase):
         Parameters
         ----------
         fig : matplotlib.figure.Figure, optional
-            The figure object to which these axes belong.
+            The figure object to plot on.
+        ax : matplotlib.axes.Axes, optional
+            The axes object to plot on.
         focal_plane : float
             Location of the focal plane, from -1 to 1. A value of -1 means all
             data will float above the plane. A value of 1 means all data will
@@ -453,10 +473,14 @@ class AxesAnaglyph(AxesStereoBase):
         """
         super().__init__(focal_plane=focal_plane, z_scale=z_scale, d=d, ipd=ipd, is_3d=False)
 
-        if fig is None:
+        if fig is None and ax is None:
             self.fig, self.ax = plt.subplots()
-        else:
+        elif ax is None:
+            self.fig = fig
             self.ax = fig.add_subplot(111)
+        else:
+            self.fig = ax.figure
+            self.ax = ax
 
         self.known_methods = ['plot', 'scatter', 'bar']
         self.colors = colors

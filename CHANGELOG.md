@@ -17,6 +17,7 @@
 ### Added    
 * Animation example
 ### Changed    
+* Allow passing in existing axes to object creation
 ### Removed    
 
 ## [0.2.0] - 2023-12-17

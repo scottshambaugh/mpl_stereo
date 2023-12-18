@@ -24,11 +24,22 @@ def _testdata():
 def test_existing_fig():
     # Smoke tests
     fig = plt.figure()
-    _ = AxesStereo2D(fig=fig)
+    AxesStereo2D(fig=fig)
     fig = plt.figure()
-    _ = AxesStereo3D(fig=fig)
+    AxesStereo3D(fig=fig)
     fig = plt.figure()
-    _ = AxesAnaglyph(fig=fig)
+    AxesAnaglyph(fig=fig)
+    assert True
+
+
+def test_existing_ax():
+    # Smoke tests
+    _, axs = plt.subplots(2, 1)
+    AxesStereo2D(axs=axs)
+    _, axs = plt.subplots(2, 1, subplot_kw=dict(projection='3d'))
+    AxesStereo3D(axs=axs)
+    _, ax = plt.subplots()
+    AxesAnaglyph(ax=ax)
     assert True
 
 
