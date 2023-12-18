@@ -78,15 +78,15 @@ def process_args(ax_method: Any, known_methods: list[str], args: Any, kwargs: di
     return x, y, z, args, kwargs
 
 
-def calc_2d_offsets(focal_plane: float, z: np.ndarray, z_scale: float, d: float, ipd: float):
+def calc_2d_offsets(eye_balance: float, z: np.ndarray, z_scale: float, d: float, ipd: float):
     """
     Calculates the x-offsets for a 2D plot to create a stereoscopic effect
     based on the z-coordinates of the data points.
 
     Parameters
     ----------
-    focal_plane : float
-        The location of the focal plane, a value between -1 and 1.
+    eye_balance : float
+        The eye balance, a value between -1 and 1.
     z : np.ndarray
         An array of z-coordinates for the data points.
     z_scale : float
@@ -98,8 +98,8 @@ def calc_2d_offsets(focal_plane: float, z: np.ndarray, z_scale: float, d: float,
     """
     z_scaled = z / np.ptp(z) * z_scale
     offset = ipd * z_scaled / (d + z_scaled)
-    offset_left = (focal_plane + 1)/2 * offset
-    offset_right = (1 - focal_plane)/2 * offset
+    offset_left = (eye_balance + 1)/2 * offset
+    offset_right = (1 - eye_balance)/2 * offset
     return offset_left, offset_right
 
 
@@ -141,7 +141,7 @@ def view_init(self, elev=None, azim=None, roll=None, vertical_axis="z",
 ## Classes
 class AxesStereoBase(ABC):
     def __init__(self,
-                 focal_plane: float = -1,
+                 eye_balance: float = -1,
                  z_scale: float = 2,
                  d: float = 350,
                  ipd: float = 65,
@@ -149,11 +149,11 @@ class AxesStereoBase(ABC):
         """
         Parameters
         ----------
-        focal_plane : float
-            Location of the focal plane, from -1 to 1. A value of -1 means all
-            data will float above the plane. A value of 1 means all data will
-            float below the plane. A value of 0 puts the focal plane on the
-            page.
+        eye_balance : float
+            The eye balance parameter, from -1 to 1. A value of -1 means the
+            left plot will have accurate x-axis labels, and a value of 1 means
+            the right plot will. For any other value, both plots will have
+            inaccurate x-axis labels.
         z_scale : float
             Scaling factor for the z-data (in millimeters). Default is 2.
         d : float
@@ -164,7 +164,7 @@ class AxesStereoBase(ABC):
         is_3d : bool
             Whether the axes are 3D. Default is False.
         """
-        self.focal_plane = focal_plane
+        self.eye_balance = eye_balance
         self.z_scale = z_scale
         self.d = d
         self.ipd = ipd
@@ -176,7 +176,7 @@ class AxesStereo(AxesStereoBase):
     def __init__(self,
                  fig: Optional[Figure] = None,
                  axs: Optional[tuple[Axes, Axes] | tuple[Axes3D, Axes3D]] = None,
-                 focal_plane: float = -1,
+                 eye_balance: float = -1,
                  z_scale: float = 2,
                  d: float = 350,
                  ipd: float = 65,
@@ -188,11 +188,11 @@ class AxesStereo(AxesStereoBase):
             The figure object to plot on.
         axs : tuple[matplotlib.axes.Axes, matplotlib.axes.Axes], optional
             The axes objects to plot on (ax_left, ax_right).
-        focal_plane : float
-            Location of the focal plane, from -1 to 1. A value of -1 means all
-            data will float above the plane. A value of 1 means all data will
-            float below the plane. A value of 0 puts the focal plane on the
-            page.
+        eye_balance : float
+            The eye balance parameter, from -1 to 1. A value of -1 means the
+            left plot will have accurate x-axis labels, and a value of 1 means
+            the right plot will. For any other value, both plots will have
+            inaccurate x-axis labels.
         z_scale : float
             Scaling factor for the z-data (in millimeters). Default is 2.
         d : float
@@ -203,7 +203,7 @@ class AxesStereo(AxesStereoBase):
         is_3d : bool
             Whether the axes are 3D. Default is False.
         """
-        super().__init__(focal_plane=focal_plane, z_scale=z_scale, d=d, ipd=ipd, is_3d=is_3d)
+        super().__init__(eye_balance=eye_balance, z_scale=z_scale, d=d, ipd=ipd, is_3d=is_3d)
 
         # Generate two side-by-side subplots
         if fig is None and axs is None:
@@ -236,7 +236,7 @@ class AxesStereo2D(AxesStereo):
     def __init__(self,
                  fig: Optional[Figure] = None,
                  axs: Optional[tuple[Axes, Axes]] = None,
-                 focal_plane: float = -1,
+                 eye_balance: float = -1,
                  z_scale: float = 2,
                  d: float = 350,
                  ipd: float = 65):
@@ -249,16 +249,12 @@ class AxesStereo2D(AxesStereo):
             The figure object to plot on.
         axs : tuple[matplotlib.axes.Axes, matplotlib.axes.Axes], optional
             The axes objects to plot on (ax_left, ax_right).
-        focal_plane : float
-            Location of the focal plane, from -1 to 1.
-            A value of -1 means all data will float above the plane,
-            and only the left axis labels are accurate. (The right labels will
-            have transparancy applied)
-            A value of 1 means all data will float below the plane,
-            and only the right axis labels are accurate. (The left labels will
-            have transparancy applied)
-            A value of 0 puts the focal plane on the page and neither axes'
-            labels are accurate. (Both will have transparancy applied)
+        eye_balance : float
+            The eye balance parameter, from -1 to 1. A value of -1 means the
+            left plot will have accurate x-axis labels, and a value of 1 means
+            the right plot will. For any other value, both plots will have
+            inaccurate x-axis labels.
+            All inaccurate axis labels will have transparency applied.
         z_scale : float
             Scaling factor for the z-data (in millimeters). Default is 2.
         d : float
@@ -267,7 +263,7 @@ class AxesStereo2D(AxesStereo):
             Interpupillary distance (in millimeters). Default is 65. Negative
             values for cross-view.
         """
-        super().__init__(fig=fig, axs=axs, focal_plane=focal_plane, z_scale=z_scale,
+        super().__init__(fig=fig, axs=axs, eye_balance=eye_balance, z_scale=z_scale,
                          d=d, ipd=ipd, is_3d=False)
         self.known_methods = ['plot', 'scatter', 'stem', 'bar']
 
@@ -298,7 +294,7 @@ class AxesStereo2D(AxesStereo):
                     x, y, z, kwargs = sort_by_z(x, y, z, kwargs)
 
                 # Calculate the x-offsets
-                offset_left, offset_right = calc_2d_offsets(self.focal_plane, z, self.z_scale,
+                offset_left, offset_right = calc_2d_offsets(self.eye_balance, z, self.z_scale,
                                                             self.d, self.ipd)
 
                 # Plot the data twice, once for each subplot
@@ -322,10 +318,10 @@ class AxesStereo2D(AxesStereo):
         alpha : float
             Alpha value for the inaccurate axis labels.
         """
-        if self.focal_plane != -1:
+        if self.eye_balance != -1:
             for label in self.ax_left.get_xticklabels():
                 label.set_alpha(alpha)
-        elif self.focal_plane != 1:
+        elif self.eye_balance != 1:
             for label in self.ax_right.get_xticklabels():
                 label.set_alpha(alpha)
 
@@ -334,7 +330,7 @@ class AxesStereo3D(AxesStereo):
     def __init__(self,
                  fig: Optional[Figure] = None,
                  axs: Optional[tuple[Axes3D, Axes3D]] = None,
-                 focal_plane: float = -1,
+                 eye_balance: float = -1,
                  z_scale: float = 2,
                  d: float = 350,
                  ipd: float = 65):
@@ -348,11 +344,11 @@ class AxesStereo3D(AxesStereo):
         axs : tuple[mpl_toolkits.mplot3d.axes3d.Axes3D,
                     mpl_toolkits.mplot3d.axes3d.Axes3D], optional
             The axes3d objects to plot on (ax_left, ax_right).
-        focal_plane : float
-            Location of the focal plane, from -1 to 1.
-            A value of -1 means all data will float above the plane.
-            A value of 1 means all data will float below the plane.
-            A value of 0 puts the focal plane on the page.
+        eye_balance : float
+            The eye balance parameter, from -1 to 1. A value of -1 means the
+            left plot will have accurate x-axis labels, and a value of 1 means
+            the right plot will. For any other value, both plots will have
+            inaccurate x-axis labels.
         z_scale : float
             Scaling factor for the z-data (in millimeters). Default is 2.
         d : float
@@ -361,7 +357,7 @@ class AxesStereo3D(AxesStereo):
             Interpupillary distance (in millimeters). Default is 65. Negative
             values for cross-view.
         """
-        super().__init__(fig=fig, axs=axs, focal_plane=focal_plane, z_scale=z_scale,
+        super().__init__(fig=fig, axs=axs, eye_balance=eye_balance, z_scale=z_scale,
                          d=d, ipd=ipd, is_3d=True)
         self.known_methods = ['plot', 'scatter', 'stem', 'voxels', 'plot_wireframe',
                               'plot_surface', 'plot_trisurf', 'contour', 'contourf']
@@ -426,8 +422,8 @@ class AxesStereo3D(AxesStereo):
         """
         ang = 90 - np.rad2deg(np.arctan(self.d / self.ipd))
         offset = ang * self.z_scale / self.ax_left._dist
-        offset_left = (self.focal_plane + 1)/2 * offset
-        offset_right = (1 - self.focal_plane)/2 * offset
+        offset_left = (self.eye_balance + 1)/2 * offset
+        offset_right = (1 - self.eye_balance)/2 * offset
         return offset_left, offset_right
 
 
@@ -435,7 +431,7 @@ class AxesAnaglyph(AxesStereoBase):
     def __init__(self,
                  fig: Optional[Figure] = None,
                  ax: Optional[Axes] = None,
-                 focal_plane: float = -1,
+                 eye_balance: float = -1,
                  z_scale: float = 2,
                  d: float = 350,
                  ipd: float = 65,
@@ -451,11 +447,12 @@ class AxesAnaglyph(AxesStereoBase):
             The figure object to plot on.
         ax : matplotlib.axes.Axes, optional
             The axes object to plot on.
-        focal_plane : float
-            Location of the focal plane, from -1 to 1. A value of -1 means all
-            data will float above the plane. A value of 1 means all data will
-            float below the plane. A value of 0 puts the focal plane on the
-            page.
+        eye_balance : float
+            The eye balance parameter, from -1 to 1. A value of -1 means the
+            left plot will have accurate x-axis labels, and a value of 1 means
+            the right plot will. For any other value, both plots will have
+            inaccurate x-axis labels.
+            The x-axis will be colored to indicate which data is correct.
         z_scale : float
             Scaling factor for the z-data (in millimeters). Default is 2.
         d : float
@@ -471,7 +468,7 @@ class AxesAnaglyph(AxesStereoBase):
             the left eye has a red lens and sees cyan, and the right eye has a
             cyan lens and sees red.
         """
-        super().__init__(focal_plane=focal_plane, z_scale=z_scale, d=d, ipd=ipd, is_3d=False)
+        super().__init__(eye_balance=eye_balance, z_scale=z_scale, d=d, ipd=ipd, is_3d=False)
 
         if fig is None and ax is None:
             self.fig, self.ax = plt.subplots()
@@ -504,7 +501,7 @@ class AxesAnaglyph(AxesStereoBase):
             x, y, z, args, kwargs = process_args(ax_method, self.known_methods, args, kwargs)
 
             if all(var is not None for var in [ax_method, x, y, z]):
-                offset_left, offset_right = calc_2d_offsets(self.focal_plane, z, self.z_scale,
+                offset_left, offset_right = calc_2d_offsets(self.eye_balance, z, self.z_scale,
                                                             self.d, self.ipd)
                 # Delete any color arguments
                 kwargs.pop('c', None)
@@ -535,9 +532,9 @@ class AxesAnaglyph(AxesStereoBase):
         If either the first or second plotted data correctly matches the axis
         labels, then color the labels to indicate which data is correct.
         """
-        if self.focal_plane == -1:
+        if self.eye_balance == -1:
             for label in self.ax.get_xticklabels():
                 label.set_color(self.colors[1])
-        elif self.focal_plane == 1:
+        elif self.eye_balance == 1:
             for label in self.ax.get_xticklabels():
                 label.set_color(self.colors[0])

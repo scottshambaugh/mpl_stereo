@@ -52,8 +52,8 @@ def test_AxesStereo2D():
         getattr(axstereo, method)(x=x, y=y, z=z)
     assert True
 
-    # Smoke test focal plane
-    axstereo = AxesStereo2D(focal_plane=1.0)
+    # Smoke test eye balance
+    axstereo = AxesStereo2D(eye_balance=1.0)
     axstereo.plot(x, y, z)
     assert True
 
@@ -85,8 +85,8 @@ def test_AxesStereo3D():
             getattr(axstereo, method)(X=X, Y=Y, Z=Z)
     assert True
 
-    # Smoke test focal plane
-    axstereo = AxesStereo3D(focal_plane=1.0)
+    # Smoke test eye balance
+    axstereo = AxesStereo3D(eye_balance=1.0)
     axstereo.plot(x, y, z)
     assert True
 
@@ -104,8 +104,8 @@ def test_AxesAnaglyph():
         getattr(axstereo, method)(x=x, y=y, z=z)
     assert True
 
-    # Smoke test focal plane
-    axstereo = AxesAnaglyph(focal_plane=1.0)
+    # Smoke test eye balance
+    axstereo = AxesAnaglyph(eye_balance=1.0)
     axstereo.plot(x, y, z)
     assert True
 
@@ -117,17 +117,17 @@ def test_AxesAnaglyph():
 def plotting_tests_2d_pairwise():
     # test plot and scatter
     x, y, z = _testdata()['trefoil']
-    axstereo = AxesStereo2D(focal_plane=-1.0)
+    axstereo = AxesStereo2D(eye_balance=-1.0)
     axstereo.plot(x, y, z, c='k', alpha=0.2)
     axstereo.scatter(x, y, z, c=z, cmap='viridis', s=10)
     axstereo.grid(True)
-    axstereo.set_title('focal_plane=-1')
+    axstereo.set_title('eye_balance=-1')
 
-    axstereo = AxesStereo2D(focal_plane=1.0)
+    axstereo = AxesStereo2D(eye_balance=1.0)
     axstereo.plot(x, y, z, c='k', alpha=0.2)
     axstereo.scatter(x, y, z, c=z, cmap='viridis', s=10)
     axstereo.grid(True)
-    axstereo.set_title('focal_plane=1')
+    axstereo.set_title('eye_balance=1')
 
     # test bar and stem
     x = y = z = np.arange(10)
@@ -146,6 +146,11 @@ def plotting_tests_3d():
 def plotting_tests_anaglyph_pairwise():
     x, y, z = _testdata()['trefoil']
     axstereo = AxesAnaglyph()
+    axstereo.plot(x, y, z, c='k', alpha=0.2)
+    axstereo.scatter(x, y, z, c=z, cmap='viridis', s=10)
+    axstereo.grid(True)
+
+    axstereo = AxesAnaglyph(eye_balance=1.0)
     axstereo.plot(x, y, z, c='k', alpha=0.2)
     axstereo.scatter(x, y, z, c=z, cmap='viridis', s=10)
     axstereo.grid(True)

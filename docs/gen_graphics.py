@@ -50,7 +50,7 @@ def animate_2d_trefoil(savedir):
     def animate(frame):
         x, y, z = generate_trefoil(frame)
         x, y, z, _ = sort_by_z(x, y, z, kwargs=dict())
-        offset_left, offset_right = calc_2d_offsets(axstereo.focal_plane, z, axstereo.z_scale,
+        offset_left, offset_right = calc_2d_offsets(axstereo.eye_balance, z, axstereo.z_scale,
                                                     axstereo.d, axstereo.ipd)
         scatter[0].set_offsets(np.stack([x + offset_left, y]).T)
         scatter[1].set_offsets(np.stack([x - offset_right, y]).T)
@@ -59,7 +59,8 @@ def animate_2d_trefoil(savedir):
             scat.set_facecolor(cmap(z))
         return scatter
 
-    ani = animation.FuncAnimation(axstereo.fig, animate, frames=np.arange(N_STEPS), interval=20, repeat=False)
+    ani = animation.FuncAnimation(axstereo.fig, animate, frames=np.arange(N_STEPS),
+                                  interval=20, repeat=False)
     ani.save(savedir / "trefoil_2d_animation.gif", fps=10, dpi=100)
 
 def animate_3d_trefoil(savedir):
@@ -79,10 +80,11 @@ def animate_3d_trefoil(savedir):
             scat._offsets3d = (x, y, z)
             scat.set_edgecolor(cmap(z))
             scat.set_facecolor(cmap(z))
-        axstereo.ax_left.view_init(azim = axstereo.ax_left.azim + dazim, share=True)
+        axstereo.ax_left.view_init(azim=(axstereo.ax_left.azim + dazim), share=True)
         return scatter
 
-    ani = animation.FuncAnimation(axstereo.fig, animate, frames=np.arange(n_frames), interval=20, repeat=False)
+    ani = animation.FuncAnimation(axstereo.fig, animate, frames=np.arange(n_frames),
+                                  interval=20, repeat=False)
     ani.save(savedir / "trefoil_3d_animation.gif", fps=10, dpi=100)
     plt.show()
 
@@ -94,6 +96,7 @@ def main():
     plot_anaglyph_trefoil(currdir)
     animate_2d_trefoil(currdir)
     animate_3d_trefoil(currdir)
+
 
 if __name__ == '__main__':
     main()

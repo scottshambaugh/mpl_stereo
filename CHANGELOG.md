@@ -3,8 +3,6 @@
 ## Future Work
 ### Features & Maintenance:
 - Better beginner instructions
-- Figure out axis labels floating at midpoint and not being anchored to page (test grid)
-- Double check calcs for z_scale
 - Add on more known 2D plotting functions
 - Flesh out testing of 3D plotting
 - 3D take into account roll angle
@@ -18,6 +16,7 @@
 * Animation example
 ### Changed    
 * Allow passing in existing axes to object creation
+* Rename `focal_plane` to `eye_balance`
 ### Removed    
 
 ## [0.2.0] - 2023-12-17

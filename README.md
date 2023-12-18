@@ -39,7 +39,7 @@ axstereo.scatter(x, y, z, c=z, cmap='viridis', s=10)
 </p>
 When you are viewing the stereogram properly, you should see the knot weave in and out of the page!
 
-*Warning*: Please note that for 2D plots the stereoscopic effect requires shifting data, so the data will *not* necessarily line up with the x-axis labels! Right now this is controlled with the `focal_plane` parameter. Calling `AxesStereo2D(focal_plane=-1)` (the default) will ensure that the left x-axis data is not shifted, whereas `AxesStereo2D(focal_plane=1)` will lock down the right x-axis data. The tick labels for x-axes where the data is not aligned will have transparency applied. So in the plot above, the right side labels being lighter gray indicates that you should not trust that x-axis data to be positioned correctly, but the left subplot with its black labeling is accurate.
+*Warning*: Please note that for 2D plots the stereoscopic effect requires shifting data, so the data will *not* necessarily line up with the x-axis labels! Right now this is controlled with the `eye_balance` parameter. Calling `AxesStereo2D(eye_balance=-1)` (the default) will ensure that the left x-axis data is not shifted, whereas `AxesStereo2D(eye_balance=1)` will lock down the right x-axis data. The tick labels for x-axes where the data is not aligned will have transparency applied. So in the plot above, the right side labels being lighter gray indicates that you should not trust that x-axis data to be positioned correctly, but the left subplot with its black labeling is accurate.
 
 ### 3D Stereogram plots
 The stereoscopic effect in 3D is made just by rotating the plot view, so all of matplotlib's 3D plot types are supported, and there are no concerns about data not lining up with the axis labels.
@@ -55,7 +55,7 @@ axstereo.scatter(x, y, z, c=z, cmap='viridis', s=10)
 ### Red-Cyan Anaglyphs
 Some 2D plots can also be made into anaglyphs, which are stereograms that can be viewed with red-cyan 3D glasses. While this allows for seeing the stereoscopic effect without training your eyes, it also means that the data cannot be otherwise colored.
 
-The same warning as for the 2D stereo plots about shifting data applies here as well. If `focal_plane` is -1 or +1 such that the data for one of the colors is not shifted, then that color will be applied to the x-axis tick labels to show that they are accurate.
+The same warning as for the 2D stereo plots about shifting data applies here as well. If `eye_balance` is -1 or +1 such that the data for one of the colors is not shifted, then that color will be applied to the x-axis tick labels to show that they are accurate.
 ```python
 axstereo = AxesAnaglyph()
 axstereo.plot(x, y, z)
