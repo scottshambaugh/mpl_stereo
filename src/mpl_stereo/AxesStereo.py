@@ -78,7 +78,8 @@ def process_args(ax_method: Any, known_methods: list[str], args: Any, kwargs: di
     return x, y, z, args, kwargs
 
 
-def calc_2d_offsets(eye_balance: float, z: np.ndarray, z_scale: float, d: float, ipd: float):
+def calc_2d_offsets(eye_balance: float, z: np.ndarray, z_scale: float, d: float, ipd: float,
+                    z_zero: Optional[float] = None):
     """
     Calculates the x-offsets for a 2D plot to create a stereoscopic effect
     based on the z-coordinates of the data points.
@@ -95,8 +96,15 @@ def calc_2d_offsets(eye_balance: float, z: np.ndarray, z_scale: float, d: float,
         The distance from the focal plane to the viewer, in millimeters.
     ipd : float
         The interpupillary distance, in millimeters.
+    z_zero : float, optional
+        The z-coordinate of the focal plane. Set to min(z) to have all the data
+        float above the page, or set to max(z) to have all the data float sink
+        into the page. If None, will be set to the midpoint of the z range.
     """
-    z_scaled = z / np.ptp(z) * z_scale
+    z_midpoint = np.min(z) + np.ptp(z)/2
+    if z_zero is None:
+        z_zero = z_midpoint
+    z_scaled = (z + z_midpoint - z_zero) / np.ptp(z) * z_scale
     offset = ipd * z_scaled / (d + z_scaled)
     offset_left = (eye_balance + 1)/2 * offset
     offset_right = (1 - eye_balance)/2 * offset
@@ -293,9 +301,12 @@ class AxesStereo2D(AxesStereo):
                 if name == 'scatter':
                     x, y, z, kwargs = sort_by_z(x, y, z, kwargs)
 
+                # Extract the z_zero keyword argument if it exists
+                z_zero = kwargs.pop('z_zero', None)
+
                 # Calculate the x-offsets
                 offset_left, offset_right = calc_2d_offsets(self.eye_balance, z, self.z_scale,
-                                                            self.d, self.ipd)
+                                                            self.d, self.ipd, z_zero=z_zero)
 
                 # Plot the data twice, once for each subplot
                 res_left = getattr(self.ax_left, name)(x + offset_left, y, *args, **kwargs)
@@ -501,8 +512,11 @@ class AxesAnaglyph(AxesStereoBase):
             x, y, z, args, kwargs = process_args(ax_method, self.known_methods, args, kwargs)
 
             if all(var is not None for var in [ax_method, x, y, z]):
+                # Extract the z_zero keyword argument if it exists
+                z_zero = kwargs.pop('z_zero', None)
+
                 offset_left, offset_right = calc_2d_offsets(self.eye_balance, z, self.z_scale,
-                                                            self.d, self.ipd)
+                                                            self.d, self.ipd, z_zero=z_zero)
                 # Delete any color arguments
                 kwargs.pop('c', None)
                 kwargs.pop('color', None)

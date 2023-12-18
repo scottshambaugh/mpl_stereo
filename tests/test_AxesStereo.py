@@ -57,6 +57,11 @@ def test_AxesStereo2D():
     axstereo.plot(x, y, z)
     assert True
 
+    # Smoke test z_zero
+    axstereo = AxesStereo2D()
+    axstereo.plot(x, y, z, z_zero=min(z))
+    assert True
+
     # Smoke test scatter sorting
     axstereo = AxesStereo2D()
     axstereo.scatter(x, y, z, c=z, cmap='viridis')
@@ -109,9 +114,36 @@ def test_AxesAnaglyph():
     axstereo.plot(x, y, z)
     assert True
 
+    # Smoke test z_zero
+    axstereo = AxesAnaglyph()
+    axstereo.plot(x, y, z, z_zero=min(z))
+    assert True
+
     # Smoke test non-plotting methods
     axstereo.set_title('title')
     assert True
+
+
+def plotting_tests_2d_pairwise_z_zero():
+    # test plot and scatter
+    x, y, z = _testdata()['trefoil']
+    axstereo = AxesAnaglyph()
+    axstereo.plot(x, y, z, c='k', alpha=0.2, z_zero=min(z))
+    axstereo.scatter(x, y, z, c=z, cmap='viridis', s=10, z_zero=min(z))
+    axstereo.grid(True)
+    axstereo.set_title('z_zero=min(z_zero)')
+
+    axstereo = AxesAnaglyph()
+    axstereo.plot(x, y, z, c='k', alpha=0.2, z_zero=None)
+    axstereo.scatter(x, y, z, c=z, cmap='viridis', s=10, z_zero=None)
+    axstereo.grid(True)
+    axstereo.set_title('z_zero=None')
+
+    axstereo = AxesAnaglyph()
+    axstereo.plot(x, y, z, c='k', alpha=0.2, z_zero=max(z))
+    axstereo.scatter(x, y, z, c=z, cmap='viridis', s=10, z_zero=max(z))
+    axstereo.grid(True)
+    axstereo.set_title('z_zero=max(z_zero)')
 
 
 def plotting_tests_2d_pairwise():
@@ -148,16 +180,15 @@ def plotting_tests_anaglyph_pairwise():
     axstereo = AxesAnaglyph()
     axstereo.plot(x, y, z, c='k', alpha=0.2)
     axstereo.scatter(x, y, z, c=z, cmap='viridis', s=10)
-    axstereo.grid(True)
 
     axstereo = AxesAnaglyph(eye_balance=1.0)
     axstereo.plot(x, y, z, c='k', alpha=0.2)
     axstereo.scatter(x, y, z, c=z, cmap='viridis', s=10)
-    axstereo.grid(True)
 
 
 if __name__ == '__main__':
     plotting_tests_2d_pairwise()
     plotting_tests_3d()
     plotting_tests_anaglyph_pairwise()
+    plotting_tests_2d_pairwise_z_zero()
     plt.show()

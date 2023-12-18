@@ -14,6 +14,7 @@
 ## [Unreleased]
 ### Added    
 * Animation example
+* `z_zero` keyword argument to 2D plotting methods to set focal plane
 ### Changed    
 * Allow passing in existing axes to object creation
 * Rename `focal_plane` to `eye_balance`
