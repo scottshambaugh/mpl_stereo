@@ -19,8 +19,9 @@
 * Allow passing in existing axes to object creation
 * Rename `focal_plane` to `eye_balance`
 * `z_scale` is now a keyword argument to 2D plotting methods to set z-axis scaling, fixed units to match x-axis
+* Fixed 3D plotting z scaling
 ### Removed    
-
+* `z_scale` argument from AxesStereo3D
 
 ## [0.2.0] - 2023-12-17
 ### Added    

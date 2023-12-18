@@ -87,8 +87,16 @@ axstereo.set_xlabel('X Label')
 (line_left, line_right) = axstereo.plot(x, y, z)
 ```
 
+For 2D plots and anaglyphs, the focal plane can be set with the `z_zero` parameter. This is the z value that will be "on the page" when viewing the stereogram.
+
+```python
+axstereo = AxesStereo2D(z_zero=min(z))  # data will float above the page
+axstereo = AxesStereo2D(z_zero=None)  # page will be at the midpoint of the data range (default)
+axstereo = AxesStereo2D(z_zero=max(z))  # data will sink below the page
+```
+
 ### Animations
-See an example of how to use this with matplotlib animations in [docs/gen_graphics:animate_2d_trefoil](docs/gen_graphics.py).
+See an example of how to use this with matplotlib animations in [docs/gen_graphics.py](docs/gen_graphics.py).
 <p float="left" align="center">
 <img width="500" height="250" src="https://raw.githubusercontent.com/scottshambaugh/mpl_stereo/main/docs/trefoil_2d_animation.gif">
 </p>
