@@ -20,6 +20,7 @@
 ### Added    
 * AxesAnaglyph for red-cyan anaglyphs
 ### Changed    
+* Only apply inaccurate axis label transparency to x axis labels
 ### Removed    
 
 

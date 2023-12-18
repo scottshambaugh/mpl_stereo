@@ -180,9 +180,8 @@ class AxesStereo2D(AxesStereo):
                          is_3d=False)
         self.known_methods = ['plot', 'scatter', 'stem', 'bar']
 
-        # Turn on all the axis labels then make semitransparent not accurate at the edges
-        self.ax_right.yaxis.set_tick_params(labelleft=True)
-        self.set_axlabel_alphas(0.5)
+        # Give the innacurate x-axis labels some transparency
+        self.set_axlabel_alphas(alpha=0.5)
 
     def __getattr__(self, name: str):
         """
@@ -225,12 +224,8 @@ class AxesStereo2D(AxesStereo):
         if self.focal_plane != -1:
             for label in self.ax_left.get_xticklabels():
                 label.set_alpha(alpha)
-            for label in self.ax_left.get_yticklabels():
-                label.set_alpha(alpha)
         elif self.focal_plane != 1:
             for label in self.ax_right.get_xticklabels():
-                label.set_alpha(alpha)
-            for label in self.ax_right.get_yticklabels():
                 label.set_alpha(alpha)
 
 

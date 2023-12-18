@@ -39,7 +39,7 @@ axstereo.scatter(x, y, z, c=z, cmap='viridis', s=10)
 </p>
 When you are viewing the stereogram properly, you should see the knot weave in and out of the page!
 
-*Warning*: Please note that for 2D plots the stereoscopic effect requires shifting data, so the data will *not* necessarily line up with the axis labels! Right now this is controlled with the `focal_plane` parameter. Calling `AxesStereo2D(focal_plane=-1)` (the default) will ensure that the left axes data is not shifted, whereas `AxesStereo2D(focal_plane=1)` will lock down the right axes data. The tick labels for axes where the data is not aligned will have transparency applied. So in the plot above, the right side labels being lighter gray indicates that you should not trust that data to be positioned correctly, but the left subplot with its black labeling is accurate.
+*Warning*: Please note that for 2D plots the stereoscopic effect requires shifting data, so the data will *not* necessarily line up with the x-axis labels! Right now this is controlled with the `focal_plane` parameter. Calling `AxesStereo2D(focal_plane=-1)` (the default) will ensure that the left x-axis data is not shifted, whereas `AxesStereo2D(focal_plane=1)` will lock down the right x-axis data. The tick labels for x-axes where the data is not aligned will have transparency applied. So in the plot above, the right side labels being lighter gray indicates that you should not trust that x-axis data to be positioned correctly, but the left subplot with its black labeling is accurate.
 
 ### 3D Stereogram plots
 The stereoscopic effect in 3D is made just by rotating the plot view, so all of matplotlib's 3D plot types are supported, and there are no concerns about data not lining up with the axis labels.
