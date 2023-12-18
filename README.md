@@ -82,6 +82,9 @@ for ax in axstereo.axs:
 
 # You can do the equivalent:
 axstereo.set_xlabel('X Label')
+
+# When applicable, the return values from the two method calls are returned as a tuple
+(line_left, line_right) = axstereo.plot(x, y, z)
 ```
 
 ## Viewing Stereograms
