@@ -3,7 +3,7 @@ import numpy as np
 import inspect
 from mpl_toolkits.mplot3d.axes3d import get_test_data
 
-from mpl_stereo import AxesStereo2D, AxesStereo3D
+from mpl_stereo import AxesStereo2D, AxesStereo3D, AxesAnaglyph
 
 
 def _testdata():
@@ -27,6 +27,8 @@ def test_existing_fig():
     _ = AxesStereo2D(fig=fig)
     fig = plt.figure()
     _ = AxesStereo3D(fig=fig)
+    fig = plt.figure()
+    _ = AxesAnaglyph(fig=fig)
     assert True
 
 
@@ -82,6 +84,20 @@ def test_AxesStereo3D():
     assert True
 
 
+def test_AxesAnaglyph():
+    # Smoke test plotting
+    x, y, z = _testdata()['trefoil']
+    axanaglyph = AxesAnaglyph()
+    for method in axanaglyph.known_methods:
+        getattr(axanaglyph, method)(x, y, z)
+        getattr(axanaglyph, method)(x=x, y=y, z=z)
+    assert True
+
+    # Smoke test non-plotting methods
+    axanaglyph.set_title('title')
+    assert True
+
+
 def plotting_tests_2d_pairwise():
     # test plot and scatter
     x, y, z = _testdata()['trefoil']
@@ -111,7 +127,16 @@ def plotting_tests_3d():
     axstereo.scatter(x, y, z, c=z, cmap='viridis', s=10)
 
 
+def plotting_tests_anaglyph_pairwise():
+    x, y, z = _testdata()['trefoil']
+    axstereo = AxesAnaglyph()
+    axstereo.plot(x, y, z, c='k', alpha=0.2)
+    axstereo.scatter(x, y, z, c=z, cmap='viridis', s=10)
+    axstereo.grid(True)
+
+
 if __name__ == '__main__':
     plotting_tests_2d_pairwise()
     plotting_tests_3d()
+    plotting_tests_anaglyph_pairwise()
     plt.show()

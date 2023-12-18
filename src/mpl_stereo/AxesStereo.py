@@ -322,3 +322,102 @@ class AxesStereo3D(AxesStereo):
         offset_left = (self.focal_plane + 1)/2 * offset
         offset_right = (1 - self.focal_plane)/2 * offset
         return offset_left, offset_right
+
+
+class AxesAnaglyph(AxesStereoBase):
+    def __init__(self,
+                 fig: Optional[Figure] = None,
+                 focal_plane: float = -1,
+                 z_scale: float = 2,
+                 d: float = 350,
+                 ipd: float = 65,
+                 colors: list[str] = ['red', 'cyan']):
+        """
+        A class for creating anaglyph plots, that are viewed with red-cyan
+        "3D glasses". Note that anaglyph plots need to be 2D. Also, any color
+        arguments to plotting methods will be ignored and replaced.
+
+        Parameters
+        ----------
+        - fig : matplotlib.figure.Figure, optional
+            The figure object to which these axes belong.
+        - focal_plane : float
+            Location of the focal plane, from -1 to 1. A value of -1 means all
+            data will float above the plane. A value of 1 means all data will
+            float below the plane. A value of 0 puts the focal plane on the
+            page.
+        - z_scale : float
+            Scaling factor for the z-data (in millimeters). Default is 2.
+        - d : float
+            Distance from the focal plane to the viewer (in millimeters).
+        - ipd : float
+            Interpupillary distance (in millimeters). Default is 65. Negative
+            values for cross-view.
+        - colors : list[str]
+            Colors for the left and right axes. Default is ['red', 'cyan'].
+            The color ordering refers to the left and right glasses lens colors.
+            Because that color prevents that eye from seeing that color data,
+            the eye will see the opposite color data. Eg. ['red', 'cyan'] means
+            the left eye has a red lens and sees cyan, and the right eye has a
+            cyan lens and sees red.
+        """
+        super().__init__(focal_plane=focal_plane, z_scale=z_scale, d=d, ipd=ipd, is_3d=False)
+
+        if fig is None:
+            fig, self.ax = plt.subplots()
+        else:
+            self.ax = fig.add_subplot(111)
+
+        self.known_methods = ['plot', 'scatter', 'bar']
+        self.colors = colors
+        self.alpha = 0.5
+
+    def __getattr__(self, name: str):
+        """
+        Intercept plotting functions. If the method has 'x' and 'y' as
+        arguments, and either there is a third argument or 'z' is a keyword
+        argument, then the z data will be used to offset the x data for the two
+        colors and create the stereoscopic effect.
+        """
+        def method(*args, **kwargs):
+            ax_method = getattr(self.ax, name, None)
+            args_original = args
+            x, y, z, args, kwargs = process_args(ax_method, self.known_methods, args, kwargs)
+
+            if all(var is not None for var in [ax_method, x, y, z]):
+                offset_left, offset_right = calc_2d_offsets(self.focal_plane, z, self.z_scale,
+                                                            self.d, self.ipd)
+                # Delete any color arguments
+                kwargs.pop('c', None)
+                kwargs.pop('color', None)
+                kwargs.pop('cmap', None)
+                kwargs.pop('alpha', None)
+
+                # Set the xlabel color to the right color
+                self.set_axlabel_colors()
+
+                # Plot the data twice, once for each color
+                getattr(self.ax, name)(x + offset_left, y,
+                                       color=self.colors[1], alpha=self.alpha,
+                                       *args, **kwargs)
+                result = getattr(self.ax, name)(x - offset_right, y,
+                                                color=self.colors[0], alpha=self.alpha,
+                                                *args, **kwargs)
+            else:
+                # For methods that don't plot x-y data
+                result = getattr(self.ax, name)(*args_original, **kwargs)
+            return result
+
+        return method
+
+    def set_axlabel_colors(self):
+        """
+        If either the first or second plotted data correctly matches the axis
+        labels, then color the labels to indicate which data is correct.
+        """
+        if self.focal_plane == -1:
+            for label in self.ax.get_xticklabels():
+                label.set_color(self.colors[1])
+        elif self.focal_plane == 1:
+            for label in self.ax.get_xticklabels():
+                label.set_color(self.colors[0])
