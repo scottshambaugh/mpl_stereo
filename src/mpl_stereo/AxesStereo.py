@@ -6,7 +6,82 @@ from abc import ABC
 from typing import Optional
 from matplotlib.figure import Figure
 
-class AxesStereo(ABC):
+## Functions
+def sort_by_z(x, y, z, kwargs):
+    """
+    Sort the data by z to not occlude improperly
+    """
+    sort_idx = np.argsort(z)
+    x = x[sort_idx]
+    y = y[sort_idx]
+    z = z[sort_idx]
+    if 'c' in kwargs and np.array(kwargs['c']).shape == np.array(z).shape:
+        c = kwargs.pop('c')
+        c = c[sort_idx]
+        kwargs['c'] = c
+    return x, y, z, kwargs
+
+
+def process_args(ax_method, known_methods, args, kwargs):
+    """
+    Process the arguments to a method call to determine if the method is
+    plotting x-y data and if there is a z argument or keyword argument.
+    """
+    x = y = z = None
+    parameters = inspect.signature(ax_method).parameters
+    if 'x' in kwargs:
+        x = kwargs.pop('x')
+    elif 'x' in parameters or ax_method.__name__ in known_methods:
+        x, *args = args
+    if 'y' in kwargs:
+        y = kwargs.pop('y')
+    elif 'y' in parameters or ax_method.__name__ in known_methods:
+        y, *args = args
+
+    # Check if 'z' is in the keyword arguments or if there is a third
+    # argument of the same shape as x
+    if 'z' in kwargs:
+        z = kwargs.pop('z')
+    elif len(args) > 0 and (np.array(args[0]).shape == np.array(x).shape):
+        z, *args = args
+    return x, y, z, args, kwargs
+
+
+## Classes
+class AxesStereoBase(ABC):
+    def __init__(self,
+                 focal_plane: float = -1,
+                 z_scale: float = 2,
+                 d: float = 350,
+                 ipd: float = 65,
+                 is_3d: bool = False):
+        """
+        Parameters
+        ----------
+        - focal_plane : float, optional
+            Location of the focal plane, from -1 to 1. A value of -1 means all
+            data will float above the plane. A value of 1 means all data will
+            float below the plane. A value of 0 puts the focal plane on the
+            page.
+        - z_scale : float, optional
+            Scaling factor for the z-data (in millimeters). Default is 2.
+        - d : float, optional
+            Distance from the focal plane to the viewer (in millimeters).
+        - ipd : float, optional
+            Interpupillary distance (in millimeters). Default is 65. Negative
+            values for cross-view.
+        - is_3d : bool, optional
+            Whether the axes are 3D. Default is False.
+        """
+        self.focal_plane = focal_plane
+        self.z_scale = z_scale
+        self.d = d
+        self.ipd = ipd
+        self.is_3d = is_3d
+        self.known_methods: list[str] = []
+
+
+class AxesStereo(AxesStereoBase):
     def __init__(self,
                  fig: Optional[Figure] = None,
                  focal_plane: float = -1,
@@ -34,6 +109,8 @@ class AxesStereo(ABC):
         - is_3d : bool, optional
             Whether the axes are 3D. Default is False.
         """
+        super().__init__(focal_plane=focal_plane, z_scale=z_scale, d=d, ipd=ipd, is_3d=is_3d)
+
         # Generate two side-by-side subplots
         if fig is None:
             if not is_3d:
@@ -52,14 +129,7 @@ class AxesStereo(ABC):
 
         self.ax_left.sharex(self.ax_right)
         self.ax_left.sharey(self.ax_right)
-
-        self.fig = fig
-        self.focal_plane = focal_plane
-        self.z_scale = z_scale
-        self.d = d
-        self.ipd = ipd
-        self.is_3d = is_3d
-        self.known_methods: list[str] = []
+        self.axs = (self.ax_left, self.ax_right)
 
 
 class AxesStereo2D(AxesStereo):
@@ -110,34 +180,15 @@ class AxesStereo2D(AxesStereo):
         z data will be used to offset the x data for the left and right axes
         and create the stereoscopic effect.
         """
-
         def method(*args, **kwargs):
-            # Reflect the method to check if 'x' and 'y' are in the arguments
             ax_method = getattr(self.ax_left, name, None)
-            parameters = inspect.signature(ax_method).parameters
-
-            x = y = z = None
             args_original = args
-            if 'x' in kwargs:
-                x = kwargs.pop('x')
-            elif 'x' in parameters or name in self.known_methods:
-                x, *args = args
-            if 'y' in kwargs:
-                y = kwargs.pop('y')
-            elif 'y' in parameters or name in self.known_methods:
-                y, *args = args
-
-            # Check if 'z' is in the keyword arguments or if there is a third
-            # argument of the same shape as x
-            if 'z' in kwargs:
-                z = kwargs.pop('z')
-            elif len(args) > 0 and (np.array(args[0]).shape == np.array(x).shape):
-                z, *args = args
+            x, y, z, args, kwargs = process_args(ax_method, self.known_methods, args, kwargs)
 
             if (ax_method and x is not None and y is not None and z is not None):
                 # for scatter plots, sort the data by z to not occlude improperly
                 if name == 'scatter':
-                    x, y, z, kwargs = self.sort_by_z(x, y, z, kwargs)
+                    x, y, z, kwargs = sort_by_z(x, y, z, kwargs)
                 z_scaled = z / np.ptp(z) * self.z_scale
                 offset = self.ipd * z_scaled / (self.d + z_scaled)
                 offset_left = (self.focal_plane + 1)/2 * offset
@@ -163,19 +214,6 @@ class AxesStereo2D(AxesStereo):
                 label.set_alpha(alpha)
             for label in self.ax_right.get_yticklabels():
                 label.set_alpha(alpha)
-
-
-    def sort_by_z(self, x, y, z, kwargs):
-        sort_idx = np.argsort(z)
-        x = x[sort_idx]
-        y = y[sort_idx]
-        z = z[sort_idx]
-        if 'c' in kwargs and np.array(kwargs['c']).shape == np.array(z).shape:
-            c = kwargs.pop('c')
-            c = c[sort_idx]
-            kwargs['c'] = c
-        return x, y, z, kwargs
-
 
 class AxesStereo3D(AxesStereo):
     def __init__(self,
