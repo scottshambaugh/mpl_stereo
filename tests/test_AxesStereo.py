@@ -93,6 +93,11 @@ def test_AxesAnaglyph():
         getattr(axstereo, method)(x=x, y=y, z=z)
     assert True
 
+    # Smoke test focal plane
+    axstereo = AxesAnaglyph(focal_plane=1.0)
+    axstereo.plot(x, y, z)
+    assert True
+
     # Smoke test non-plotting methods
     axstereo.set_title('title')
     assert True
