@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
-from mpl_stereo import AxesStereo2D, AxesStereo3D
+from mpl_stereo import AxesStereo2D, AxesStereo3D, AxesAnaglyph
 
 def main():
     currdir = Path(__file__).parent.resolve()
@@ -25,6 +25,12 @@ def main():
     axstereo.scatter(x, y, z, c=z, cmap='viridis', s=10)
     axstereo.fig.set_size_inches(6.0, 3)
     plt.savefig(currdir / 'trefoil_3d.png', dpi=100)
+
+    axstereo = AxesAnaglyph()
+    axstereo.plot(x, y, z)
+    axstereo.scatter(x, y, z, s=10)
+    axstereo.fig.set_size_inches(3.0, 3)
+    plt.savefig(currdir / 'trefoil_anaglyph.png', dpi=100)
 
 
 if __name__ == '__main__':

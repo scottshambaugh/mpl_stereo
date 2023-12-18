@@ -19,7 +19,7 @@ pip install mpl_stereo
 **Setup**
 ```python
 import numpy as np
-from mpl_stereo import AxesStereo2D, AxesStereo3D
+from mpl_stereo import AxesStereo2D, AxesStereo3D, AxesAnaglyph
 # Generate some data, we'll make a trefoil knot
 t = np.linspace(0, 2*np.pi, 100)
 x = np.cos(2*t) * (3 + np.cos(3*t))
@@ -50,6 +50,19 @@ axstereo.scatter(x, y, z, c=z, cmap='viridis', s=10)
 ```
 <p float="left" align="center">
 <img width="500" height="250" src="https://raw.githubusercontent.com/scottshambaugh/mpl_stereo/main/docs/trefoil_3d.png">
+</p>
+
+### Anaglyphs
+Some 2D plots can also be made into anaglyphs, which are stereograms that can be viewed with red-cyan 3D glasses. This is done by plotting the same data twice, once in red and once in cyan with an appropriate offset.
+
+The same warning as for the 2D stereo plots about shifting data applies here as well. If `focal_plane` is -1 or +1 such that the data for one of the colors is not shifted, then that color will be applied to the x-axis tick labels to show that they are accurate.
+```python
+axstereo = AxesAnaglyph()
+axstereo.plot(x, y, z)
+axstereo.scatter(x, y, z, s=10)
+```
+<p float="left" align="center">
+<img width="250" height="250" src="https://raw.githubusercontent.com/scottshambaugh/mpl_stereo/main/docs/trefoil_anaglyph.png">
 </p>
 
 ### Working With Plots

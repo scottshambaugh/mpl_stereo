@@ -8,7 +8,6 @@
 - Double check calcs for z_scale
 - Add on more known 2D plotting functions
 - Flesh out testing of 3D plotting
-- Red/cyan anaglyphs
 - 3D take into account roll angle
 - 3D shareview override
 - Document derivation of offsets
