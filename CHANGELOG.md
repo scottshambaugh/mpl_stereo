@@ -13,7 +13,12 @@
 
 ## [Unreleased]
 ### Added    
-* Animation example
+### Changed    
+### Removed    
+
+## [0.2.0] - 2023-12-18
+### Added    
+* Animation example for 2D stereograms
 * `z_zero` keyword argument to 2D plotting methods to set focal plane
 ### Changed    
 * Allow passing in existing axes to object creation
