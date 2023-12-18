@@ -28,17 +28,17 @@ def sort_by_z(x: np.ndarray, y: np.ndarray, z: np.ndarray, kwargs: dict[str, Any
         If it contains a 'c' key with an array of the same shape as z, 
         this array will also be sorted alongside x, y, and z.
     """
-    if kwargs is None:
-        kwargs = dict()
     sort_idx = np.argsort(z)
     x = x[sort_idx]
     y = y[sort_idx]
     z = z[sort_idx]
-    if 'c' in kwargs and np.array(kwargs['c']).shape == np.array(z).shape:
+    if kwargs is None:
+        return x, y, z
+    elif 'c' in kwargs and np.array(kwargs['c']).shape == np.array(z).shape:
         c = kwargs.pop('c')
         c = c[sort_idx]
         kwargs['c'] = c
-    return x, y, z, kwargs
+        return x, y, z, kwargs
 
 
 def process_args(ax_method: Any, known_methods: list[str], args: Any, kwargs: dict[str, Any]):
