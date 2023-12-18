@@ -35,7 +35,7 @@ poetry run mypy src tests/test*
     ```
     poetry run coverage run --source=mpl_stereo -m pytest && poetry run coverage report -m 
     poetry run mypy src tests/test*
-    poetry run flake8
+    poetry run flake8 src tests docs
     ```
 5) Run plotting tests manually
 6) Commit any changes and push up the main branch
