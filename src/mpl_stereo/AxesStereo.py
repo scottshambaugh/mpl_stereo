@@ -3,11 +3,11 @@ import numpy as np
 import inspect
 
 from abc import ABC
-from typing import Optional
+from typing import Optional, Any
 from matplotlib.figure import Figure
 
 ## Functions
-def sort_by_z(x, y, z, kwargs):
+def sort_by_z(x: np.ndarray, y: np.ndarray, z: np.ndarray, kwargs: dict[str, Any]):
     """
     Sort the data by z to not occlude improperly
     """
@@ -22,7 +22,7 @@ def sort_by_z(x, y, z, kwargs):
     return x, y, z, kwargs
 
 
-def process_args(ax_method, known_methods, args, kwargs):
+def process_args(ax_method: Any, known_methods: list[str], args: Any, kwargs: dict[str, Any]):
     """
     Process the arguments to a method call to determine if the method is
     plotting x-y data and if there is a z argument or keyword argument.
@@ -45,6 +45,17 @@ def process_args(ax_method, known_methods, args, kwargs):
     elif len(args) > 0 and (np.array(args[0]).shape == np.array(x).shape):
         z, *args = args
     return x, y, z, args, kwargs
+
+
+def calc_2d_offsets(focal_plane: float, z: np.ndarray, z_scale: float, d: float, ipd: float):
+    """
+    Calculate the x-offsets for a 2D plot
+    """
+    z_scaled = z / np.ptp(z) * z_scale
+    offset = ipd * z_scaled / (d + z_scaled)
+    offset_left = (focal_plane + 1)/2 * offset
+    offset_right = (1 - focal_plane)/2 * offset
+    return offset_left, offset_right
 
 
 ## Classes
@@ -185,14 +196,12 @@ class AxesStereo2D(AxesStereo):
             args_original = args
             x, y, z, args, kwargs = process_args(ax_method, self.known_methods, args, kwargs)
 
-            if (ax_method and x is not None and y is not None and z is not None):
+            if all(var is not None for var in [ax_method, x, y, z]):
                 # for scatter plots, sort the data by z to not occlude improperly
                 if name == 'scatter':
                     x, y, z, kwargs = sort_by_z(x, y, z, kwargs)
-                z_scaled = z / np.ptp(z) * self.z_scale
-                offset = self.ipd * z_scaled / (self.d + z_scaled)
-                offset_left = (self.focal_plane + 1)/2 * offset
-                offset_right = (1 - self.focal_plane)/2 * offset
+                offset_left, offset_right = calc_2d_offsets(self.focal_plane, z, self.z_scale,
+                                                            self.d, self.ipd)
 
                 getattr(self.ax_left, name)(x + offset_left, y, *args, **kwargs)
                 return getattr(self.ax_right, name)(x - offset_right, y, *args, **kwargs)
