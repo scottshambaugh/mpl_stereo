@@ -62,6 +62,30 @@ def animate_2d_trefoil(savedir):
     ani = animation.FuncAnimation(axstereo.fig, animate, frames=np.arange(N_STEPS), interval=20, repeat=False)
     ani.save(savedir / "trefoil_2d_animation.gif", fps=10, dpi=100)
 
+def animate_3d_trefoil(savedir):
+    n_frames = 180
+    dazim = 360/n_frames
+
+    x, y, z = generate_trefoil(0)
+    cmap = matplotlib.colormaps['viridis']
+    axstereo = AxesStereo3D()
+    axstereo.plot(x, y, z, c='k', alpha=0.2)
+    scatter = axstereo.scatter(x, y, z, c=z, cmap=cmap, s=10)
+    axstereo.fig.set_size_inches(6.0, 3)
+
+    def animate(frame):
+        x, y, z = generate_trefoil(frame)
+        for scat in scatter:
+            scat._offsets3d = (x, y, z)
+            scat.set_edgecolor(cmap(z))
+            scat.set_facecolor(cmap(z))
+        axstereo.ax_left.view_init(azim = axstereo.ax_left.azim + dazim, share=True)
+        return scatter
+
+    ani = animation.FuncAnimation(axstereo.fig, animate, frames=np.arange(n_frames), interval=20, repeat=False)
+    ani.save(savedir / "trefoil_3d_animation.gif", fps=10, dpi=100)
+    plt.show()
+
 
 def main():
     currdir = Path(__file__).parent.resolve()
@@ -69,6 +93,7 @@ def main():
     plot_3d_trefoil(currdir)
     plot_anaglyph_trefoil(currdir)
     animate_2d_trefoil(currdir)
+    animate_3d_trefoil(currdir)
 
 if __name__ == '__main__':
     main()
