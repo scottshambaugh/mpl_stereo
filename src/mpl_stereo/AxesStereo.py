@@ -9,7 +9,7 @@ from matplotlib import _api
 from matplotlib.figure import Figure
 
 ## Functions
-def sort_by_z(x: np.ndarray, y: np.ndarray, z: np.ndarray, kwargs: dict[str, Any] = None):
+def sort_by_z(x: np.ndarray, y: np.ndarray, z: np.ndarray, kwargs: dict[str, Any]):
     """
     Sorts the provided data arrays based on the z values, to avoid improper
     occlusion in visualizations.
@@ -32,13 +32,11 @@ def sort_by_z(x: np.ndarray, y: np.ndarray, z: np.ndarray, kwargs: dict[str, Any
     x = x[sort_idx]
     y = y[sort_idx]
     z = z[sort_idx]
-    if kwargs is None:
-        return x, y, z
-    elif 'c' in kwargs and np.array(kwargs['c']).shape == np.array(z).shape:
+    if 'c' in kwargs and np.array(kwargs['c']).shape == np.array(z).shape:
         c = kwargs.pop('c')
         c = c[sort_idx]
         kwargs['c'] = c
-        return x, y, z, kwargs
+    return x, y, z, kwargs
 
 
 def process_args(ax_method: Any, known_methods: list[str], args: Any, kwargs: dict[str, Any]):

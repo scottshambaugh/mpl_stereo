@@ -49,7 +49,7 @@ def animate_2d_trefoil(savedir):
 
     def animate(frame):
         x, y, z = generate_trefoil(frame)
-        x, y, z = sort_by_z(x, y, z)
+        x, y, z, _ = sort_by_z(x, y, z, kwargs=dict())
         offset_left, offset_right = calc_2d_offsets(axstereo.focal_plane, z, axstereo.z_scale,
                                                     axstereo.d, axstereo.ipd)
         scatter[0].set_offsets(np.stack([x + offset_left, y]).T)
