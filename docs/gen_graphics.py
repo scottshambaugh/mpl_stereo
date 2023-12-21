@@ -39,6 +39,22 @@ def plot_anaglyph_trefoil(savedir):
     axstereo.fig.set_size_inches(3.0, 3)
     plt.savefig(savedir / 'trefoil_anaglyph.png', dpi=100)
 
+def plot_anaglyph_trefoil_z_zero(savedir):
+    x, y, z = generate_trefoil()
+    fig, axs = plt.subplots(1, 3)
+    z_zeros = (min(z), None, max(z))
+    titles = ('z_zero = min(z)\ndata floats above page',
+              'z_zero = None\ndata midpoint at page',
+              'z_zero = max(z)\ndata sinks below page')
+    for ax, z_zero, title in zip(axs, z_zeros, titles):
+        axstereo = AxesAnaglyph(ax=ax, z_zero=z_zero)
+        axstereo.plot(x, y, z)
+        axstereo.scatter(x, y, z, s=10)
+        axstereo.set_title(title)
+        axstereo.grid(True)
+    fig.set_size_inches(12, 4)
+    plt.savefig(savedir / 'trefoil_anaglyph_z_zero.png', dpi=100)
+
 def animate_2d_trefoil(savedir):
     x, y, z = generate_trefoil(0)
     cmap = matplotlib.colormaps['viridis']
@@ -104,6 +120,7 @@ def main():
     plot_2d_trefoil(currdir)
     plot_3d_trefoil(currdir)
     plot_anaglyph_trefoil(currdir)
+    plot_anaglyph_trefoil_z_zero(currdir)
     animate_2d_trefoil(currdir)
     animate_3d_trefoil(currdir)
 
