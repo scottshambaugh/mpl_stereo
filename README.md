@@ -1,10 +1,13 @@
+<p float="center" align="center">
+<img width="570" height="150" src="https://raw.githubusercontent.com/scottshambaugh/mpl_stereo/main/docs/mpl_stereo_logo_with_text.png">  
+</p>
+
 ![Release](https://img.shields.io/github/v/release/scottshambaugh/mpl_stereo?sort=semver)
 ![Builds](https://github.com/scottshambaugh/mpl_stereo/actions/workflows/builds.yml/badge.svg)
 ![Tests](https://github.com/scottshambaugh/mpl_stereo/actions/workflows/tests.yml/badge.svg)
 [![codecov](https://codecov.io/gh/scottshambaugh/mpl_stereo/graph/badge.svg?token=V2ZSLFUK03)](https://codecov.io/gh/scottshambaugh/mpl_stereo)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/mpl_stereo)
 
-# mpl_stereo
 Matplotlib add-on to make [stereograms](https://en.wikipedia.org/wiki/Stereoscopy) and [anaglyphs](https://en.wikipedia.org/wiki/Anaglyph_3D).
 
 Stereographic images can significantly enhance the interpretability of 3D data by leveraging human binocular vision. Instead of looking at a flat projection on a page, stereograms give us "3D glasses" for 2D data with just our eyes.

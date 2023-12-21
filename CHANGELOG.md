@@ -15,8 +15,11 @@
 
 ## [Unreleased]
 ### Added    
+* Project logo
+* Support for 2D plotting methods: `text`
 ### Changed    
 * Docs improvements
+* Fix bug when no variation in z data
 ### Removed    
 
 ## [0.3.0] - 2023-12-18
