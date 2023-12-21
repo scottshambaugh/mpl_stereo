@@ -153,7 +153,7 @@ def gen_logo_with_text(savedir=None, show=True):
     axstereo.set_xlim(-4.5, 4.5+9*3.5)
     axstereo.fig.set_size_inches(1+3, 1)
     if savedir is not None:
-        plt.savefig(savedir / 'mpl_stereo_logo_with_text.png', bbox_inches='tight', dpi=100)
+        plt.savefig(savedir / 'mpl_stereo_logo_with_text.png', bbox_inches='tight', dpi=200)
     if show:
         plt.show()
 
