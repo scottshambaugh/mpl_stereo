@@ -8,12 +8,16 @@
 - 3D take into account roll angle
 - Document derivation of offsets
 - GH release publish to pypi
-- Project logo
 - Raster anaglyphs, see [example in sunpy](https://docs.sunpy.org/en/stable/generated/gallery/showcase/stereoscopic_3d.html#sphx-glr-generated-gallery-showcase-stereoscopic-3d-py)
 
 ----
 
 ## [Unreleased]
+### Added    
+### Changed    
+### Removed    
+
+## [0.3.1] - 2023-12-21
 ### Added    
 * Project logo
 * Support for 2D plotting methods: `text`
