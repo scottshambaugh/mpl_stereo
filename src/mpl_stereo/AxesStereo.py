@@ -303,7 +303,7 @@ class AxesStereo2D(AxesStereo):
         """
         super().__init__(fig=fig, axs=axs, eye_balance=eye_balance, d=d, ipd=ipd,
                          z_scale=z_scale, z_zero=z_zero, is_3d=False)
-        self.known_methods = ['plot', 'scatter', 'stem', 'bar']
+        self.known_methods = ['plot', 'scatter', 'stem', 'bar', 'text']
 
         # Give the innacurate x-axis labels some transparency
         self.set_axlabel_alphas(alpha=0.5)
@@ -532,7 +532,7 @@ class AxesAnaglyph(AxesStereoBase):
             self.fig = ax.figure
             self.ax = ax
 
-        self.known_methods = ['plot', 'scatter', 'bar']
+        self.known_methods = ['plot', 'scatter', 'bar', 'text']
         self.colors = colors
         self.alpha = 0.5
 

@@ -48,8 +48,12 @@ def test_AxesStereo2D():
     x, y, z = _testdata()['trefoil']
     axstereo = AxesStereo2D()
     for method in axstereo.known_methods:
-        getattr(axstereo, method)(x, y, z)
-        getattr(axstereo, method)(x=x, y=y, z=z)
+        if method == 'text':
+            getattr(axstereo, method)(0, 0, 0, 'text')
+            getattr(axstereo, method)(x=0, y=0, z=0, s='text')
+        else:
+            getattr(axstereo, method)(x, y, z)
+            getattr(axstereo, method)(x=x, y=y, z=z)
     assert True
 
     # Smoke test eye balance
@@ -105,8 +109,12 @@ def test_AxesAnaglyph():
     x, y, z = _testdata()['trefoil']
     axstereo = AxesAnaglyph()
     for method in axstereo.known_methods:
-        getattr(axstereo, method)(x, y, z)
-        getattr(axstereo, method)(x=x, y=y, z=z)
+        if method == 'text':
+            getattr(axstereo, method)(0, 0, 0, 'text')
+            getattr(axstereo, method)(x=0, y=0, z=0, s='text')
+        else:
+            getattr(axstereo, method)(x, y, z)
+            getattr(axstereo, method)(x=x, y=y, z=z)
     assert True
 
     # Smoke test eye balance
