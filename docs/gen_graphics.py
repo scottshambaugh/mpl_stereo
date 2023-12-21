@@ -44,7 +44,11 @@ def animate_2d_trefoil(savedir):
     cmap = matplotlib.colormaps['viridis']
     axstereo = AxesStereo2D()
     axstereo.plot(x, y, z, c='k', alpha=0.2)
-    scatter = axstereo.scatter(x, y, z, c=z, cmap=cmap, s=10)
+    scatter = axstereo.scatter(x, y, z, s=10)
+    colors = cmap(z)
+    for scat in scatter:
+        scat.set_edgecolor(colors)
+        scat.set_facecolor(colors)
     axstereo.fig.set_size_inches(6.0, 3)
 
     def animate(frame):
@@ -54,9 +58,10 @@ def animate_2d_trefoil(savedir):
                                                     axstereo.d, axstereo.ipd)
         scatter[0].set_offsets(np.stack([x + offset_left, y]).T)
         scatter[1].set_offsets(np.stack([x - offset_right, y]).T)
+        colors = cmap(z)
         for scat in scatter:
-            scat.set_edgecolor(cmap(z))
-            scat.set_facecolor(cmap(z))
+            scat.set_edgecolor(colors)
+            scat.set_facecolor(colors)
         return scatter
 
     ani = animation.FuncAnimation(axstereo.fig, animate, frames=np.arange(N_STEPS),
@@ -71,15 +76,20 @@ def animate_3d_trefoil(savedir):
     cmap = matplotlib.colormaps['viridis']
     axstereo = AxesStereo3D()
     axstereo.plot(x, y, z, c='k', alpha=0.2)
-    scatter = axstereo.scatter(x, y, z, c=z, cmap=cmap, s=10)
+    scatter = axstereo.scatter(x, y, z, s=10)
+    colors = cmap(z)
+    for scat in scatter:
+        scat.set_edgecolor(colors)
+        scat.set_facecolor(colors)
     axstereo.fig.set_size_inches(6.0, 3)
 
     def animate(frame):
         x, y, z = generate_trefoil(frame)
+        colors = cmap(z)
         for scat in scatter:
             scat._offsets3d = (x, y, z)
-            scat.set_edgecolor(cmap(z))
-            scat.set_facecolor(cmap(z))
+            scat.set_edgecolor(colors)
+            scat.set_facecolor(colors)
         axstereo.ax_left.view_init(azim=(axstereo.ax_left.azim + dazim), share=True)
         return scatter
 
@@ -95,7 +105,7 @@ def main():
     plot_3d_trefoil(currdir)
     plot_anaglyph_trefoil(currdir)
     animate_2d_trefoil(currdir)
-    # animate_3d_trefoil(currdir)
+    animate_3d_trefoil(currdir)
 
 
 if __name__ == '__main__':

@@ -100,6 +100,9 @@ See an example of how to use this with matplotlib animations in [docs/gen_graphi
 <p float="left" align="center">
 <img width="500" height="250" src="https://raw.githubusercontent.com/scottshambaugh/mpl_stereo/main/docs/trefoil_2d_animation.gif">
 </p>
+<p float="left" align="center">
+<img width="500" height="250" src="https://raw.githubusercontent.com/scottshambaugh/mpl_stereo/main/docs/trefoil_3d_animation.gif">
+</p>
 
 
 ## Viewing Stereograms
