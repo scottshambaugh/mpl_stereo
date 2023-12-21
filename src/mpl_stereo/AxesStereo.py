@@ -105,6 +105,8 @@ def calc_2d_offsets(eye_balance: float, z: np.ndarray, d: float, ipd: float,
     z_range = np.ptp(z)
     if z_range == 0:  # If all the z values are the same
         z_range = np.max(abs(z))
+        if z_range == 0:
+            z_range = 1
     z_midpoint = np.min(z) + z_range/2
     if z_zero is None:
         z_zero = z_midpoint
