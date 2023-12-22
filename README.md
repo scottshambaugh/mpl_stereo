@@ -4,8 +4,8 @@
 [![codecov](https://codecov.io/gh/scottshambaugh/mpl_stereo/graph/badge.svg?token=V2ZSLFUK03)](https://codecov.io/gh/scottshambaugh/mpl_stereo)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/mpl_stereo)
 
-<p float="center" align="left">
-<img width="240" height="60" src="https://raw.githubusercontent.com/scottshambaugh/mpl_stereo/main/docs/mpl_stereo_logo_with_text.png">  
+<p float="center" align="center">
+<img width="320 " height="80" src="https://raw.githubusercontent.com/scottshambaugh/mpl_stereo/main/docs/mpl_stereo_logo_with_text.png">  
 </p>
 
 Matplotlib add-on to make [stereograms](https://en.wikipedia.org/wiki/Stereoscopy) and [anaglyphs](https://en.wikipedia.org/wiki/Anaglyph_3D).
