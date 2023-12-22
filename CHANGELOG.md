@@ -8,6 +8,7 @@
 - 3D take into account roll angle
 - Document derivation of offsets
 - GH release publish to pypi
+* zlim handling and consistent depth
 - Raster anaglyphs, see [example in sunpy](https://docs.sunpy.org/en/stable/generated/gallery/showcase/stereoscopic_3d.html#sphx-glr-generated-gallery-showcase-stereoscopic-3d-py)
 
 ----
