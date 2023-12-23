@@ -10,6 +10,7 @@
 - GH release publish to pypi
 - zlim handling and consistent depth
 - Check AxesAnaglyph.imshow_stereo() non-redcyan coloring
+- Sun image licensing
 
 ----
 
