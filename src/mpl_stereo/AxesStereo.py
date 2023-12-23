@@ -1,6 +1,8 @@
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 import inspect
+import copy
 
 from abc import ABC
 from typing import Optional, Union, Any
@@ -591,6 +593,36 @@ class AxesAnaglyph(AxesStereoBase):
             return result
 
         return method
+
+    def imshow_stereo(self, data_left: np.ndarray, data_right: np.ndarray,
+                      cmap: str = 'gray', *args, **kwargs):
+        """
+        From existing stereo image data, combine into an anaglyph.
+
+        Parameters
+        ----------
+        data_left : numpy.ndarray
+            The data from the left image.
+        data_right : numpy.ndarray
+            The data from the right image.
+        cmap : str
+            The matplotlib colormap to use, default 'gray'
+        """
+        named_colors = mpl.colors.get_named_colors_mapping()
+        # We flip the index
+        color_tuple_left = mpl.colors.hex2color(named_colors[self.colors[1]])
+        color_tuple_right = mpl.colors.hex2color(named_colors[self.colors[0]])
+
+        cmap_left = copy.deepcopy(plt.get_cmap(cmap))
+        cmap_right = copy.deepcopy(cmap_left)
+        for color, val in zip(['red', 'green', 'blue'], color_tuple_left):
+            cmap_left._segmentdata[color] = [(0, 0, 0), (1, val, val)]
+        for color, val in zip(['red', 'green', 'blue'], color_tuple_right):
+            cmap_right._segmentdata[color] = [(0, 0, 0), (1, val, val)]
+
+        # The [0:3] indexing is to discard the added alpha channel
+        data_colored = (cmap_left(data_left) + cmap_right(data_right))[:, :, 0:3]
+        self.ax.imshow(data_colored, *args, **kwargs)
 
     def set_axlabel_colors(self):
         """
