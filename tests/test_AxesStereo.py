@@ -4,20 +4,22 @@ import inspect
 from mpl_toolkits.mplot3d.axes3d import get_test_data
 
 from mpl_stereo import AxesStereo2D, AxesStereo3D, AxesAnaglyph
+from mpl_stereo.example_data import trefoil, sun_left_right
 
 
 def _testdata():
     data = dict()
     # Parametric equations for a (3,2) trefoil knot
-    t = np.linspace(0, 2*np.pi, 100)
-    x = np.cos(2*t) * (3 + np.cos(3*t))
-    y = np.sin(2*t) * (3 + np.cos(3*t))
-    z = np.sin(3*t)
+    x, y, z = trefoil()
     data['trefoil'] = (x, y, z)
 
     # 3D test data
     X, Y, Z = get_test_data(0.05)
     data['3d_default'] = (X, Y, Z)
+
+    # Sun data
+    sun_left_data, sun_right_data = sun_left_right()
+    data['sun'] = (sun_left_data, sun_right_data)
     return data
 
 
@@ -141,6 +143,13 @@ def test_AxesAnaglyph():
     assert True
 
 
+def test_AxesAnaglyph_imshow_steroe():
+    # Smoke test imshow_stereo
+    axstereo = AxesAnaglyph()
+    axstereo.imshow_stereo(np.array([[1]]), np.array([[1]]))
+    assert True
+
+
 def plotting_tests_2d_pairwise():
     # test plot and scatter
     x, y, z = _testdata()['trefoil']
@@ -203,9 +212,16 @@ def plotting_tests_anaglyph_pairwise():
     axstereo.scatter(x, y, z, c=z, cmap='viridis', s=10)
 
 
+def plotting_tests_anaglyph_imshow_stereo():
+    sun_left_data, sun_right_data = _testdata()['sun']
+    axstereo = AxesAnaglyph()
+    axstereo.imshow_stereo(sun_left_data, sun_right_data)
+
+
 if __name__ == '__main__':
     plotting_tests_2d_pairwise()
     plotting_tests_3d()
     plotting_tests_anaglyph_pairwise()
     plotting_tests_2d_pairwise_z_zero()
+    plotting_tests_anaglyph_imshow_stereo()
     plt.show()

@@ -4,19 +4,12 @@ import matplotlib.animation as animation
 import matplotlib.pyplot as plt
 from pathlib import Path
 from mpl_stereo import AxesStereo2D, AxesStereo3D, AxesAnaglyph, calc_2d_offsets, sort_by_z
+from mpl_stereo.example_data import trefoil, sun_left_right
 
 N_STEPS = 10
 
-def generate_trefoil(i=0):
-    dt = 2*np.pi*i/100/N_STEPS
-    t = np.linspace(0, 2*np.pi, 100) + dt
-    x = np.cos(2*t) * (3 + np.cos(3*t))
-    y = np.sin(2*t) * (3 + np.cos(3*t))
-    z = np.sin(3*t)
-    return x, y, z
-
 def plot_2d_trefoil(savedir=None, show=True):
-    x, y, z = generate_trefoil()
+    x, y, z = trefoil()
     axstereo = AxesStereo2D()
     axstereo.plot(x, y, z, c='k', alpha=0.2)
     axstereo.scatter(x, y, z, c=z, cmap='viridis', s=10)
@@ -27,7 +20,7 @@ def plot_2d_trefoil(savedir=None, show=True):
         plt.show()
 
 def plot_3d_trefoil(savedir=None, show=True):
-    x, y, z = generate_trefoil()
+    x, y, z = trefoil()
     axstereo = AxesStereo3D()
     axstereo.plot(x, y, z, c='k', alpha=0.2)
     axstereo.scatter(x, y, z, c=z, cmap='viridis', s=10)
@@ -38,7 +31,7 @@ def plot_3d_trefoil(savedir=None, show=True):
         plt.show()
 
 def plot_anaglyph_trefoil(savedir=None, show=True):
-    x, y, z = generate_trefoil()
+    x, y, z = trefoil()
     axstereo = AxesAnaglyph()
     axstereo.plot(x, y, z)
     axstereo.scatter(x, y, z, s=10)
@@ -49,7 +42,7 @@ def plot_anaglyph_trefoil(savedir=None, show=True):
         plt.show()
 
 def plot_anaglyph_trefoil_z_zero(savedir=None, show=True):
-    x, y, z = generate_trefoil()
+    x, y, z = trefoil()
     fig, axs = plt.subplots(1, 3)
     z_zeros = (min(z), None, max(z))
     titles = ('z_zero = min(z)\ndata floats above page',
@@ -68,7 +61,7 @@ def plot_anaglyph_trefoil_z_zero(savedir=None, show=True):
         plt.show()
 
 def animate_2d_trefoil(savedir=None, show=True):
-    x, y, z = generate_trefoil(0)
+    x, y, z = trefoil(0, n_steps=N_STEPS)
     cmap = matplotlib.colormaps['viridis']
     axstereo = AxesStereo2D()
     axstereo.plot(x, y, z, c='k', alpha=0.2)
@@ -80,7 +73,7 @@ def animate_2d_trefoil(savedir=None, show=True):
     axstereo.fig.set_size_inches(6.0, 3)
 
     def animate(frame):
-        x, y, z = generate_trefoil(frame)
+        x, y, z = trefoil(frame, n_steps=N_STEPS)
         x, y, z, _ = sort_by_z(x, y, z, kwargs=dict())
         offset_left, offset_right = calc_2d_offsets(axstereo.eye_balance, z,
                                                     axstereo.d, axstereo.ipd)
@@ -103,7 +96,7 @@ def animate_3d_trefoil(savedir=None, show=True):
     n_frames = 180
     dazim = 360/n_frames
 
-    x, y, z = generate_trefoil(0)
+    x, y, z = trefoil(0, n_steps=N_STEPS)
     cmap = matplotlib.colormaps['viridis']
     axstereo = AxesStereo3D()
     axstereo.plot(x, y, z, c='k', alpha=0.2)
@@ -115,7 +108,7 @@ def animate_3d_trefoil(savedir=None, show=True):
     axstereo.fig.set_size_inches(6.0, 3)
 
     def animate(frame):
-        x, y, z = generate_trefoil(frame)
+        x, y, z = trefoil(frame, n_steps=N_STEPS)
         colors = cmap(z)
         for scat in scatter:
             scat._offsets3d = (x, y, z)
@@ -133,7 +126,7 @@ def animate_3d_trefoil(savedir=None, show=True):
 
 def gen_logo(savedir=None, show=True):
     # Setting limits and aspect
-    x, y, z = generate_trefoil()
+    x, y, z = trefoil()
     axstereo = AxesAnaglyph(ipd=150)
     axstereo.plot(x, y, z, linewidth=6)
     axstereo.set_xlim(-4.5, 4.5)
@@ -157,6 +150,25 @@ def gen_logo_with_text(savedir=None, show=True):
     if show:
         plt.show()
 
+def plot_2d_sun(savedir=None, show=True):
+    sun_left_data, sun_right_data = sun_left_right()
+
+    axstereo = AxesStereo2D()
+    axstereo.ax_left.imshow(sun_left_data, cmap='gray')
+    axstereo.ax_right.imshow(sun_right_data, cmap='gray')
+    if savedir is not None:
+        plt.savefig(savedir / 'sun_2d.png', bbox_inches='tight', dpi=640)
+    if show:
+        plt.show()
+
+def plot_anaglyph_sun(savedir=None, show=True):
+    sun_left_data, sun_right_data = sun_left_right()
+    axstereo = AxesAnaglyph()
+    axstereo.imshow_stereo(sun_left_data, sun_right_data)
+    if savedir is not None:
+        plt.savefig(savedir / 'sun_anaglyph.png', bbox_inches='tight', dpi=640)
+    if show:
+        plt.show()
 
 def main():
     currdir = Path(__file__).parent.resolve()
@@ -170,6 +182,8 @@ def main():
     animate_3d_trefoil(savedir, show)
     gen_logo(savedir, show)
     gen_logo_with_text(savedir, show)
+    plot_2d_sun(savedir, show)
+    plot_anaglyph_sun(savedir, show)
 
 
 if __name__ == '__main__':

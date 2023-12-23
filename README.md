@@ -23,11 +23,8 @@ pip install mpl_stereo
 ```python
 import numpy as np
 from mpl_stereo import AxesStereo2D, AxesStereo3D, AxesAnaglyph
-# Generate some data, we'll make a trefoil knot
-t = np.linspace(0, 2*np.pi, 100)
-x = np.cos(2*t) * (3 + np.cos(3*t))
-y = np.sin(2*t) * (3 + np.cos(3*t))
-z = np.sin(3*t)
+from mpl_stereo.example_data import trefoil
+x, y, z = trefoil()  # trefoil knot
 ```
 
 ### 2D Stereogram plots
