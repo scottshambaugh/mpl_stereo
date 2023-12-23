@@ -9,7 +9,6 @@
 - Document derivation of offsets
 - GH release publish to pypi
 - zlim handling and consistent depth
-- Check AxesAnaglyph.imshow_stereo() coloring
 
 ----
 
@@ -17,7 +16,7 @@
 ### Added    
 * `AxesAnaglyph.imshow_stereo()` for generating anaglyphs from existing image data
 ### Changed    
-* Minimal whitespace between stereo subplots
+* Minimal whitespace between AxesStereo2D subplots
 ### Removed    
 
 ## [0.3.1] - 2023-12-21

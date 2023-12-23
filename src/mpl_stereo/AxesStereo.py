@@ -260,8 +260,6 @@ class AxesStereo(AxesStereoBase):
             self.ax_left = axs[0]
             self.ax_right = axs[1]
 
-        fig.subplots_adjust(wspace=0.01)
-        self.ax_right.yaxis.set_visible(False)
         self.ax_left.sharex(self.ax_right)
         self.ax_left.sharey(self.ax_right)
 
@@ -310,6 +308,10 @@ class AxesStereo2D(AxesStereo):
         super().__init__(fig=fig, axs=axs, eye_balance=eye_balance, d=d, ipd=ipd,
                          z_scale=z_scale, z_zero=z_zero, is_3d=False)
         self.known_methods = ['plot', 'scatter', 'stem', 'bar', 'text']
+
+        # Minimize whitespace between plots
+        self.fig.subplots_adjust(wspace=0.01)
+        self.ax_right.yaxis.set_visible(False)
 
         # Give the innacurate x-axis labels some transparency
         self.set_axlabel_alphas(alpha=0.5)
