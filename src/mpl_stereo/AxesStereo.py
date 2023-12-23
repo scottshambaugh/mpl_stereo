@@ -258,6 +258,8 @@ class AxesStereo(AxesStereoBase):
             self.ax_left = axs[0]
             self.ax_right = axs[1]
 
+        fig.subplots_adjust(wspace=0.01)
+        self.ax_right.yaxis.set_visible(False)
         self.ax_left.sharex(self.ax_right)
         self.ax_left.sharey(self.ax_right)
 

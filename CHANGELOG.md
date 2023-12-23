@@ -16,6 +16,7 @@
 ## [Unreleased]
 ### Added    
 ### Changed    
+* Minimal whitespace between stereo subplots
 ### Removed    
 
 ## [0.3.1] - 2023-12-21
