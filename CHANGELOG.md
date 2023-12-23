@@ -18,6 +18,7 @@
 ### Added    
 * `AxesAnaglyph.imshow_stereo()` for generating anaglyphs from existing image data
 * `mpl_stereo.example_data` module
+* `AxesStereo2D` and `AxesStereo3D` keep track of their artists in `.artists_left` and `artists_right`
 ### Changed    
 * Minimal whitespace between AxesStereo2D subplots
 ### Removed    

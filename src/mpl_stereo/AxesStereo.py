@@ -266,6 +266,9 @@ class AxesStereo(AxesStereoBase):
         self.fig = fig
         self.axs = (self.ax_left, self.ax_right)
 
+        self.artists_left = []
+        self.artists_right = []
+
 
 class AxesStereo2D(AxesStereo):
     def __init__(self,
@@ -354,6 +357,10 @@ class AxesStereo2D(AxesStereo):
                 # Plot the data twice, once for each subplot
                 res_left = getattr(self.ax_left, name)(x + offset_left, y, *args, **kwargs)
                 res_right = getattr(self.ax_right, name)(x - offset_right, y, *args, **kwargs)
+
+                # Keep track of the artists
+                self.artists_left.append(res_left)
+                self.artists_left.append(res_right)
             else:
                 # For methods that don't plot x-y data
                 res_left = getattr(self.ax_left, name)(*args_original, **kwargs)
@@ -458,6 +465,10 @@ class AxesStereo3D(AxesStereo):
                 # Plot the data twice, once for each subplot
                 res_left = getattr(self.ax_left, name)(*args, **kwargs)
                 res_right = getattr(self.ax_right, name)(*args, **kwargs)
+
+                # Keep track of the artists
+                self.artists_left.append(res_left)
+                self.artists_left.append(res_right)
 
             else:
                 # For methods that do not involve 'x' and 'y'
