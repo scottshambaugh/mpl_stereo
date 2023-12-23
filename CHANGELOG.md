@@ -17,6 +17,7 @@
 ## [Unreleased]
 ### Added    
 * `AxesAnaglyph.imshow_stereo()` for generating anaglyphs from existing image data
+* `mpl_stereo.example_data` module
 ### Changed    
 * Minimal whitespace between AxesStereo2D subplots
 ### Removed    

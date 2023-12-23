@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.image as mpimg
 from pathlib import Path
 
-def trefoil(i=0, n_points=100, n_steps=10):
+def trefoil(i: int = 0, n_points: int = 100, n_steps: int = 10):
     dt = 2*np.pi*i/n_points/n_steps
     t = np.linspace(0, 2*np.pi, n_points) + dt
     x = np.cos(2*t) * (3 + np.cos(3*t))
