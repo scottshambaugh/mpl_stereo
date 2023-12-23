@@ -175,15 +175,15 @@ def main():
     savedir = currdir
     show = False
     plot_2d_trefoil(savedir, show)
+    plot_2d_sun(savedir, show)
     plot_3d_trefoil(savedir, show)
     plot_anaglyph_trefoil(savedir, show)
     plot_anaglyph_trefoil_z_zero(savedir, show)
+    plot_anaglyph_sun(savedir, show)
     animate_2d_trefoil(savedir, show)
     animate_3d_trefoil(savedir, show)
     gen_logo(savedir, show)
     gen_logo_with_text(savedir, show)
-    plot_2d_sun(savedir, show)
-    plot_anaglyph_sun(savedir, show)
 
 
 if __name__ == '__main__':
