@@ -13,7 +13,7 @@ def plot_2d_trefoil(savedir=None, show=True):
     axstereo = AxesStereo2D()
     axstereo.plot(x, y, z, c='k', alpha=0.2)
     axstereo.scatter(x, y, z, c=z, cmap='viridis', s=10)
-    axstereo.fig.set_size_inches(6.0, 3)
+    axstereo.fig.set_size_inches(6, 3)
     if savedir is not None:
         plt.savefig(savedir / 'trefoil_2d.png', dpi=100)
     if show:
@@ -24,7 +24,7 @@ def plot_3d_trefoil(savedir=None, show=True):
     axstereo = AxesStereo3D()
     axstereo.plot(x, y, z, c='k', alpha=0.2)
     axstereo.scatter(x, y, z, c=z, cmap='viridis', s=10)
-    axstereo.fig.set_size_inches(6.0, 3)
+    axstereo.fig.set_size_inches(6, 3)
     if savedir is not None:
         plt.savefig(savedir / 'trefoil_3d.png', dpi=100)
     if show:
@@ -70,7 +70,7 @@ def animate_2d_trefoil(savedir=None, show=True):
     for scat in scatter:
         scat.set_edgecolor(colors)
         scat.set_facecolor(colors)
-    axstereo.fig.set_size_inches(6.0, 3)
+    axstereo.fig.set_size_inches(6, 3)
 
     def animate(frame):
         x, y, z = trefoil(frame, n_steps=N_STEPS)
@@ -105,7 +105,7 @@ def animate_3d_trefoil(savedir=None, show=True):
     for scat in scatter:
         scat.set_edgecolor(colors)
         scat.set_facecolor(colors)
-    axstereo.fig.set_size_inches(6.0, 3)
+    axstereo.fig.set_size_inches(6, 3)
 
     def animate(frame):
         x, y, z = trefoil(frame, n_steps=N_STEPS)
@@ -125,8 +125,13 @@ def animate_3d_trefoil(savedir=None, show=True):
         plt.show()
 
 def gen_logo(savedir=None, show=True):
-    # Setting limits and aspect
+    # Roll the data so the end of the line is in a straight portion
     x, y, z = trefoil()
+    n_roll = 15
+    x = np.roll(x, n_roll)
+    y = np.roll(y, n_roll)
+    z = np.roll(z, n_roll)
+
     axstereo = AxesAnaglyph(ipd=150)
     axstereo.plot(x, y, z, linewidth=6)
     axstereo.set_xlim(-4.5, 4.5)
@@ -135,7 +140,7 @@ def gen_logo(savedir=None, show=True):
     axstereo.set_axis_off()
     axstereo.fig.set_size_inches(1, 1)
     if savedir is not None:
-        plt.savefig(savedir / 'mpl_stereo_logo.png', dpi=100)
+        plt.savefig(savedir / 'mpl_stereo_logo.png', dpi=640)
     if show:
         plt.show()
     return axstereo
@@ -156,6 +161,7 @@ def plot_2d_sun(savedir=None, show=True):
     axstereo = AxesStereo2D()
     axstereo.ax_left.imshow(sun_left_data, cmap='gray')
     axstereo.ax_right.imshow(sun_right_data, cmap='gray')
+    axstereo.fig.set_size_inches(6, 3)
     if savedir is not None:
         plt.savefig(savedir / 'sun_2d.png', bbox_inches='tight', dpi=640)
     if show:
@@ -165,6 +171,7 @@ def plot_anaglyph_sun(savedir=None, show=True):
     sun_left_data, sun_right_data = sun_left_right()
     axstereo = AxesAnaglyph()
     axstereo.imshow_stereo(sun_left_data, sun_right_data)
+    axstereo.fig.set_size_inches(3, 3)
     if savedir is not None:
         plt.savefig(savedir / 'sun_anaglyph.png', bbox_inches='tight', dpi=640)
     if show:
