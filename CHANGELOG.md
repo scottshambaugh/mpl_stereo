@@ -9,7 +9,7 @@
 - Document derivation of offsets
 - GH release publish to pypi
 - zlim handling and consistent depth
-- Check AxesAnaglyph.imshow_stereo() non-redcyan coloring
+- Check AxesAnaglyph.imshow_stereo() non-gray coloring, and non-named coloring
 - Sun image licensing
 
 ----
