@@ -314,9 +314,9 @@ class AxesStereo2D(AxesStereo):
 
         # Minimize whitespace between plots
         self.fig.subplots_adjust(wspace=0.01)
-        self.ax_right.yaxis.set_visible(False)
+        self.ax_right.tick_params(axis='y', length=0, labelcolor=(0, 0, 0, 0))
 
-        # Give the innacurate x-axis labels some transparency
+        # Give the innaccurate x-axis labels some transparency
         self.set_axlabel_alphas(alpha=0.5)
 
     def __getattr__(self, name: str):
