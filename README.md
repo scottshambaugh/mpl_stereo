@@ -66,7 +66,7 @@ axstereo.scatter(x, y, z, s=10)
 </p>
 
 ### Existing Stereo Images
-Existing stereo image data can easily be plotted up side-by-side, or combined into an anaglyph.
+Existing stereo image data can easily be plotted up side-by-side, or combined into an anaglyph. Here we plot up two images of the sun taken in July 2023 by the NASA STEREO-A and SDO spacecraft. This example was adapted from [the SunPy documentation](https://docs.sunpy.org/en/stable/generated/gallery/showcase/stereoscopic_3d.html#sphx-glr-generated-gallery-showcase-stereoscopic-3d-py).
 ```python
 from mpl_stereo.example_data import sun_left_right
 sun_left_data, sun_right_data = sun_left_right
@@ -79,7 +79,7 @@ axstereo = AxesAnaglyph()
 axstereo.imshow_stereo(sun_left_data, sun_right_data)
 ```
 <p float="left" align="center">
-<img width="500" height="250" src="https://raw.githubusercontent.com/scottshambaugh/mpl_stereo/main/docs/sun_2d.png">
+<img width="450" height="250" src="https://raw.githubusercontent.com/scottshambaugh/mpl_stereo/main/docs/sun_2d.png">
 </p>
 <p float="left" align="center">
 <img width="250" height="250" src="https://raw.githubusercontent.com/scottshambaugh/mpl_stereo/main/docs/sun_anaglyph.png">
