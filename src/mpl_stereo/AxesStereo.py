@@ -607,8 +607,7 @@ class AxesAnaglyph(AxesStereoBase):
 
         return method
 
-    def imshow_stereo(self, data_left: np.ndarray, data_right: np.ndarray,
-                      cmap: str = 'gray', *args, **kwargs):
+    def imshow_stereo(self, data_left: np.ndarray, data_right: np.ndarray, *args, **kwargs):
         """
         From existing stereo image data, combine into an anaglyph. Any further
         args or kwargs will be passed on to the `imshow()` function.
@@ -619,14 +618,12 @@ class AxesAnaglyph(AxesStereoBase):
             The data from the left image.
         data_right : numpy.ndarray
             The data from the right image.
-        cmap : str
-            The matplotlib colormap to use, default 'gray'
         """
         named_colors = mpl.colors.get_named_colors_mapping()
         color_tuple_left = mpl.colors.hex2color(named_colors[self.colors[0]])
         color_tuple_right = mpl.colors.hex2color(named_colors[self.colors[1]])
 
-        cmap_left = copy.deepcopy(plt.get_cmap(cmap))
+        cmap_left = copy.deepcopy(plt.get_cmap('gray'))
         cmap_right = copy.deepcopy(cmap_left)
         for color, val in zip(['red', 'green', 'blue'], color_tuple_left):
             cmap_left._segmentdata[color] = [(0, 0, 0), (1, val, val)]
