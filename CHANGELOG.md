@@ -6,7 +6,6 @@
 - Add on more known 2D plotting functions
 - Flesh out testing of 3D plotting
 - 3D take into account roll angle
-- Document derivation of offsets
 - GH release publish to pypi
 - zlim handling and consistent depth
 - Check AxesAnaglyph.imshow_stereo() non-gray coloring, and non-named coloring

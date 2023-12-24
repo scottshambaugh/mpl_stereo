@@ -144,4 +144,16 @@ These are not [*auto*stereograms](https://en.wikipedia.org/wiki/Autostereogram),
 By default, the stereograms are set up for "parallel" viewing method as described above. For "cross-eyed" viewing, initialize with a negative `ipd` parameter. An ipd (Inter-Pupilary Distance) of 65 millimeters is the default, so call `AxesStereo2D(ipd=-65)` for the default cross-eyed viewing.
 
 ### Derivation of Geometry
-TODO
+Two eyes with separation `IPD` are looking at a point a distance `z` offset from a focal plane at distance `d`, resulting in view angle `θ`. If this point were projected back to the focal plane, it would be offset by `δ` from where it visually appears on that plane. This offset `δ` is used to displace each point in the stereogram for each eye based on its `z` value to achieve the stereoscopic effect. The `eye_balance` parameter reallocates the total relative displacement of `2δ` between the two eyes.
+
+```
+θ = arctan((d - z) / (IPD / 2))
+D / d = (IPD / 2) / (d - z)
+δ = D - IPD / 2
+  = IPD / 2 * (d / (d - z) - 1)
+  = IPD / 2 * z / (d - z)
+```
+
+<p float="left" align="center">
+<img width="375" height="450" src="https://raw.githubusercontent.com/scottshambaugh/mpl_stereo/main/docs/geometry.png">
+</p>
