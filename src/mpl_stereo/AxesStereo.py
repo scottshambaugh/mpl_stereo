@@ -620,8 +620,8 @@ class AxesAnaglyph(AxesStereoBase):
             The data from the right image.
         """
         named_colors = mpl.colors.get_named_colors_mapping()
-        color_tuple_left = mpl.colors.hex2color(named_colors[self.colors[0]])
-        color_tuple_right = mpl.colors.hex2color(named_colors[self.colors[1]])
+        color_tuple_left = mpl.colors.hex2color(named_colors[self.colors[1]])
+        color_tuple_right = mpl.colors.hex2color(named_colors[self.colors[0]])
 
         cmap_left = copy.deepcopy(plt.get_cmap('gray'))
         cmap_right = copy.deepcopy(cmap_left)

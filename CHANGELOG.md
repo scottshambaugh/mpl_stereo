@@ -9,6 +9,7 @@
 - GH release publish to pypi
 - zlim handling and consistent depth
 - AxesAnaglyph.imshow_stereo() other colormaps
+- AxesAnaglyph.imshow_stereo() full color images
 
 ----
 
@@ -16,6 +17,10 @@
 ### Added    
 ### Changed    
 ### Removed    
+
+## [0.4.1] - 2023-12-24
+### Changed    
+* Fix anaglyph color ordering
 
 ## [0.4.0] - 2023-12-23
 ### Added    
