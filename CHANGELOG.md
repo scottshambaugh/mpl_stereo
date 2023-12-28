@@ -7,7 +7,6 @@
 - Flesh out testing of 3D plotting
 - 3D take into account roll angle
 - GH release publish to pypi
-- zlim handling and consistent depth
 - AxesAnaglyph.imshow_stereo() other colormaps
 - AxesAnaglyph.imshow_stereo() full color images
 
@@ -15,7 +14,10 @@
 
 ## [Unreleased]
 ### Added    
+* Consistent `zlim` handling added, with functions `get_zlim`, `set_zlim`, `autoscale_z`, `_calc_bounding_zlim`
+* Method `redraw` for side-by-side axes
 ### Changed    
+* Default z_scale fixed
 ### Removed    
 
 ## [0.4.1] - 2023-12-24

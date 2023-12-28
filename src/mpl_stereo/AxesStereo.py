@@ -80,8 +80,14 @@ def process_args(ax_method: Any, known_methods: list[str], args: Any, kwargs: di
     return x, y, z, args, kwargs
 
 
-def calc_2d_offsets(eye_balance: float, z: np.ndarray, d: float, ipd: float,
-                    z_scale: Optional[float] = None, z_zero: Optional[float] = None):
+def calc_2d_offsets(eye_balance: float,
+                    z: np.ndarray,
+                    d: float,
+                    ipd: float,
+                    z_autoscale: bool = True,
+                    z_scale: Optional[float] = None,
+                    z_lim: Optional[tuple[float, float]] = None,
+                    z_zero: Optional[float] = None):
     """
     Calculates the x-offsets for a 2D plot to create a stereoscopic effect
     based on the z-coordinates of the data points.
@@ -104,22 +110,28 @@ def calc_2d_offsets(eye_balance: float, z: np.ndarray, d: float, ipd: float,
         float above the page, or set to max(z) to have all the data float sink
         into the page. If None, will be set to the midpoint of the z range.
     """
-    z_range = np.ptp(z)
+    if z_autoscale or z_lim is None:
+        z_lim_new = (np.min(z), np.max(z))
+        if z_lim is None:
+            z_lim = z_lim_new
+        else:
+            z_lim = (min(z_lim[0], z_lim_new[0]), max(z_lim[1], z_lim_new[1]))
+    z_range = z_lim[1] - z_lim[0]
     if z_range == 0:  # If all the z values are the same
         z_range = np.max(abs(z))
         if z_range == 0:
             z_range = 1
-    z_midpoint = np.min(z) + z_range/2
+    z_midpoint = z_lim[0] + z_range/2
     if z_zero is None:
         z_zero = z_midpoint
     if z_scale is None:
-        z_scale = z_range
+        z_scale = 1
 
     z_scaled = (z + z_midpoint - z_zero) / z_range * z_scale
     offset = ipd * z_scaled / (d + z_scaled)
     offset_left = (eye_balance + 1)/2 * offset
     offset_right = (1 - eye_balance)/2 * offset
-    return offset_left, offset_right
+    return offset_left, offset_right, z_lim
 
 
 def view_init(self, elev=None, azim=None, roll=None, vertical_axis="z",
@@ -164,6 +176,7 @@ class AxesStereoBase(ABC):
                  d: float = 350,
                  ipd: float = 65,
                  z_scale: Optional[float] = None,
+                 z_lim: Optional[tuple[float, float]] = None,
                  z_zero: Optional[float] = None,
                  is_3d: bool = False):
         """
@@ -194,9 +207,14 @@ class AxesStereoBase(ABC):
         self.d = d
         self.ipd = ipd
         self.z_scale = z_scale
+        self.z_lim = z_lim
         self.z_zero = z_zero
         self.is_3d = is_3d
         self.known_methods: list[str] = []
+
+        self.z_autoscale = True
+        if self.z_lim is not None:
+            self.z_autoscale = False
 
 
 class AxesStereo(AxesStereoBase):
@@ -207,6 +225,7 @@ class AxesStereo(AxesStereoBase):
                  d: float = 350,
                  ipd: float = 65,
                  z_scale: Optional[float] = None,
+                 z_lim: Optional[tuple[float, float]] = None,
                  z_zero: Optional[float] = None,
                  is_3d: bool = False):
         """
@@ -238,7 +257,7 @@ class AxesStereo(AxesStereoBase):
             Whether the axes are 3D. Default is False.
         """
         super().__init__(eye_balance=eye_balance, d=d, ipd=ipd, z_scale=z_scale,
-                         z_zero=z_zero, is_3d=is_3d)
+                         z_lim=z_lim, z_zero=z_zero, is_3d=is_3d)
 
         # Generate two side-by-side subplots
         if fig is None and axs is None:
@@ -268,6 +287,7 @@ class AxesStereo(AxesStereoBase):
 
         self.artists_left = []
         self.artists_right = []
+        self.artist_args = []
 
 
 class AxesStereo2D(AxesStereo):
@@ -278,6 +298,7 @@ class AxesStereo2D(AxesStereo):
                  d: float = 350,
                  ipd: float = 65,
                  z_scale: Optional[float] = None,
+                 z_lim: Optional[tuple[float, float]] = None,
                  z_zero: Optional[float] = None):
         """
         A class for creating stereoscopic 2D plots.
@@ -309,7 +330,7 @@ class AxesStereo2D(AxesStereo):
             midpoint of the z range.
         """
         super().__init__(fig=fig, axs=axs, eye_balance=eye_balance, d=d, ipd=ipd,
-                         z_scale=z_scale, z_zero=z_zero, is_3d=False)
+                         z_lim=z_lim, z_scale=z_scale, z_zero=z_zero, is_3d=False)
         self.known_methods = ['plot', 'scatter', 'stem', 'bar', 'text']
 
         # Minimize whitespace between plots
@@ -350,17 +371,42 @@ class AxesStereo2D(AxesStereo):
                 if z_scale is None and self.z_scale is not None:
                     z_scale = self.z_scale
 
+                # Extract the z_lim keyword argument if it exists and update limits
+                z_lim = kwargs.pop('z_lim', None)
+                if z_lim is not None:
+                    self.set_zlim(z_lim, redraw=False)
+
                 # Calculate the x-offsets
-                offset_left, offset_right = calc_2d_offsets(self.eye_balance, z, self.d, self.ipd,
-                                                            z_scale=z_scale, z_zero=z_zero)
+                offset_left, offset_right, z_lim  = calc_2d_offsets(self.eye_balance, z, self.d,
+                                                                    self.ipd, self.z_autoscale,
+                                                                    z_scale=z_scale,
+                                                                    z_lim=self.z_lim,
+                                                                    z_zero=z_zero)
+                if z_lim != self.z_lim:
+                    self.z_lim = z_lim
+                    if len(self.artist_args) > 0:
+                        self.redraw()
 
                 # Plot the data twice, once for each subplot
                 res_left = getattr(self.ax_left, name)(x + offset_left, y, *args, **kwargs)
                 res_right = getattr(self.ax_right, name)(x - offset_right, y, *args, **kwargs)
 
                 # Keep track of the artists
-                self.artists_left.append(res_left)
-                self.artists_left.append(res_right)
+                if isinstance(res_left, list):
+                    self.artists_left.extend(res_left)
+                else:
+                    self.artists_left.append(res_left)
+                if isinstance(res_right, list):
+                    self.artists_right.extend(res_right)
+                else:
+                    self.artists_right.append(res_right)
+
+                # Keep track of the arguments
+                kwargs['x'] = x
+                kwargs['y'] = y
+                kwargs['z'] = z
+                self.artist_args.append((name, args, kwargs))
+
             else:
                 # For methods that don't plot x-y data
                 res_left = getattr(self.ax_left, name)(*args_original, **kwargs)
@@ -386,6 +432,63 @@ class AxesStereo2D(AxesStereo):
             for label in self.ax_right.get_xticklabels():
                 label.set_alpha(alpha)
 
+    def set_zlim(self, z_lim: tuple[float, float],
+                 z_autoscale: bool = False,
+                 redraw: Optional[bool] = None):
+        """
+        Set the z limits of both axes to the same value.
+
+        Parameters
+        ----------
+        z_lim : tuple[float, float]
+            The new z limits.
+        z_autoscale : bool
+            Whether to later automatically scale the z limits based on the data.
+            Default is False.
+        redraw : bool
+            Whether to redraw the plot. If None, then will redraw.
+        """
+        if redraw is None and self.zlim != z_lim:
+            redraw = True
+        self.z_lim = z_lim
+        self.z_autoscale = False  # Do not autoscale for this redraw
+        if redraw:
+            self.redraw()
+        self.z_autoscale = z_autoscale
+
+    def get_zlim(self):
+        """
+        Return the z limit of the axes.
+        """
+        return self.z_lim
+
+    def autoscale_z(self):
+        """
+        Autoscale the z limit of both axes.
+        """
+        self.z_autoscale = True
+        self.z_lim = self._calc_bounding_zlim()
+        self.redraw()
+
+    def _calc_bounding_zlim(self):
+        z_lim = (np.inf, -np.inf)
+        for _, _, kwargs in self.artist_args:
+            z = kwargs['z']
+            z_lim = (min(z_lim[0], np.min(z)), max(z_lim[1], np.max(z)))
+        return z_lim
+
+    def redraw(self):
+        # Remove all the artists
+        for artist in self.artists_left + self.artists_right:
+            artist.remove()
+        self.artists_left = []
+        self.artists_right = []
+
+        # Plot the data again
+        artist_args = self.artist_args
+        self.artist_args = []  # will repopulate in the getattr calls below
+        for name, args, kwargs in artist_args:
+            getattr(self, name)(*args, **kwargs)
 
 class AxesStereo3D(AxesStereo):
     def __init__(self,
@@ -581,8 +684,14 @@ class AxesAnaglyph(AxesStereoBase):
                 if z_scale is None and self.z_scale is not None:
                     z_scale = self.z_scale
 
-                offset_left, offset_right = calc_2d_offsets(self.eye_balance, z, self.d, self.ipd,
-                                                            z_scale=z_scale, z_zero=z_zero)
+                offset_left, offset_right, z_lim  = calc_2d_offsets(self.eye_balance, z, self.d,
+                                                                    self.ipd, self.z_autoscale,
+                                                                    z_scale=z_scale,
+                                                                    z_lim=self.z_lim,
+                                                                    z_zero=z_zero)
+                if z_lim != self.z_lim:
+                    # TODO: redraw
+                    self.z_lim = z_lim
                 # Delete any color arguments
                 kwargs.pop('c', None)
                 kwargs.pop('color', None)
