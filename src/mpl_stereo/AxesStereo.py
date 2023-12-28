@@ -638,7 +638,7 @@ class AxesAnaglyph(AxesStereoBase, AxesStereo2DBase):
                  zscale: Optional[float] = None,
                  zlim: Optional[tuple[float, float]] = None,
                  zzero: Optional[float] = None,
-                 colors: list[str] = ['red', 'cyan']):
+                 colors: list[str, str] = ['red', 'cyan']):
         """
         A class for creating anaglyph plots, that are viewed with red-cyan
         "3D glasses". Note that anaglyph plots need to be 2D. Also, any color
@@ -672,7 +672,7 @@ class AxesAnaglyph(AxesStereoBase, AxesStereo2DBase):
             data float above the page, or set to max(z) to have all the data
             sink into the page. If None (default), will be set to the midpoint
             of the z range.
-        colors : list[str]
+        colors : list[str, str]
             Colors for the left and right axes. Default is ['red', 'cyan'].
             The color ordering refers to the left and right glasses lens colors.
             Because that color prevents that eye from seeing that color data,

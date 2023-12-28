@@ -108,15 +108,15 @@ axstereo.set_xlabel('X Label')
 (line_left, line_right) = axstereo.plot(x, y, z)
 ```
 
-For 2D plots and anaglyphs, the focal plane can be set with the `z_zero` parameter. This is the z value that will be "on the page" when viewing the stereogram.
+For 2D plots and anaglyphs, the focal plane can be set with the `zzero` parameter. This is the z value that will be "on the page" when viewing the stereogram.
 
 ```python
-axstereo = AxesAnaglyph(z_zero=min(z))  # data will float above the page
-axstereo = AxesAnaglyph(z_zero=None)  # page will be at the midpoint of the data range (default)
-axstereo = AxesAnaglyph(z_zero=max(z))  # data will sink below the page
+axstereo = AxesAnaglyph(zzero=min(z))  # data will float above the page
+axstereo = AxesAnaglyph(zzero=None)  # page will be at the midpoint of the data range (default)
+axstereo = AxesAnaglyph(zzero=max(z))  # data will sink below the page
 ```
 <p float="left" align="center">
-<img width="750" height="250" src="https://raw.githubusercontent.com/scottshambaugh/mpl_stereo/main/docs/trefoil_anaglyph_z_zero.png">
+<img width="750" height="250" src="https://raw.githubusercontent.com/scottshambaugh/mpl_stereo/main/docs/trefoil_anaglyph_zzero.png">
 </p>
 
 ### Animations
@@ -144,7 +144,7 @@ These are not [*auto*stereograms](https://en.wikipedia.org/wiki/Autostereogram),
 By default, the stereograms are set up for "parallel" viewing method as described above. For "cross-eyed" viewing, initialize with a negative `ipd` parameter. An ipd (Inter-Pupilary Distance) of 65 millimeters is the default, so call `AxesStereo2D(ipd=-65)` for the default cross-eyed viewing.
 
 ### Derivation of Geometry
-Two eyes with separation `IPD` are looking at a point a distance `z` offset from a focal plane at distance `d`, resulting in view angle `θ`. If this point were projected back to the focal plane, it would be offset by `δ` from where it visually appears on that plane. This offset `δ` is used to displace each point in the stereogram for each eye based on its `z` value to achieve the stereoscopic effect. The `eye_balance` parameter reallocates the total relative displacement of `2δ` between the two eyes.
+Two eyes with separation `IPD` are looking at a point a distance `z` offset from a focal plane at distance `d`, resulting in view angle `θ`. If this point were projected back to the focal plane, it would be offset by `δ` from where it visually appears on that plane. This offset `δ` is used to displace each point in the stereogram for each eye based on its `z` value to achieve the stereoscopic effect. The `eye_balance` parameter allocates the total relative displacement of `2δ` between the two eyes.
 
 ```
 θ = arctan((d - z) / (IPD / 2))
