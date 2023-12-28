@@ -103,12 +103,15 @@ def calc_2d_offsets(eye_balance: float,
     ipd : float
         The interpupillary distance, in millimeters.
     zscale : Optional[float]
-        Scaling factor for the z-data (in x-axis units). If None, then will be
-        set to the range of the plotted z-data.
+        Scaling factor for the visual depth of the z-data (in x-axis units).
+        If None (default), then will be set to 1.
+    zlim : Optional[tuple[float, float]]
+        Z-axis limits. If None (default), then z range will be autoscaled to
+        (min(z), max(z)).
     zzero : Optional[float]
         The z-coordinate of the focal plane. Set to min(z) to have all the data
-        float above the page, or set to max(z) to have all the data float sink
-        into the page. If None, will be set to the midpoint of the z range.
+        float above the page, or set to max(z) to have all the data sink into
+        the page. If None (default), will be set to the midpoint of the z range.
     """
     if zautoscale or zlim is None:
         zlim_new = (np.min(z), np.max(z))
@@ -193,13 +196,16 @@ class AxesStereoBase(ABC):
             Interpupillary distance (in millimeters). Default is 65. Negative
             values for cross-view.
         zscale : Optional[float]
-            Scaling factor for the z-data (in x-axis units) on 2D plots.
-            If None, then will be set to the range of the plotted z-data.
+            Scaling factor for the visual depth of the z-data (in x-axis units).
+            If None (default), then will be set to 1.
+        zlim : Optional[tuple[float, float]]
+            Z-axis limits. If None (default), then z range will be autoscaled to
+            (min(z), max(z)).
         zzero : Optional[float]
-            The z-coordinate of the focal plane for 2D plots. Set to min(z) to
-            have all the data float above the page, or set to max(z) to have
-            all the data sink into the page. If None, will be set to the
-            midpoint of the z range.
+            The z-coordinate of the focal plane. Set to min(z) to have all the
+            data float above the page, or set to max(z) to have all the data
+            sink into the page. If None (default), will be set to the midpoint
+            of the z range.
         is_3d : bool
             Whether the axes are 3D. Default is False.
         """
@@ -262,13 +268,16 @@ class AxesStereoSideBySide(AxesStereoBase):
             Interpupillary distance (in millimeters). Default is 65. Negative
             values for cross-view.
         zscale : Optional[float]
-            Scaling factor for the z-data (in x-axis units) on 2D plots.
-            If None, then will be set to the range of the plotted z-data.
+            Scaling factor for the visual depth of the z-data (in x-axis units).
+            If None (default), then will be set to 1.
+        zlim : Optional[tuple[float, float]]
+            Z-axis limits. If None (default), then z range will be autoscaled to
+            (min(z), max(z)).
         zzero : Optional[float]
-            The z-coordinate of the focal plane for 2D plots. Set to min(z) to
-            have all the data float above the page, or set to max(z) to have
-            all the data sink into the page. If None, will be set to the
-            midpoint of the z range.
+            The z-coordinate of the focal plane. Set to min(z) to have all the
+            data float above the page, or set to max(z) to have all the data
+            sink into the page. If None (default), will be set to the midpoint
+            of the z range.
         is_3d : bool
             Whether the axes are 3D. Default is False.
         """
@@ -449,13 +458,16 @@ class AxesStereo2D(AxesStereoSideBySide, AxesStereo2DBase):
             Interpupillary distance (in millimeters). Default is 65. Negative
             values for cross-view.
         zscale : Optional[float]
-            Scaling factor for the z-data (in x-axis units).
-            If None, then will be set to the range of the plotted z-data.
+            Scaling factor for the visual depth of the z-data (in x-axis units).
+            If None (default), then will be set to 1.
+        zlim : Optional[tuple[float, float]]
+            Z-axis limits. If None (default), then z range will be autoscaled to
+            (min(z), max(z)).
         zzero : Optional[float]
-            The z-coordinate of the focal plane. Set to min(z) to
-            have all the data float above the page, or set to max(z) to have
-            all the data sink into the page. If None, will be set to the
-            midpoint of the z range.
+            The z-coordinate of the focal plane. Set to min(z) to have all the
+            data float above the page, or set to max(z) to have all the data
+            sink into the page. If None (default), will be set to the midpoint
+            of the z range.
         """
         super().__init__(fig=fig, axs=axs, eye_balance=eye_balance, d=d, ipd=ipd,
                          zlim=zlim, zscale=zscale, zzero=zzero, is_3d=False)
@@ -623,6 +635,7 @@ class AxesAnaglyph(AxesStereoBase, AxesStereo2DBase):
                  d: float = 350,
                  ipd: float = 65,
                  zscale: Optional[float] = None,
+                 zlim: Optional[tuple[float, float]] = None,
                  zzero: Optional[float] = None,
                  colors: list[str] = ['red', 'cyan']):
         """
@@ -642,21 +655,22 @@ class AxesAnaglyph(AxesStereoBase, AxesStereo2DBase):
             the right plot will. For any other value, both plots will have
             inaccurate x-axis labels.
             The x-axis will be colored to indicate which data is correct.
-        zscale : float
-            Scaling factor for the z-data (in millimeters). Default is 2.
         d : float
             Distance from the focal plane to the viewer (in millimeters).
         ipd : float
             Interpupillary distance (in millimeters). Default is 65. Negative
             values for cross-view.
         zscale : Optional[float]
-            Scaling factor for the z-data (in x-axis units).
-            If None, then will be set to the range of the plotted z-data.
+            Scaling factor for the visual depth of the z-data (in x-axis units).
+            If None (default), then will be set to 1.
+        zlim : Optional[tuple[float, float]]
+            Z-axis limits. If None (default), then z range will be autoscaled to
+            (min(z), max(z)).
         zzero : Optional[float]
-            The z-coordinate of the focal plane. Set to min(z) to
-            have all the data float above the page, or set to max(z) to have
-            all the data sink into the page. If None, will be set to the
-            midpoint of the z range.
+            The z-coordinate of the focal plane. Set to min(z) to have all the
+            data float above the page, or set to max(z) to have all the data
+            sink into the page. If None (default), will be set to the midpoint
+            of the z range.
         colors : list[str]
             Colors for the left and right axes. Default is ['red', 'cyan'].
             The color ordering refers to the left and right glasses lens colors.
@@ -666,7 +680,7 @@ class AxesAnaglyph(AxesStereoBase, AxesStereo2DBase):
             cyan lens and sees red.
         """
         super().__init__(eye_balance=eye_balance, d=d, ipd=ipd,
-                         zscale=zscale, zzero=zzero, is_3d=False)
+                         zscale=zscale, zlim=zlim, zzero=zzero, is_3d=False)
 
         if fig is None and ax is None:
             self.fig, self.ax = plt.subplots()
