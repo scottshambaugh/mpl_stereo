@@ -312,7 +312,8 @@ class AxesStereoSideBySide(AxesStereoBase):
 
 
 class AxesStereo2DBase(ABC):
-    def set_zlim(self, zlim: tuple[float, float],
+    def set_zlim(self,
+                 zlim: tuple[float, float],
                  zautoscale: bool = False,
                  redraw: Optional[bool] = None):
         """
@@ -370,7 +371,7 @@ class AxesStereo2DBase(ABC):
         for name, args, kwargs in artist_args:
             getattr(self, name)(*args, **kwargs)
 
-    def plot2d(self, ax_left, ax_right, name, x, y, z, args, kwargs, colors_forced=None):
+    def plot2d(self, ax_left, ax_right, name, x, y, z, args, kwargs):
         # for scatter plots, sort the data by z to not occlude improperly
         if name == 'scatter':
             x, y, z, kwargs = sort_by_z(x, y, z, kwargs)
@@ -399,11 +400,11 @@ class AxesStereo2DBase(ABC):
             if len(self.artist_args) > 0:
                 self.redraw()
 
-        if colors_forced is None:
+        if isinstance(self, AxesStereo2D):
             # Plot the data twice, once for each subplot (2D case)
             res_left = getattr(ax_left, name)(x + offset_left, y, *args, **kwargs)
             res_right = getattr(ax_right, name)(x - offset_right, y, *args, **kwargs)
-        else:
+        elif isinstance(self, AxesAnaglyph):
             # Clear all color arguments (anaglyph case)
             kwargs.pop('c', None)
             kwargs.pop('color', None)
@@ -714,8 +715,7 @@ class AxesAnaglyph(AxesStereoBase, AxesStereo2DBase):
 
             if all(var is not None for var in [ax_method, x, y, z]):
                 res_left, res_right = self.plot2d(self.ax, self.ax,
-                                                  name, x, y, z, args, kwargs,
-                                                  colors_forced=self.colors)
+                                                  name, x, y, z, args, kwargs)
                 result = (res_left, res_right)
                 # Set the xlabel color to the right color
                 self.set_axlabel_colors()
