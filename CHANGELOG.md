@@ -14,6 +14,11 @@
 
 ## [Unreleased]
 ### Added    
+### Changed    
+### Removed    
+
+## [0.5.0] - 2023-12-28
+### Added    
 * Consistent `zlim` handling added, with functions `get_zlim`, `set_zlim`, `autoscale_z`, `_calc_bounding_zlim`
 * Method `redraw` for side-by-side axes
 ### Changed    
@@ -21,7 +26,6 @@
 * `z_scale` and `z_zero` renamed to `zscale` and `zzero`
 * `AxesStereo` class renamed to `AxesStereoSideBySide`
 * `AxesStereo2DBase` abstract base class added
-### Removed    
 
 ## [0.4.1] - 2023-12-24
 ### Changed    
