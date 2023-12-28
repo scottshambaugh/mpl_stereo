@@ -109,6 +109,38 @@ def test_AxesStereo2D_zlim():
     assert len(axstereo.artists_right) == n_artists
     assert len(axstereo.artist_args) == n_artists
 
+def test_AxesAnaglyph_zlim():
+    x = y = z = np.arange(10)
+    axstereo = AxesAnaglyph()
+    axstereo.plot(x, y, z/2 + 1)
+    assert axstereo.zlim == (1, 5.5)
+
+    axstereo.plot(x, y, z)
+    assert axstereo.zlim == (0, 9)
+
+    axstereo.plot(x, y, z/2)
+    assert axstereo.zlim == (0, 9)
+
+    axstereo.set_zlim((0, 5), zautoscale=True)
+    assert axstereo.zlim == (0, 5)
+
+    axstereo.redraw()  # we set autoscale=True, so redraw() should reset zlim
+    assert axstereo.zlim == (0, 9)
+
+    axstereo.set_zlim((0, 5), zautoscale=False)
+    axstereo.plot(x, y, z)
+    assert axstereo.zlim == (0, 5)
+
+    axstereo.plot(x, y, z, zlim=(1, 2))
+    assert axstereo.zlim == (1, 2)
+
+    assert axstereo.get_zlim() == (1, 2)
+
+    n_artists = 5  # from above plot()'s
+    assert len(axstereo.artists_left) == n_artists
+    assert len(axstereo.artists_right) == n_artists
+    assert len(axstereo.artist_args) == n_artists
+
 def test_AxesStereo3D():
     # Smoke test plotting
     x, y, z = _testdata()['trefoil']
