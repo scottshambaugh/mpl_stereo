@@ -216,8 +216,24 @@ class AxesStereoBase(ABC):
         if self.zlim is not None:
             self.zautoscale = False
 
+        self.artists_left = []
+        self.artists_right = []
+        self.artist_args = []
 
-class AxesStereo(AxesStereoBase):
+    def log_artists(self, res_left, res_right, name, args, kwargs):
+        if isinstance(res_left, list):
+            self.artists_left.extend(res_left)
+        else:
+            self.artists_left.append(res_left)
+        if isinstance(res_right, list):
+            self.artists_right.extend(res_right)
+        else:
+            self.artists_right.append(res_right)
+
+        self.artist_args.append((name, args, kwargs))
+
+
+class AxesStereoSideBySide(AxesStereoBase):
     def __init__(self,
                  fig: Optional[Figure] = None,
                  axs: Optional[Union[tuple[Axes, Axes], tuple[Axes3D, Axes3D]]] = None,
@@ -285,153 +301,8 @@ class AxesStereo(AxesStereoBase):
         self.fig = fig
         self.axs = (self.ax_left, self.ax_right)
 
-        self.artists_left = []
-        self.artists_right = []
-        self.artist_args = []
 
-
-class AxesStereo2D(AxesStereo):
-    def __init__(self,
-                 fig: Optional[Figure] = None,
-                 axs: Optional[tuple[Axes, Axes]] = None,
-                 eye_balance: float = -1,
-                 d: float = 350,
-                 ipd: float = 65,
-                 zscale: Optional[float] = None,
-                 zlim: Optional[tuple[float, float]] = None,
-                 zzero: Optional[float] = None):
-        """
-        A class for creating stereoscopic 2D plots.
-
-        Parameters
-        ----------
-        fig : matplotlib.figure.Figure, optional
-            The figure object to plot on.
-        axs : tuple[matplotlib.axes.Axes, matplotlib.axes.Axes], optional
-            The axes objects to plot on (ax_left, ax_right).
-        eye_balance : float
-            The eye balance parameter, from -1 to 1. A value of -1 means the
-            left plot will have accurate x-axis labels, and a value of 1 means
-            the right plot will. For any other value, both plots will have
-            inaccurate x-axis labels.
-            All inaccurate axis labels will have transparency applied.
-        d : float
-            Distance from the focal plane to the viewer (in millimeters).
-        ipd : float
-            Interpupillary distance (in millimeters). Default is 65. Negative
-            values for cross-view.
-        zscale : Optional[float]
-            Scaling factor for the z-data (in x-axis units).
-            If None, then will be set to the range of the plotted z-data.
-        zzero : Optional[float]
-            The z-coordinate of the focal plane. Set to min(z) to
-            have all the data float above the page, or set to max(z) to have
-            all the data sink into the page. If None, will be set to the
-            midpoint of the z range.
-        """
-        super().__init__(fig=fig, axs=axs, eye_balance=eye_balance, d=d, ipd=ipd,
-                         zlim=zlim, zscale=zscale, zzero=zzero, is_3d=False)
-        self.known_methods = ['plot', 'scatter', 'stem', 'bar', 'text']
-
-        # Minimize whitespace between plots
-        self.fig.subplots_adjust(wspace=0.01)
-        self.ax_right.tick_params(axis='y', length=0, labelcolor=(0, 0, 0, 0))
-
-        # Give the innaccurate x-axis labels some transparency
-        self.set_axlabel_alphas(alpha=0.5)
-
-    def __getattr__(self, name: str):
-        """
-        Delegate method calls to the left and right axes if the method is not
-        defined in AxesStereo. If the method has 'x' and 'y' as arguments, and
-        either there is a third argument or 'z' is a keyword argument, then the
-        z data will be used to offset the x data for the left and right axes
-        and create the stereoscopic effect.
-
-        Parameters
-        ----------
-        name : str
-            The name of the attribute.
-        """
-        def method(*args, **kwargs):
-            ax_method = getattr(self.ax_left, name, None)
-            args_original = args
-            x, y, z, args, kwargs = process_args(ax_method, self.known_methods, args, kwargs)
-
-            if all(var is not None for var in [ax_method, x, y, z]):
-                # for scatter plots, sort the data by z to not occlude improperly
-                if name == 'scatter':
-                    x, y, z, kwargs = sort_by_z(x, y, z, kwargs)
-
-                # Extract the zzero and zscale keyword arguments if they exist
-                zzero = kwargs.pop('zzero', None)
-                if zzero is None and self.zzero is not None:
-                    zzero = self.zzero
-                zscale = kwargs.pop('zscale', None)
-                if zscale is None and self.zscale is not None:
-                    zscale = self.zscale
-
-                # Extract the zlim keyword argument if it exists and update limits
-                zlim = kwargs.pop('zlim', None)
-                if zlim is not None:
-                    self.set_zlim(zlim, redraw=False)
-
-                # Calculate the x-offsets
-                offset_left, offset_right, zlim  = calc_2d_offsets(self.eye_balance, z, self.d,
-                                                                    self.ipd, self.zautoscale,
-                                                                    zscale=zscale,
-                                                                    zlim=self.zlim,
-                                                                    zzero=zzero)
-                if zlim != self.zlim:
-                    self.zlim = zlim
-                    if len(self.artist_args) > 0:
-                        self.redraw()
-
-                # Plot the data twice, once for each subplot
-                res_left = getattr(self.ax_left, name)(x + offset_left, y, *args, **kwargs)
-                res_right = getattr(self.ax_right, name)(x - offset_right, y, *args, **kwargs)
-
-                # Keep track of the artists
-                if isinstance(res_left, list):
-                    self.artists_left.extend(res_left)
-                else:
-                    self.artists_left.append(res_left)
-                if isinstance(res_right, list):
-                    self.artists_right.extend(res_right)
-                else:
-                    self.artists_right.append(res_right)
-
-                # Keep track of the arguments
-                kwargs['x'] = x
-                kwargs['y'] = y
-                kwargs['z'] = z
-                self.artist_args.append((name, args, kwargs))
-
-            else:
-                # For methods that don't plot x-y data
-                res_left = getattr(self.ax_left, name)(*args_original, **kwargs)
-                res_right = getattr(self.ax_right, name)(*args_original, **kwargs)
-            return (res_left, res_right)
-
-        return method
-
-    def set_axlabel_alphas(self, alpha: float):
-        """
-        For axis labels that are not accurate to the plotted data, set their
-        alpha to a value less than 1.
-
-        Parameters
-        ----------
-        alpha : float
-            Alpha value for the inaccurate axis labels.
-        """
-        if self.eye_balance != -1:
-            for label in self.ax_left.get_xticklabels():
-                label.set_alpha(alpha)
-        elif self.eye_balance != 1:
-            for label in self.ax_right.get_xticklabels():
-                label.set_alpha(alpha)
-
+class AxesStereo2DBase(ABC):
     def set_zlim(self, zlim: tuple[float, float],
                  zautoscale: bool = False,
                  redraw: Optional[bool] = None):
@@ -490,7 +361,160 @@ class AxesStereo2D(AxesStereo):
         for name, args, kwargs in artist_args:
             getattr(self, name)(*args, **kwargs)
 
-class AxesStereo3D(AxesStereo):
+    def plot2d(self, ax_left, ax_right, name, x, y, z, args, kwargs, colors_forced=None):
+        # for scatter plots, sort the data by z to not occlude improperly
+        if name == 'scatter':
+            x, y, z, kwargs = sort_by_z(x, y, z, kwargs)
+
+        # Extract the zzero and zscale keyword arguments if they exist
+        zzero = kwargs.pop('zzero', None)
+        if zzero is None and self.zzero is not None:
+            zzero = self.zzero
+        zscale = kwargs.pop('zscale', None)
+        if zscale is None and self.zscale is not None:
+            zscale = self.zscale
+
+        # Extract the zlim keyword argument if it exists and update limits
+        zlim = kwargs.pop('zlim', None)
+        if zlim is not None:
+            self.set_zlim(zlim, redraw=False)
+
+        # Calculate the x-offsets
+        offset_left, offset_right, zlim  = calc_2d_offsets(self.eye_balance, z, self.d,
+                                                           self.ipd, self.zautoscale,
+                                                           zscale=zscale,
+                                                           zlim=self.zlim,
+                                                           zzero=zzero)
+        if zlim != self.zlim:
+            self.zlim = zlim
+            if len(self.artist_args) > 0:
+                self.redraw()
+
+        if colors_forced is None:
+            # Plot the data twice, once for each subplot (2D case)
+            res_left = getattr(ax_left, name)(x + offset_left, y, *args, **kwargs)
+            res_right = getattr(ax_right, name)(x - offset_right, y, *args, **kwargs)
+        else:
+            # Clear all color arguments (anaglyph case)
+            kwargs.pop('c', None)
+            kwargs.pop('color', None)
+            kwargs.pop('cmap', None)
+            kwargs.pop('alpha', None)
+
+            # Plot the data twice, once for each color
+            res_left = getattr(ax_left, name)(x + offset_left, y,
+                                              color=self.colors[1], alpha=self.alpha,
+                                              *args, **kwargs)
+            res_right = getattr(ax_right, name)(x - offset_right, y,
+                                                color=self.colors[0], alpha=self.alpha,
+                                                *args, **kwargs)
+
+        # Keep track of the artists
+        kwargs['x'] = x
+        kwargs['y'] = y
+        kwargs['z'] = z
+        self.log_artists(res_left, res_right, name, args, kwargs)
+
+        return res_left, res_right
+
+
+class AxesStereo2D(AxesStereoSideBySide, AxesStereo2DBase):
+    def __init__(self,
+                 fig: Optional[Figure] = None,
+                 axs: Optional[tuple[Axes, Axes]] = None,
+                 eye_balance: float = -1,
+                 d: float = 350,
+                 ipd: float = 65,
+                 zscale: Optional[float] = None,
+                 zlim: Optional[tuple[float, float]] = None,
+                 zzero: Optional[float] = None):
+        """
+        A class for creating stereoscopic 2D plots.
+
+        Parameters
+        ----------
+        fig : matplotlib.figure.Figure, optional
+            The figure object to plot on.
+        axs : tuple[matplotlib.axes.Axes, matplotlib.axes.Axes], optional
+            The axes objects to plot on (ax_left, ax_right).
+        eye_balance : float
+            The eye balance parameter, from -1 to 1. A value of -1 means the
+            left plot will have accurate x-axis labels, and a value of 1 means
+            the right plot will. For any other value, both plots will have
+            inaccurate x-axis labels.
+            All inaccurate axis labels will have transparency applied.
+        d : float
+            Distance from the focal plane to the viewer (in millimeters).
+        ipd : float
+            Interpupillary distance (in millimeters). Default is 65. Negative
+            values for cross-view.
+        zscale : Optional[float]
+            Scaling factor for the z-data (in x-axis units).
+            If None, then will be set to the range of the plotted z-data.
+        zzero : Optional[float]
+            The z-coordinate of the focal plane. Set to min(z) to
+            have all the data float above the page, or set to max(z) to have
+            all the data sink into the page. If None, will be set to the
+            midpoint of the z range.
+        """
+        super().__init__(fig=fig, axs=axs, eye_balance=eye_balance, d=d, ipd=ipd,
+                         zlim=zlim, zscale=zscale, zzero=zzero, is_3d=False)
+        self.known_methods = ['plot', 'scatter', 'stem', 'bar', 'text']
+
+        # Minimize whitespace between plots
+        self.fig.subplots_adjust(wspace=0.01)
+        self.ax_right.tick_params(axis='y', length=0, labelcolor=(0, 0, 0, 0))
+
+        # Give the innaccurate x-axis labels some transparency
+        self.set_axlabel_alphas(alpha=0.5)
+
+    def __getattr__(self, name: str):
+        """
+        Delegate method calls to the left and right axes if the method is not
+        defined in AxesStereoSideBySide. If the method has 'x' and 'y' as
+        arguments, and either there is a third argument or 'z' is a keyword
+        argument, then the z data will be used to offset the x data for the
+        left and right axes and create the stereoscopic effect.
+
+        Parameters
+        ----------
+        name : str
+            The name of the attribute.
+        """
+        def method(*args, **kwargs):
+            ax_method = getattr(self.ax_left, name, None)
+            args_original = args
+            x, y, z, args, kwargs = process_args(ax_method, self.known_methods, args, kwargs)
+
+            if all(var is not None for var in [ax_method, x, y, z]):
+                res_left, res_right = self.plot2d(self.ax_left, self.ax_right, name, x, y, z, args, kwargs)
+            else:
+                # For methods that don't plot x-y data
+                res_left = getattr(self.ax_left, name)(*args_original, **kwargs)
+                res_right = getattr(self.ax_right, name)(*args_original, **kwargs)
+            return (res_left, res_right)
+
+        return method
+
+    def set_axlabel_alphas(self, alpha: float):
+        """
+        For axis labels that are not accurate to the plotted data, set their
+        alpha to a value less than 1.
+
+        Parameters
+        ----------
+        alpha : float
+            Alpha value for the inaccurate axis labels.
+        """
+        if self.eye_balance != -1:
+            for label in self.ax_left.get_xticklabels():
+                label.set_alpha(alpha)
+        elif self.eye_balance != 1:
+            for label in self.ax_right.get_xticklabels():
+                label.set_alpha(alpha)
+
+
+class AxesStereo3D(AxesStereoSideBySide):
     def __init__(self,
                  fig: Optional[Figure] = None,
                  axs: Optional[tuple[Axes3D, Axes3D]] = None,
@@ -534,10 +558,10 @@ class AxesStereo3D(AxesStereo):
     def __getattr__(self, name: str):
         """
         Delegate method calls to the left and right axes if the method is not
-        defined in AxesStereo. If the method has 'x' and 'y' as arguments, and
-        either there is a third argument or 'z' is a keyword argument, then the
-        z data will be used to offset the x data for the left and right axes
-        and create the stereoscopic effect.
+        defined in AxesStereoSideBySide. If the method has 'x' and 'y' as
+        arguments, and either there is a third argument or 'z' is a keyword
+        argument, then the z data will be used to offset the x data for the
+        left and right axes and create the stereoscopic effect.
 
         Parameters
         ----------
@@ -570,8 +594,7 @@ class AxesStereo3D(AxesStereo):
                 res_right = getattr(self.ax_right, name)(*args, **kwargs)
 
                 # Keep track of the artists
-                self.artists_left.append(res_left)
-                self.artists_left.append(res_right)
+                self.log_artists(res_left, res_right, name, args, kwargs)
 
             else:
                 # For methods that do not involve 'x' and 'y'
@@ -592,7 +615,7 @@ class AxesStereo3D(AxesStereo):
         return offset_left, offset_right
 
 
-class AxesAnaglyph(AxesStereoBase):
+class AxesAnaglyph(AxesStereoBase, AxesStereo2DBase):
     def __init__(self,
                  fig: Optional[Figure] = None,
                  ax: Optional[Axes] = None,
@@ -676,39 +699,12 @@ class AxesAnaglyph(AxesStereoBase):
             x, y, z, args, kwargs = process_args(ax_method, self.known_methods, args, kwargs)
 
             if all(var is not None for var in [ax_method, x, y, z]):
-                # Extract the zzero and zscale keyword arguments if they exist
-                zzero = kwargs.pop('zzero', None)
-                if zzero is None and self.zzero is not None:
-                    zzero = self.zzero
-                zscale = kwargs.pop('zscale', None)
-                if zscale is None and self.zscale is not None:
-                    zscale = self.zscale
-
-                offset_left, offset_right, zlim  = calc_2d_offsets(self.eye_balance, z, self.d,
-                                                                    self.ipd, self.zautoscale,
-                                                                    zscale=zscale,
-                                                                    zlim=self.zlim,
-                                                                    zzero=zzero)
-                if zlim != self.zlim:
-                    # TODO: redraw
-                    self.zlim = zlim
-                # Delete any color arguments
-                kwargs.pop('c', None)
-                kwargs.pop('color', None)
-                kwargs.pop('cmap', None)
-                kwargs.pop('alpha', None)
-
+                res_left, res_right = self.plot2d(self.ax, self.ax,
+                                                  name, x, y, z, args, kwargs,
+                                                  colors_forced=self.colors)
+                result = (res_left, res_right)
                 # Set the xlabel color to the right color
                 self.set_axlabel_colors()
-
-                # Plot the data twice, once for each color
-                res_left = getattr(self.ax, name)(x + offset_left, y,
-                                                  color=self.colors[1], alpha=self.alpha,
-                                                  *args, **kwargs)
-                res_right = getattr(self.ax, name)(x - offset_right, y,
-                                                   color=self.colors[0], alpha=self.alpha,
-                                                   *args, **kwargs)
-                result = (res_left, res_right)
             else:
                 # For methods that don't plot x-y data
                 result = getattr(self.ax, name)(*args_original, **kwargs)

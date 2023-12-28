@@ -19,6 +19,8 @@
 ### Changed    
 * Default `zscale` fixed
 * `z_scale` and `z_zero` renamed to `zscale` and `zzero`
+* `AxesStereo` class renamed to `AxesStereoSideBySide`
+* `AxesStereo2DBase` abstract base class added
 ### Removed    
 
 ## [0.4.1] - 2023-12-24
