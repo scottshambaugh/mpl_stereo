@@ -44,7 +44,10 @@ def sort_by_z(x: np.ndarray, y: np.ndarray, z: np.ndarray, kwargs: dict[str, Any
     return x, y, z, kwargs
 
 
-def process_args(ax_method: Any, known_methods: list[str], args: Any, kwargs: dict[str, Any]):
+def process_args(ax_method: Any,
+                 known_methods: list[str],
+                 args: Any,
+                 kwargs: dict[str, Any]):
     """
     Process the arguments to a method call to determine if the method is
     plotting x-y data and if there is a z argument or keyword argument.
@@ -226,7 +229,29 @@ class AxesStereoBase(ABC):
         self.artists_right = []
         self.artist_args = []
 
-    def log_artists(self, res_left, res_right, name, args, kwargs):
+    def log_artists(self,
+                    res_left: Any,
+                    res_right: Any,
+                    name: str,
+                    args: Any,
+                    kwargs: dict[str, Any]):
+        """
+        Log artists in each of the self.artists_left and self.artists_right
+        lists, and log the arguments in self.artist_args.
+
+        Arguments
+        ---------
+        res_left : Any
+            The return value of the left axes method call.
+        res_right : Any
+            The return value of the right axes method call.
+        name : str
+            Name of the plotting method.
+        args: Any
+            Arguments to the plotting method.
+        kwargs: dict[str, Any]
+            Keyword arguments to the plotting method.
+        """
         if isinstance(res_left, list):
             self.artists_left.extend(res_left)
         else:
@@ -337,7 +362,7 @@ class AxesStereo2DBase(ABC):
             self.redraw()
         self.zautoscale = zautoscale
 
-    def get_zlim(self):
+    def get_zlim(self) -> tuple[float, float]:
         """
         Return the z limit of the axes.
         """
@@ -351,7 +376,7 @@ class AxesStereo2DBase(ABC):
         self.zlim = self._calc_bounding_zlim()
         self.redraw()
 
-    def _calc_bounding_zlim(self):
+    def _calc_bounding_zlim(self) -> tuple[float, float]:
         zlim = (np.inf, -np.inf)
         for _, _, kwargs in self.artist_args:
             z = kwargs['z']
@@ -371,7 +396,46 @@ class AxesStereo2DBase(ABC):
         for name, args, kwargs in artist_args:
             getattr(self, name)(*args, **kwargs)
 
-    def plot2d(self, ax_left, ax_right, name, x, y, z, args, kwargs):
+    def plot2d(self,
+               ax_left: Axes,
+               ax_right: Axes,
+               name: str,
+               x: np.ndarray,
+               y: np.ndarray,
+               z: np.ndarray,
+               args: Any,
+               kwargs: dict[str, Any]) -> tuple[Any, Any]:
+        """
+        Plot the data twice, once for each eye view. This happens either on
+        two subplots (for AxesStereo2D), or on the same subplot with different
+        colors (for AxesAnaglyph).
+
+        Parameters
+        ----------
+        ax_left : matplotlib.axes.Axes
+            The left axes object.
+        ax_right : matplotlib.axes.Axes
+            The right axes object.
+        name : str
+            The name of the plotting method.
+        x : np.ndarray
+            An array of x-coordinates for the data points.
+        y : np.ndarray
+            An array of y-coordinates for the data points.
+        z : np.ndarray
+            An array of z-coordinates for the data points.
+        args : Any
+            The arguments passed to the plotting method.
+        kwargs : dict[str, Any]
+            The keyword arguments passed to the plotting method.
+
+        Returns
+        -------
+        res_left : Any
+            The return value of the left axes method call.
+        res_right : Any
+            The return value of the right axes method call.
+        """
         # for scatter plots, sort the data by z to not occlude improperly
         if name == 'scatter':
             x, y, z, kwargs = sort_by_z(x, y, z, kwargs)
@@ -481,7 +545,7 @@ class AxesStereo2D(AxesStereoSideBySide, AxesStereo2DBase):
         # Give the innaccurate x-axis labels some transparency
         self.set_axlabel_alphas(alpha=0.5)
 
-    def __getattr__(self, name: str):
+    def __getattr__(self, name: str) -> Any:
         """
         Delegate method calls to the left and right axes if the method is not
         defined in AxesStereoSideBySide. If the method has 'x' and 'y' as
@@ -494,13 +558,28 @@ class AxesStereo2D(AxesStereoSideBySide, AxesStereo2DBase):
         name : str
             The name of the attribute.
         """
-        def method(*args, **kwargs):
+        def method(*args: Any, **kwargs: dict[str, Any]) -> tuple[Any, Any]:
+            """
+            The method that will be called on the left and right axes. If the
+            method has 'x' and 'y' as arguments, and either there is a third
+            argument or 'z' is a keyword argument, then the z data will be used
+            to offset the x data for the left and right axes and create the
+            stereoscopic effect.
+
+            Parameters
+            ----------
+            *args : Any
+                The positional arguments passed to the method.
+            **kwargs : dict[str, Any]
+                The keyword arguments passed to the method.
+            """
             ax_method = getattr(self.ax_left, name, None)
             args_original = args
             x, y, z, args, kwargs = process_args(ax_method, self.known_methods, args, kwargs)
 
             if all(var is not None for var in [ax_method, x, y, z]):
-                res_left, res_right = self.plot2d(self.ax_left, self.ax_right, name, x, y, z, args, kwargs)
+                res_left, res_right = self.plot2d(self.ax_left, self.ax_right,
+                                                  name, x, y, z, args, kwargs)
             else:
                 # For methods that don't plot x-y data
                 res_left = getattr(self.ax_left, name)(*args_original, **kwargs)
@@ -581,8 +660,21 @@ class AxesStereo3D(AxesStereoSideBySide):
         name : str
             The name of the attribute.
         """
-
         def method(*args, **kwargs):
+            """
+            The method that will be called on the left and right axes. If the
+            method has 'x' and 'y' as arguments, and either there is a third
+            argument or 'z' is a keyword argument, then the z data will be used
+            to offset the x data for the left and right axes and create the
+            stereoscopic effect.
+
+            Parameters
+            ----------
+            *args : Any
+                The positional arguments passed to the method.
+            **kwargs : dict[str, Any]
+                The keyword arguments passed to the method.
+            """
             # Reflect the method to check if 'x' and 'y' are in the arguments
             ax_method = getattr(self.ax_left, name, None)
             parameters = inspect.signature(ax_method).parameters
@@ -617,9 +709,16 @@ class AxesStereo3D(AxesStereoSideBySide):
 
         return method
 
-    def calc_3d_offsets(self):
+    def calc_3d_offsets(self) -> tuple[float, float]:
         """
-        Calculate the angular view offsets for a 3D plot
+        Calculate the angular view offsets for a 3D plot.
+
+        Returns
+        -------
+        offset_left : float
+            The offset for the left subplot [deg].
+        offset_right : float
+            The offset for the right subplot [deg].
         """
         ang = 90 - np.rad2deg(np.arctan(2 * self.d / self.ipd))
         offset = ang / 2
@@ -708,7 +807,29 @@ class AxesAnaglyph(AxesStereoBase, AxesStereo2DBase):
         name : str
             The name of the attribute.
         """
-        def method(*args, **kwargs):
+        def method(*args: Any, **kwargs: dict[str, Any]) -> Union[tuple[Any, Any], Any]:
+            """
+            The method that will be called on the left and right axes. If the
+            method has 'x' and 'y' as arguments, and either there is a third
+            argument or 'z' is a keyword argument, then the z data will be used
+            to offset the x data for the left and right axes and create the
+            stereoscopic effect.
+
+            Parameters
+            ----------
+            *args : Any
+                The positional arguments passed to the method.
+            **kwargs : dict[str, Any]
+                The keyword arguments passed to the method.
+
+            Returns
+            -------
+            result : Union[tuple[Any, Any], Any]
+                The result of the method call. If the method does not plot x-y
+                data, then the result will be a single object. If the method
+                does plot x-y data, then the result will be a tuple of two
+                objects, one for each subplot.
+            """
             ax_method = getattr(self.ax, name, None)
             args_original = args
             x, y, z, args, kwargs = process_args(ax_method, self.known_methods, args, kwargs)
@@ -726,7 +847,8 @@ class AxesAnaglyph(AxesStereoBase, AxesStereo2DBase):
 
         return method
 
-    def imshow_stereo(self, data_left: np.ndarray, data_right: np.ndarray, *args, **kwargs):
+    def imshow_stereo(self, data_left: np.ndarray, data_right: np.ndarray,
+                      *args: Any, **kwargs: dict[str, Any]):
         """
         From existing stereo image data, combine into an anaglyph. Any further
         args or kwargs will be passed on to the `imshow()` function.
