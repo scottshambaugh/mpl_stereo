@@ -41,22 +41,22 @@ def plot_anaglyph_trefoil(savedir=None, show=True):
     if show:
         plt.show()
 
-def plot_anaglyph_trefoil_z_zero(savedir=None, show=True):
+def plot_anaglyph_trefoil_zzero(savedir=None, show=True):
     x, y, z = trefoil()
     fig, axs = plt.subplots(1, 3)
-    z_zeros = (min(z), None, max(z))
-    titles = ('z_zero = min(z)\ndata floats above page',
-              'z_zero = None\ndata midpoint at page',
-              'z_zero = max(z)\ndata sinks below page')
-    for ax, z_zero, title in zip(axs, z_zeros, titles):
-        axstereo = AxesAnaglyph(ax=ax, z_zero=z_zero)
+    zzeros = (min(z), None, max(z))
+    titles = ('zzero = min(z)\ndata floats above page',
+              'zzero = None\ndata midpoint at page',
+              'zzero = max(z)\ndata sinks below page')
+    for ax, zzero, title in zip(axs, zzeros, titles):
+        axstereo = AxesAnaglyph(ax=ax, zzero=zzero)
         axstereo.plot(x, y, z)
         axstereo.scatter(x, y, z, s=10)
         axstereo.set_title(title)
         axstereo.grid(True)
     fig.set_size_inches(12, 4)
     if savedir is not None:
-        plt.savefig(savedir / 'trefoil_anaglyph_z_zero.png', dpi=100)
+        plt.savefig(savedir / 'trefoil_anaglyph_zzero.png', dpi=100)
     if show:
         plt.show()
 
@@ -75,7 +75,7 @@ def animate_2d_trefoil(savedir=None, show=True):
     def animate(frame):
         x, y, z = trefoil(frame, n_steps=N_STEPS)
         x, y, z, _ = sort_by_z(x, y, z, kwargs=dict())
-        offset_left, offset_right, z_lim = calc_2d_offsets(axstereo.eye_balance, z,
+        offset_left, offset_right, zlim = calc_2d_offsets(axstereo.eye_balance, z,
                                                            axstereo.d, axstereo.ipd)
         scatter[0].set_offsets(np.stack([x + offset_left, y]).T)
         scatter[1].set_offsets(np.stack([x - offset_right, y]).T)
@@ -185,7 +185,7 @@ def main():
     plot_2d_sun(savedir, show)
     plot_3d_trefoil(savedir, show)
     plot_anaglyph_trefoil(savedir, show)
-    plot_anaglyph_trefoil_z_zero(savedir, show)
+    plot_anaglyph_trefoil_zzero(savedir, show)
     plot_anaglyph_sun(savedir, show)
     animate_2d_trefoil(savedir, show)
     animate_3d_trefoil(savedir, show)

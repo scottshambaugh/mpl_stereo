@@ -84,10 +84,10 @@ def calc_2d_offsets(eye_balance: float,
                     z: np.ndarray,
                     d: float,
                     ipd: float,
-                    z_autoscale: bool = True,
-                    z_scale: Optional[float] = None,
-                    z_lim: Optional[tuple[float, float]] = None,
-                    z_zero: Optional[float] = None):
+                    zautoscale: bool = True,
+                    zscale: Optional[float] = None,
+                    zlim: Optional[tuple[float, float]] = None,
+                    zzero: Optional[float] = None):
     """
     Calculates the x-offsets for a 2D plot to create a stereoscopic effect
     based on the z-coordinates of the data points.
@@ -102,36 +102,36 @@ def calc_2d_offsets(eye_balance: float,
         The distance from the focal plane to the viewer, in millimeters.
     ipd : float
         The interpupillary distance, in millimeters.
-    z_scale : Optional[float]
+    zscale : Optional[float]
         Scaling factor for the z-data (in x-axis units). If None, then will be
         set to the range of the plotted z-data.
-    z_zero : Optional[float]
+    zzero : Optional[float]
         The z-coordinate of the focal plane. Set to min(z) to have all the data
         float above the page, or set to max(z) to have all the data float sink
         into the page. If None, will be set to the midpoint of the z range.
     """
-    if z_autoscale or z_lim is None:
-        z_lim_new = (np.min(z), np.max(z))
-        if z_lim is None:
-            z_lim = z_lim_new
+    if zautoscale or zlim is None:
+        zlim_new = (np.min(z), np.max(z))
+        if zlim is None:
+            zlim = zlim_new
         else:
-            z_lim = (min(z_lim[0], z_lim_new[0]), max(z_lim[1], z_lim_new[1]))
-    z_range = z_lim[1] - z_lim[0]
-    if z_range == 0:  # If all the z values are the same
-        z_range = np.max(abs(z))
-        if z_range == 0:
-            z_range = 1
-    z_midpoint = z_lim[0] + z_range/2
-    if z_zero is None:
-        z_zero = z_midpoint
-    if z_scale is None:
-        z_scale = 1
+            zlim = (min(zlim[0], zlim_new[0]), max(zlim[1], zlim_new[1]))
+    zrange = zlim[1] - zlim[0]
+    if zrange == 0:  # If all the z values are the same
+        zrange = np.max(abs(z))
+        if zrange == 0:
+            zrange = 1
+    z_midpoint = zlim[0] + zrange/2
+    if zzero is None:
+        zzero = z_midpoint
+    if zscale is None:
+        zscale = 1
 
-    z_scaled = (z + z_midpoint - z_zero) / z_range * z_scale
-    offset = ipd * z_scaled / (d + z_scaled)
+    zscaled = (z + z_midpoint - zzero) / zrange * zscale
+    offset = ipd * zscaled / (d + zscaled)
     offset_left = (eye_balance + 1)/2 * offset
     offset_right = (1 - eye_balance)/2 * offset
-    return offset_left, offset_right, z_lim
+    return offset_left, offset_right, zlim
 
 
 def view_init(self, elev=None, azim=None, roll=None, vertical_axis="z",
@@ -175,9 +175,9 @@ class AxesStereoBase(ABC):
                  eye_balance: float = -1,
                  d: float = 350,
                  ipd: float = 65,
-                 z_scale: Optional[float] = None,
-                 z_lim: Optional[tuple[float, float]] = None,
-                 z_zero: Optional[float] = None,
+                 zscale: Optional[float] = None,
+                 zlim: Optional[tuple[float, float]] = None,
+                 zzero: Optional[float] = None,
                  is_3d: bool = False):
         """
         Parameters
@@ -192,10 +192,10 @@ class AxesStereoBase(ABC):
         ipd : float
             Interpupillary distance (in millimeters). Default is 65. Negative
             values for cross-view.
-        z_scale : Optional[float]
+        zscale : Optional[float]
             Scaling factor for the z-data (in x-axis units) on 2D plots.
             If None, then will be set to the range of the plotted z-data.
-        z_zero : Optional[float]
+        zzero : Optional[float]
             The z-coordinate of the focal plane for 2D plots. Set to min(z) to
             have all the data float above the page, or set to max(z) to have
             all the data sink into the page. If None, will be set to the
@@ -206,15 +206,15 @@ class AxesStereoBase(ABC):
         self.eye_balance = eye_balance
         self.d = d
         self.ipd = ipd
-        self.z_scale = z_scale
-        self.z_lim = z_lim
-        self.z_zero = z_zero
+        self.zscale = zscale
+        self.zlim = zlim
+        self.zzero = zzero
         self.is_3d = is_3d
         self.known_methods: list[str] = []
 
-        self.z_autoscale = True
-        if self.z_lim is not None:
-            self.z_autoscale = False
+        self.zautoscale = True
+        if self.zlim is not None:
+            self.zautoscale = False
 
 
 class AxesStereo(AxesStereoBase):
@@ -224,9 +224,9 @@ class AxesStereo(AxesStereoBase):
                  eye_balance: float = -1,
                  d: float = 350,
                  ipd: float = 65,
-                 z_scale: Optional[float] = None,
-                 z_lim: Optional[tuple[float, float]] = None,
-                 z_zero: Optional[float] = None,
+                 zscale: Optional[float] = None,
+                 zlim: Optional[tuple[float, float]] = None,
+                 zzero: Optional[float] = None,
                  is_3d: bool = False):
         """
         Parameters
@@ -245,10 +245,10 @@ class AxesStereo(AxesStereoBase):
         ipd : float
             Interpupillary distance (in millimeters). Default is 65. Negative
             values for cross-view.
-        z_scale : Optional[float]
+        zscale : Optional[float]
             Scaling factor for the z-data (in x-axis units) on 2D plots.
             If None, then will be set to the range of the plotted z-data.
-        z_zero : Optional[float]
+        zzero : Optional[float]
             The z-coordinate of the focal plane for 2D plots. Set to min(z) to
             have all the data float above the page, or set to max(z) to have
             all the data sink into the page. If None, will be set to the
@@ -256,8 +256,8 @@ class AxesStereo(AxesStereoBase):
         is_3d : bool
             Whether the axes are 3D. Default is False.
         """
-        super().__init__(eye_balance=eye_balance, d=d, ipd=ipd, z_scale=z_scale,
-                         z_lim=z_lim, z_zero=z_zero, is_3d=is_3d)
+        super().__init__(eye_balance=eye_balance, d=d, ipd=ipd, zscale=zscale,
+                         zlim=zlim, zzero=zzero, is_3d=is_3d)
 
         # Generate two side-by-side subplots
         if fig is None and axs is None:
@@ -297,9 +297,9 @@ class AxesStereo2D(AxesStereo):
                  eye_balance: float = -1,
                  d: float = 350,
                  ipd: float = 65,
-                 z_scale: Optional[float] = None,
-                 z_lim: Optional[tuple[float, float]] = None,
-                 z_zero: Optional[float] = None):
+                 zscale: Optional[float] = None,
+                 zlim: Optional[tuple[float, float]] = None,
+                 zzero: Optional[float] = None):
         """
         A class for creating stereoscopic 2D plots.
 
@@ -320,17 +320,17 @@ class AxesStereo2D(AxesStereo):
         ipd : float
             Interpupillary distance (in millimeters). Default is 65. Negative
             values for cross-view.
-        z_scale : Optional[float]
+        zscale : Optional[float]
             Scaling factor for the z-data (in x-axis units).
             If None, then will be set to the range of the plotted z-data.
-        z_zero : Optional[float]
+        zzero : Optional[float]
             The z-coordinate of the focal plane. Set to min(z) to
             have all the data float above the page, or set to max(z) to have
             all the data sink into the page. If None, will be set to the
             midpoint of the z range.
         """
         super().__init__(fig=fig, axs=axs, eye_balance=eye_balance, d=d, ipd=ipd,
-                         z_lim=z_lim, z_scale=z_scale, z_zero=z_zero, is_3d=False)
+                         zlim=zlim, zscale=zscale, zzero=zzero, is_3d=False)
         self.known_methods = ['plot', 'scatter', 'stem', 'bar', 'text']
 
         # Minimize whitespace between plots
@@ -363,27 +363,27 @@ class AxesStereo2D(AxesStereo):
                 if name == 'scatter':
                     x, y, z, kwargs = sort_by_z(x, y, z, kwargs)
 
-                # Extract the z_zero and z_scale keyword arguments if they exist
-                z_zero = kwargs.pop('z_zero', None)
-                if z_zero is None and self.z_zero is not None:
-                    z_zero = self.z_zero
-                z_scale = kwargs.pop('z_scale', None)
-                if z_scale is None and self.z_scale is not None:
-                    z_scale = self.z_scale
+                # Extract the zzero and zscale keyword arguments if they exist
+                zzero = kwargs.pop('zzero', None)
+                if zzero is None and self.zzero is not None:
+                    zzero = self.zzero
+                zscale = kwargs.pop('zscale', None)
+                if zscale is None and self.zscale is not None:
+                    zscale = self.zscale
 
-                # Extract the z_lim keyword argument if it exists and update limits
-                z_lim = kwargs.pop('z_lim', None)
-                if z_lim is not None:
-                    self.set_zlim(z_lim, redraw=False)
+                # Extract the zlim keyword argument if it exists and update limits
+                zlim = kwargs.pop('zlim', None)
+                if zlim is not None:
+                    self.set_zlim(zlim, redraw=False)
 
                 # Calculate the x-offsets
-                offset_left, offset_right, z_lim  = calc_2d_offsets(self.eye_balance, z, self.d,
-                                                                    self.ipd, self.z_autoscale,
-                                                                    z_scale=z_scale,
-                                                                    z_lim=self.z_lim,
-                                                                    z_zero=z_zero)
-                if z_lim != self.z_lim:
-                    self.z_lim = z_lim
+                offset_left, offset_right, zlim  = calc_2d_offsets(self.eye_balance, z, self.d,
+                                                                    self.ipd, self.zautoscale,
+                                                                    zscale=zscale,
+                                                                    zlim=self.zlim,
+                                                                    zzero=zzero)
+                if zlim != self.zlim:
+                    self.zlim = zlim
                     if len(self.artist_args) > 0:
                         self.redraw()
 
@@ -432,50 +432,50 @@ class AxesStereo2D(AxesStereo):
             for label in self.ax_right.get_xticklabels():
                 label.set_alpha(alpha)
 
-    def set_zlim(self, z_lim: tuple[float, float],
-                 z_autoscale: bool = False,
+    def set_zlim(self, zlim: tuple[float, float],
+                 zautoscale: bool = False,
                  redraw: Optional[bool] = None):
         """
         Set the z limits of both axes to the same value.
 
         Parameters
         ----------
-        z_lim : tuple[float, float]
+        zlim : tuple[float, float]
             The new z limits.
-        z_autoscale : bool
+        zautoscale : bool
             Whether to later automatically scale the z limits based on the data.
             Default is False.
         redraw : bool
             Whether to redraw the plot. If None, then will redraw.
         """
-        if redraw is None and self.zlim != z_lim:
+        if redraw is None and self.zlim != zlim:
             redraw = True
-        self.z_lim = z_lim
-        self.z_autoscale = False  # Do not autoscale for this redraw
+        self.zlim = zlim
+        self.zautoscale = False  # Do not autoscale for this redraw
         if redraw:
             self.redraw()
-        self.z_autoscale = z_autoscale
+        self.zautoscale = zautoscale
 
     def get_zlim(self):
         """
         Return the z limit of the axes.
         """
-        return self.z_lim
+        return self.zlim
 
     def autoscale_z(self):
         """
         Autoscale the z limit of both axes.
         """
-        self.z_autoscale = True
-        self.z_lim = self._calc_bounding_zlim()
+        self.zautoscale = True
+        self.zlim = self._calc_bounding_zlim()
         self.redraw()
 
     def _calc_bounding_zlim(self):
-        z_lim = (np.inf, -np.inf)
+        zlim = (np.inf, -np.inf)
         for _, _, kwargs in self.artist_args:
             z = kwargs['z']
-            z_lim = (min(z_lim[0], np.min(z)), max(z_lim[1], np.max(z)))
-        return z_lim
+            zlim = (min(zlim[0], np.min(z)), max(zlim[1], np.max(z)))
+        return zlim
 
     def redraw(self):
         # Remove all the artists
@@ -519,7 +519,7 @@ class AxesStereo3D(AxesStereo):
             values for cross-view.
         """
         super().__init__(fig=fig, axs=axs, eye_balance=eye_balance, d=d, ipd=ipd,
-                         z_scale=None, z_zero=None, is_3d=True)
+                         zscale=None, zzero=None, is_3d=True)
         self.known_methods = ['plot', 'scatter', 'stem', 'voxels', 'plot_wireframe',
                               'plot_surface', 'plot_trisurf', 'contour', 'contourf']
 
@@ -599,8 +599,8 @@ class AxesAnaglyph(AxesStereoBase):
                  eye_balance: float = -1,
                  d: float = 350,
                  ipd: float = 65,
-                 z_scale: Optional[float] = None,
-                 z_zero: Optional[float] = None,
+                 zscale: Optional[float] = None,
+                 zzero: Optional[float] = None,
                  colors: list[str] = ['red', 'cyan']):
         """
         A class for creating anaglyph plots, that are viewed with red-cyan
@@ -619,17 +619,17 @@ class AxesAnaglyph(AxesStereoBase):
             the right plot will. For any other value, both plots will have
             inaccurate x-axis labels.
             The x-axis will be colored to indicate which data is correct.
-        z_scale : float
+        zscale : float
             Scaling factor for the z-data (in millimeters). Default is 2.
         d : float
             Distance from the focal plane to the viewer (in millimeters).
         ipd : float
             Interpupillary distance (in millimeters). Default is 65. Negative
             values for cross-view.
-        z_scale : Optional[float]
+        zscale : Optional[float]
             Scaling factor for the z-data (in x-axis units).
             If None, then will be set to the range of the plotted z-data.
-        z_zero : Optional[float]
+        zzero : Optional[float]
             The z-coordinate of the focal plane. Set to min(z) to
             have all the data float above the page, or set to max(z) to have
             all the data sink into the page. If None, will be set to the
@@ -643,7 +643,7 @@ class AxesAnaglyph(AxesStereoBase):
             cyan lens and sees red.
         """
         super().__init__(eye_balance=eye_balance, d=d, ipd=ipd,
-                         z_scale=z_scale, z_zero=z_zero, is_3d=False)
+                         zscale=zscale, zzero=zzero, is_3d=False)
 
         if fig is None and ax is None:
             self.fig, self.ax = plt.subplots()
@@ -676,22 +676,22 @@ class AxesAnaglyph(AxesStereoBase):
             x, y, z, args, kwargs = process_args(ax_method, self.known_methods, args, kwargs)
 
             if all(var is not None for var in [ax_method, x, y, z]):
-                # Extract the z_zero and z_scale keyword arguments if they exist
-                z_zero = kwargs.pop('z_zero', None)
-                if z_zero is None and self.z_zero is not None:
-                    z_zero = self.z_zero
-                z_scale = kwargs.pop('z_scale', None)
-                if z_scale is None and self.z_scale is not None:
-                    z_scale = self.z_scale
+                # Extract the zzero and zscale keyword arguments if they exist
+                zzero = kwargs.pop('zzero', None)
+                if zzero is None and self.zzero is not None:
+                    zzero = self.zzero
+                zscale = kwargs.pop('zscale', None)
+                if zscale is None and self.zscale is not None:
+                    zscale = self.zscale
 
-                offset_left, offset_right, z_lim  = calc_2d_offsets(self.eye_balance, z, self.d,
-                                                                    self.ipd, self.z_autoscale,
-                                                                    z_scale=z_scale,
-                                                                    z_lim=self.z_lim,
-                                                                    z_zero=z_zero)
-                if z_lim != self.z_lim:
+                offset_left, offset_right, zlim  = calc_2d_offsets(self.eye_balance, z, self.d,
+                                                                    self.ipd, self.zautoscale,
+                                                                    zscale=zscale,
+                                                                    zlim=self.zlim,
+                                                                    zzero=zzero)
+                if zlim != self.zlim:
                     # TODO: redraw
-                    self.z_lim = z_lim
+                    self.zlim = zlim
                 # Delete any color arguments
                 kwargs.pop('c', None)
                 kwargs.pop('color', None)

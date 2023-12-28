@@ -17,7 +17,8 @@
 * Consistent `zlim` handling added, with functions `get_zlim`, `set_zlim`, `autoscale_z`, `_calc_bounding_zlim`
 * Method `redraw` for side-by-side axes
 ### Changed    
-* Default z_scale fixed
+* Default `zscale` fixed
+* `z_scale` and `z_zero` renamed to `zscale` and `zzero`
 ### Removed    
 
 ## [0.4.1] - 2023-12-24

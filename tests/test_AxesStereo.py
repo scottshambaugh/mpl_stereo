@@ -63,9 +63,9 @@ def test_AxesStereo2D():
     axstereo.plot(x, y, z)
     assert True
 
-    # Smoke test z_zero
+    # Smoke test zzero
     axstereo = AxesStereo2D()
-    axstereo.plot(x, y, z, z_zero=min(z))
+    axstereo.plot(x, y, z, zzero=min(z))
     assert True
 
     # Smoke test scatter sorting
@@ -81,26 +81,26 @@ def test_AxesStereo2D_zlim():
     x = y = z = np.arange(10)
     axstereo = AxesStereo2D()
     axstereo.plot(x, y, z/2 + 1)
-    assert axstereo.z_lim == (1, 5.5)
+    assert axstereo.zlim == (1, 5.5)
 
     axstereo.plot(x, y, z)
-    assert axstereo.z_lim == (0, 9)
+    assert axstereo.zlim == (0, 9)
 
     axstereo.plot(x, y, z/2)
-    assert axstereo.z_lim == (0, 9)
+    assert axstereo.zlim == (0, 9)
 
-    axstereo.set_zlim((0, 5), z_autoscale=True)
-    assert axstereo.z_lim == (0, 5)
+    axstereo.set_zlim((0, 5), zautoscale=True)
+    assert axstereo.zlim == (0, 5)
 
-    axstereo.redraw()  # we set autoscale=True, so redraw() should reset z_lim
-    assert axstereo.z_lim == (0, 9)
+    axstereo.redraw()  # we set autoscale=True, so redraw() should reset zlim
+    assert axstereo.zlim == (0, 9)
 
-    axstereo.set_zlim((0, 5), z_autoscale=False)
+    axstereo.set_zlim((0, 5), zautoscale=False)
     axstereo.plot(x, y, z)
-    assert axstereo.z_lim == (0, 5)
+    assert axstereo.zlim == (0, 5)
 
-    axstereo.plot(x, y, z, z_lim=(1, 2))
-    assert axstereo.z_lim == (1, 2)
+    axstereo.plot(x, y, z, zlim=(1, 2))
+    assert axstereo.zlim == (1, 2)
 
     assert axstereo.get_zlim() == (1, 2)
 
@@ -155,17 +155,17 @@ def test_AxesAnaglyph():
     axstereo.plot(x, y, z)
     assert True
 
-    # Smoke test z_zero
+    # Smoke test zzero
     axstereo = AxesAnaglyph()
-    axstereo.plot(x, y, z, z_zero=min(z))
-    axstereo = AxesAnaglyph(z_zero=min(z))
+    axstereo.plot(x, y, z, zzero=min(z))
+    axstereo = AxesAnaglyph(zzero=min(z))
     axstereo.plot(x, y, z)
     assert True
 
-    # Smoke test z_scale
+    # Smoke test zscale
     axstereo = AxesAnaglyph()
-    axstereo.plot(x, y, z, z_scale=np.ptp(z))
-    axstereo = AxesAnaglyph(z_scale=np.ptp(z))
+    axstereo.plot(x, y, z, zscale=np.ptp(z))
+    axstereo = AxesAnaglyph(zscale=np.ptp(z))
     axstereo.plot(x, y, z)
     assert True
 
@@ -221,26 +221,26 @@ def plotting_tests_2d_pairwise_zlim():
     axstereo.set_title('zlim=(-2, 2)')
 
 
-def plotting_tests_anaglyph_pairwise_z_zero():
+def plotting_tests_anaglyph_pairwise_zzero():
     # test plot and scatter
     x, y, z = _testdata()['trefoil']
-    axstereo = AxesAnaglyph(z_zero=min(z))
+    axstereo = AxesAnaglyph(zzero=min(z))
     axstereo.plot(x, y, z, c='k', alpha=0.2)
     axstereo.scatter(x, y, z, c=z, cmap='viridis', s=10)
     axstereo.grid(True)
-    axstereo.set_title('z_zero=min(z_zero)')
+    axstereo.set_title('zzero=min(zzero)')
 
     axstereo = AxesAnaglyph()
-    axstereo.plot(x, y, z, c='k', alpha=0.2, z_zero=None)
-    axstereo.scatter(x, y, z, c=z, cmap='viridis', s=10, z_zero=None)
+    axstereo.plot(x, y, z, c='k', alpha=0.2, zzero=None)
+    axstereo.scatter(x, y, z, c=z, cmap='viridis', s=10, zzero=None)
     axstereo.grid(True)
-    axstereo.set_title('z_zero=None')
+    axstereo.set_title('zzero=None')
 
-    axstereo = AxesAnaglyph(z_scale=np.ptp(z))
-    axstereo.plot(x, y, z, c='k', alpha=0.2, z_zero=max(z))
-    axstereo.scatter(x, y, z, c=z, cmap='viridis', s=10, z_zero=max(z))
+    axstereo = AxesAnaglyph(zscale=np.ptp(z))
+    axstereo.plot(x, y, z, c='k', alpha=0.2, zzero=max(z))
+    axstereo.scatter(x, y, z, c=z, cmap='viridis', s=10, zzero=max(z))
     axstereo.grid(True)
-    axstereo.set_title('z_zero=max(z_zero)')
+    axstereo.set_title('zzero=max(zzero)')
 
 
 def plotting_tests_3d():
@@ -272,6 +272,6 @@ if __name__ == '__main__':
     plotting_tests_2d_pairwise_zlim()
     plotting_tests_3d()
     plotting_tests_anaglyph_pairwise()
-    plotting_tests_anaglyph_pairwise_z_zero()
+    plotting_tests_anaglyph_pairwise_zzero()
     plotting_tests_anaglyph_imshow_stereo()
     plt.show()
