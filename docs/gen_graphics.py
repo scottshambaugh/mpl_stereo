@@ -13,7 +13,7 @@ def _cmap_norm(z):
 
 def plot_2d_trefoil(savedir=None, show=True):
     x, y, z = trefoil()
-    axstereo = AxesStereo2D(zscale=2)
+    axstereo = AxesStereo2D()
     axstereo.plot(x, y, z, c='k', alpha=0.2)
     axstereo.scatter(x, y, z, c=z, cmap='viridis', s=10)
     axstereo.fig.set_size_inches(6, 3)
@@ -35,7 +35,7 @@ def plot_3d_trefoil(savedir=None, show=True):
 
 def plot_anaglyph_trefoil(savedir=None, show=True):
     x, y, z = trefoil()
-    axstereo = AxesAnaglyph(zscale=2)
+    axstereo = AxesAnaglyph()
     axstereo.plot(x, y, z)
     axstereo.scatter(x, y, z, s=10)
     axstereo.fig.set_size_inches(3.0, 3)
@@ -52,7 +52,7 @@ def plot_anaglyph_trefoil_zzero(savedir=None, show=True):
               'zzero = None\ndata midpoint at page',
               'zzero = max(z)\ndata sinks below page')
     for ax, zzero, title in zip(axs, zzeros, titles):
-        axstereo = AxesAnaglyph(ax=ax, zzero=zzero, zscale=2)
+        axstereo = AxesAnaglyph(ax=ax, zzero=zzero)
         axstereo.plot(x, y, z)
         axstereo.scatter(x, y, z, s=10)
         axstereo.set_title(title)
@@ -66,7 +66,7 @@ def plot_anaglyph_trefoil_zzero(savedir=None, show=True):
 def animate_2d_trefoil(savedir=None, show=True):
     x, y, z = trefoil(0, n_steps=N_STEPS)
     cmap = matplotlib.colormaps['viridis']
-    axstereo = AxesStereo2D(zscale=2)
+    axstereo = AxesStereo2D()
     axstereo.plot(x, y, z, c='k', alpha=0.2)
     scatter = axstereo.scatter(x, y, z, s=10)
     colors = cmap(_cmap_norm(z))
@@ -135,7 +135,7 @@ def gen_logo(savedir=None, show=True):
     y = np.roll(y, n_roll)
     z = np.roll(z, n_roll)
 
-    axstereo = AxesAnaglyph(ipd=150, zscale=2)
+    axstereo = AxesAnaglyph(ipd=150)
     axstereo.plot(x, y, z, linewidth=6)
     axstereo.set_xlim(-4.5, 4.5)
     axstereo.set_ylim(-4.5, 4.5)
@@ -161,7 +161,7 @@ def gen_logo_with_text(savedir=None, show=True):
 def plot_2d_sun(savedir=None, show=True):
     sun_left_data, sun_right_data = sun_left_right()
 
-    axstereo = AxesStereo2D(zscale=2)
+    axstereo = AxesStereo2D()
     axstereo.ax_left.imshow(sun_left_data, cmap='gray')
     axstereo.ax_right.imshow(sun_right_data, cmap='gray')
     axstereo.fig.set_size_inches(6, 3)
@@ -172,7 +172,7 @@ def plot_2d_sun(savedir=None, show=True):
 
 def plot_anaglyph_sun(savedir=None, show=True):
     sun_left_data, sun_right_data = sun_left_right()
-    axstereo = AxesAnaglyph(zscale=2)
+    axstereo = AxesAnaglyph()
     axstereo.imshow_stereo(sun_left_data, sun_right_data)
     axstereo.fig.set_size_inches(3, 3)
     if savedir is not None:
@@ -183,7 +183,7 @@ def plot_anaglyph_sun(savedir=None, show=True):
 def plot_2d_church(savedir=None, show=True):
     church_left_data, church_right_data = church_left_right()
 
-    axstereo = AxesStereo2D(zscale=2)
+    axstereo = AxesStereo2D()
     axstereo.ax_left.imshow(church_left_data)
     axstereo.ax_right.imshow(church_right_data)
     axstereo.fig.set_size_inches(8, 3)

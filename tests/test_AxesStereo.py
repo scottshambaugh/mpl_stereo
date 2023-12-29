@@ -242,8 +242,8 @@ def plotting_tests_2d_pairwise_zlim():
     axstereo.plot(x, y, z, c='k', alpha=0.2)
     axstereo.scatter(x, y, z, c=z, cmap='viridis', s=10)
     axstereo.grid(True)
-    axstereo.set_zlim((-0.2, 0.2))
-    axstereo.set_title('zlim=(-0.2, 0.2)')
+    axstereo.set_zlim((-0.5, 0.5))
+    axstereo.set_title('zlim=(-0.5, 0.5)')
 
     axstereo = AxesStereo2D(eye_balance=1.0)
     axstereo.plot(x, y, z, c='k', alpha=0.2)

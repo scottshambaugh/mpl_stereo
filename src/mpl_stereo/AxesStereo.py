@@ -90,7 +90,8 @@ def calc_2d_offsets(eye_balance: float,
                     zautoscale: bool = True,
                     zscale: Optional[float] = None,
                     zlim: Optional[tuple[float, float]] = None,
-                    zzero: Optional[float] = None):
+                    zzero: Optional[float] = None,
+                    xlim: Optional[tuple[float, float]] = None):
     """
     Calculates the x-offsets for a 2D plot to create a stereoscopic effect
     based on the z-coordinates of the data points.
@@ -107,7 +108,7 @@ def calc_2d_offsets(eye_balance: float,
         The interpupillary distance, in millimeters.
     zscale : Optional[float]
         Scaling factor for the visual depth of the z-data (in x-axis units).
-        If None (default), then will be set to 1.
+        If None (default), then will be set to 1/4 the x-axis range.
     zlim : Optional[tuple[float, float]]
         Z-axis limits. If None (default), then z range will be autoscaled to
         (min(z), max(z)).
@@ -115,13 +116,23 @@ def calc_2d_offsets(eye_balance: float,
         The z-coordinate of the focal plane. Set to min(z) to have all the data
         float above the page, or set to max(z) to have all the data sink into
         the page. If None (default), will be set to the midpoint of the z range.
+    xlim : Optional[tuple[float, float]]
+        The x-axis limits, for calculating the zscale. If None, then an
+        undefined zscale will be set to 1.
     """
+    if zautoscale or zscale is None:
+        if zautoscale and xlim is not None:
+            zscale = (max(xlim) - min(xlim)) / 4
+        else:
+            zscale = 1
+
     if zautoscale or zlim is None:
         zlim_new = (np.min(z), np.max(z))
         if zlim is None:
             zlim = zlim_new
         else:
             zlim = (min(zlim[0], zlim_new[0]), max(zlim[1], zlim_new[1]))
+
     zrange = zlim[1] - zlim[0]
     if zrange == 0:  # If all the z values are the same
         zrange = np.max(abs(z))
@@ -130,14 +141,12 @@ def calc_2d_offsets(eye_balance: float,
     z_midpoint = zlim[0] + zrange/2
     if zzero is None:
         zzero = z_midpoint
-    if zscale is None:
-        zscale = 1
 
     zscaled = (z + z_midpoint - zzero) / zrange * zscale
     offset = ipd * zscaled / (d + zscaled)
     offset_left = (eye_balance + 1)/2 * offset
     offset_right = (1 - eye_balance)/2 * offset
-    return offset_left, offset_right, zlim
+    return offset_left, offset_right, zlim, zscale
 
 
 def view_init(self, elev=None, azim=None, roll=None, vertical_axis="z",
@@ -200,7 +209,7 @@ class AxesStereoBase(ABC):
             values for cross-view.
         zscale : Optional[float]
             Scaling factor for the visual depth of the z-data (in x-axis units).
-            If None (default), then will be set to 1.
+            If None (default), then will be set to 1/4 the x-axis range.
         zlim : Optional[tuple[float, float]]
             Z-axis limits. If None (default), then z range will be autoscaled to
             (min(z), max(z)).
@@ -294,7 +303,7 @@ class AxesStereoSideBySide(AxesStereoBase):
             values for cross-view.
         zscale : Optional[float]
             Scaling factor for the visual depth of the z-data (in x-axis units).
-            If None (default), then will be set to 1.
+            If None (default), then will be set to 1/4 the x-axis range.
         zlim : Optional[tuple[float, float]]
             Z-axis limits. If None (default), then z range will be autoscaled to
             (min(z), max(z)).
@@ -339,6 +348,7 @@ class AxesStereoSideBySide(AxesStereoBase):
 class AxesStereo2DBase(ABC):
     def set_zlim(self,
                  zlim: tuple[float, float],
+                 zscale: Optional[float] = None,
                  zautoscale: bool = False,
                  redraw: Optional[bool] = None):
         """
@@ -348,15 +358,19 @@ class AxesStereo2DBase(ABC):
         ----------
         zlim : tuple[float, float]
             The new z limits.
+        zscale : Optional[float]
+            Scaling factor for the visual depth of the z-data (in x-axis units).
         zautoscale : bool
             Whether to later automatically scale the z limits based on the data.
             Default is False.
         redraw : bool
             Whether to redraw the plot. If None, then will redraw.
         """
-        if redraw is None and self.zlim != zlim:
+        if redraw is None and (self.zlim != zlim or self.zscale != zscale):
             redraw = True
         self.zlim = zlim
+        if zscale is not None:
+            self.zscale = zscale
         self.zautoscale = False  # Do not autoscale for this redraw
         if redraw:
             self.redraw()
@@ -377,6 +391,9 @@ class AxesStereo2DBase(ABC):
         self.redraw()
 
     def _calc_bounding_zlim(self) -> tuple[float, float]:
+        """
+        Calculate the z limits that will bound all the z data for all artists.
+        """
         zlim = (np.inf, -np.inf)
         for _, _, kwargs in self.artist_args:
             z = kwargs['z']
@@ -384,6 +401,9 @@ class AxesStereo2DBase(ABC):
         return zlim
 
     def redraw(self):
+        """
+        Redraw the plot.
+        """
         # Remove all the artists
         for artist in self.artists_left + self.artists_right:
             artist.remove()
@@ -437,6 +457,10 @@ class AxesStereo2DBase(ABC):
             The return value of the right axes method call.
         """
         # for scatter plots, sort the data by z to not occlude improperly
+        kwargs_original = copy.deepcopy(kwargs)
+        kwargs_original['x'] = x
+        kwargs_original['y'] = y
+        kwargs_original['z'] = z
         if name == 'scatter':
             x, y, z, kwargs = sort_by_z(x, y, z, kwargs)
 
@@ -451,18 +475,22 @@ class AxesStereo2DBase(ABC):
         # Extract the zlim keyword argument if it exists and update limits
         zlim = kwargs.pop('zlim', None)
         if zlim is not None:
-            self.set_zlim(zlim, redraw=False)
+            self.set_zlim(zlim, zscale, redraw=False)
 
         # Calculate the x-offsets
-        offset_left, offset_right, zlim  = calc_2d_offsets(self.eye_balance, z, self.d,
-                                                           self.ipd, self.zautoscale,
-                                                           zscale=zscale,
-                                                           zlim=self.zlim,
-                                                           zzero=zzero)
-        if zlim != self.zlim:
-            self.zlim = zlim
-            if len(self.artist_args) > 0:
-                self.redraw()
+        offset_left, offset_right, zlim, zscale  = calc_2d_offsets(self.eye_balance,
+                                                                   z,
+                                                                   self.d,
+                                                                   self.ipd,
+                                                                   self.zautoscale,
+                                                                   zscale=zscale,
+                                                                   zlim=self.zlim,
+                                                                   zzero=zzero,
+                                                                   xlim=ax_left.get_xlim())
+        self.zscale = zscale
+        self.zlim = zlim
+        if len(self.artist_args) > 0:
+            self.redraw()
 
         if isinstance(self, AxesStereo2D):
             # Plot the data twice, once for each subplot (2D case)
@@ -484,10 +512,7 @@ class AxesStereo2DBase(ABC):
                                                 *args, **kwargs)
 
         # Keep track of the artists
-        kwargs['x'] = x
-        kwargs['y'] = y
-        kwargs['z'] = z
-        self.log_artists(res_left, res_right, name, args, kwargs)
+        self.log_artists(res_left, res_right, name, args, kwargs_original)
 
         return res_left, res_right
 
@@ -524,7 +549,7 @@ class AxesStereo2D(AxesStereoSideBySide, AxesStereo2DBase):
             values for cross-view.
         zscale : Optional[float]
             Scaling factor for the visual depth of the z-data (in x-axis units).
-            If None (default), then will be set to 1.
+            If None (default), then will be set to 1/4 the x-axis range.
         zlim : Optional[tuple[float, float]]
             Z-axis limits. If None (default), then z range will be autoscaled to
             (min(z), max(z)).
@@ -635,7 +660,7 @@ class AxesStereo3D(AxesStereoSideBySide):
             values for cross-view.
         """
         super().__init__(fig=fig, axs=axs, eye_balance=eye_balance, d=d, ipd=ipd,
-                         zscale=None, zzero=None, is_3d=True)
+                         zscale=None, zlim=None, zzero=None, is_3d=True)
         self.known_methods = ['plot', 'scatter', 'stem', 'voxels', 'plot_wireframe',
                               'plot_surface', 'plot_trisurf', 'contour', 'contourf']
 
@@ -762,7 +787,7 @@ class AxesAnaglyph(AxesStereoBase, AxesStereo2DBase):
             values for cross-view.
         zscale : Optional[float]
             Scaling factor for the visual depth of the z-data (in x-axis units).
-            If None (default), then will be set to 1.
+            If None (default), then will be set to 1/4 the x-axis range.
         zlim : Optional[tuple[float, float]]
             Z-axis limits. If None (default), then z range will be autoscaled to
             (min(z), max(z)).

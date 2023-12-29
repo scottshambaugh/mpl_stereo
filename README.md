@@ -125,6 +125,8 @@ axstereo.set_xlabel('X Label')
 (line_left, line_right) = axstereo.plot(x, y, z)
 ```
 
+The apparent depth of 2D stereograms can be adjusted with the `zscale` parameter. The default is 1/4th the x-axis range, i.e. `zscale=(max(ax.get_xlim()) - ax.get_xlim()) / 4`. Decrease this number to flatten the stereogram, or increase it to exaggerate the depth.
+
 For 2D plots and anaglyphs, the focal plane can be set with the `zzero` parameter. This is the z value that will be "on the page" when viewing the stereogram.
 
 ```python

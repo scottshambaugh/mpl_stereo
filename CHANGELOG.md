@@ -16,6 +16,7 @@
 ### Added    
 * Church full color anaglyph example
 ### Changed    
+* Default `zscale` is now 1/4 x-axis range, not 1
 ### Removed    
 
 ## [0.5.0] - 2023-12-28
