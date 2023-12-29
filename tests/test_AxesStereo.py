@@ -4,7 +4,7 @@ import inspect
 from mpl_toolkits.mplot3d.axes3d import get_test_data
 
 from mpl_stereo import AxesStereo2D, AxesStereo3D, AxesAnaglyph
-from mpl_stereo.example_data import trefoil, sun_left_right
+from mpl_stereo.example_data import trefoil, sun_left_right, church_left_right
 
 
 def _testdata():
@@ -20,6 +20,10 @@ def _testdata():
     # Sun data
     sun_left_data, sun_right_data = sun_left_right()
     data['sun'] = (sun_left_data, sun_right_data)
+
+    # Church data
+    church_left_data, church_right_data = church_left_right()
+    data['church'] = (church_left_data, church_right_data)
     return data
 
 
@@ -297,6 +301,10 @@ def plotting_tests_anaglyph_imshow_stereo():
     sun_left_data, sun_right_data = _testdata()['sun']
     axstereo = AxesAnaglyph()
     axstereo.imshow_stereo(sun_left_data, sun_right_data)
+
+    church_left_data, church_right_data = _testdata()['church']
+    axstereo = AxesAnaglyph()
+    axstereo.imshow_stereo(church_left_data, church_right_data)
 
 
 if __name__ == '__main__':

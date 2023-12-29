@@ -366,7 +366,9 @@ class AxesStereo2DBase(ABC):
         redraw : bool
             Whether to redraw the plot. If None, then will redraw.
         """
-        if redraw is None and (self.zlim != zlim or self.zscale != zscale):
+        if (redraw is None
+            and (self.zlim != zlim
+                 or (self.zscale != zscale and zscale is not None))):
             redraw = True
         self.zlim = zlim
         if zscale is not None:
