@@ -4,7 +4,7 @@ import matplotlib.animation as animation
 import matplotlib.pyplot as plt
 from pathlib import Path
 from mpl_stereo import AxesStereo2D, AxesStereo3D, AxesAnaglyph, calc_2d_offsets, sort_by_z
-from mpl_stereo.example_data import trefoil, sun_left_right
+from mpl_stereo.example_data import trefoil, sun_left_right, church_left_right
 
 N_STEPS = 10
 
@@ -180,12 +180,25 @@ def plot_anaglyph_sun(savedir=None, show=True):
     if show:
         plt.show()
 
+def plot_2d_church(savedir=None, show=True):
+    church_left_data, church_right_data = church_left_right()
+
+    axstereo = AxesStereo2D(zscale=2)
+    axstereo.ax_left.imshow(church_left_data)
+    axstereo.ax_right.imshow(church_right_data)
+    axstereo.fig.set_size_inches(8, 3)
+    if savedir is not None:
+        plt.savefig(savedir / 'church_2d.png', bbox_inches='tight', dpi=640)
+    if show:
+        plt.show()
+
 def main():
     currdir = Path(__file__).parent.resolve()
     savedir = currdir
     show = False
     plot_2d_trefoil(savedir, show)
     plot_2d_sun(savedir, show)
+    plot_2d_church(savedir, show)
     plot_3d_trefoil(savedir, show)
     plot_anaglyph_trefoil(savedir, show)
     plot_anaglyph_trefoil_zzero(savedir, show)

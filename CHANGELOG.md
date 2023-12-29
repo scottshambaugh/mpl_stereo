@@ -14,6 +14,7 @@
 
 ## [Unreleased]
 ### Added    
+* Church full color anaglyph example
 ### Changed    
 ### Removed    
 

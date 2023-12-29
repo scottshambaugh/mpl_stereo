@@ -85,6 +85,23 @@ axstereo.imshow_stereo(sun_left_data, sun_right_data)
 <img width="250" height="250" src="https://raw.githubusercontent.com/scottshambaugh/mpl_stereo/main/docs/sun_anaglyph.png">
 </p>
 
+Here's another example, showing how this translates to full color data. This example is a pair of photos of [St. Mary's Church](https://commons.wikimedia.org/wiki/File:St_Mary%27s_Church,_Colston_Bassett_3D-35486887876.jpg) in Colston Basset, Britain, taken by David Skinner and shared under a [CC-BY2.0 license](https://creativecommons.org/licenses/by/2.0/deed.en).
+```python
+from mpl_stereo.example_data import church_left_right
+chruch_left_data, church_right_data = church_left_right
+
+axstereo = AxesStereo2D()
+axstereo.ax_left.imshow(chruch_left_data)
+axstereo.ax_right.imshow(church_right_data)
+
+axstereo = AxesAnaglyph()
+axstereo.imshow_stereo(church_left_data, church_right_data)
+```
+<p float="left" align="center">
+<img width="550" height="250" src="https://raw.githubusercontent.com/scottshambaugh/mpl_stereo/main/docs/church_2d.png">
+</p>
+Anaglyph image is TODO
+
 
 ### Working With Plots
 The figure and subplot axes can be accessed with the following:
