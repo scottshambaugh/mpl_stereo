@@ -135,7 +135,7 @@ def gen_logo(savedir=None, show=True):
     y = np.roll(y, n_roll)
     z = np.roll(z, n_roll)
 
-    axstereo = AxesAnaglyph(ipd=150)
+    axstereo = AxesAnaglyph(ipd=150, zscale=1, zzero=min(z))
     axstereo.plot(x, y, z, linewidth=6)
     axstereo.set_xlim(-4.5, 4.5)
     axstereo.set_ylim(-4.5, 4.5)

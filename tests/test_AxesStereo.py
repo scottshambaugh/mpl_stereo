@@ -308,10 +308,10 @@ def plotting_tests_anaglyph_imshow_stereo():
 
 
 if __name__ == '__main__':
-    plotting_tests_2d_pairwise()
-    plotting_tests_2d_pairwise_zlim()
-    plotting_tests_3d()
-    plotting_tests_anaglyph_pairwise()
-    plotting_tests_anaglyph_pairwise_zzero()
+    #plotting_tests_2d_pairwise()
+    #plotting_tests_2d_pairwise_zlim()
+    #plotting_tests_3d()
+    #plotting_tests_anaglyph_pairwise()
+    #plotting_tests_anaglyph_pairwise_zzero()
     plotting_tests_anaglyph_imshow_stereo()
     plt.show()
