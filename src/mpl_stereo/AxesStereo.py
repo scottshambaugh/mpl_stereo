@@ -231,7 +231,7 @@ class AxesStereoBase(ABC):
         self.known_methods: list[str] = []
 
         self.zautoscale = True
-        if self.zlim is not None:
+        if self.zlim is not None or zscale is not None:
             self.zautoscale = False
 
         self.artists_left = []
@@ -507,8 +507,8 @@ class AxesStereo2DBase(ABC):
 
             # Plot the data twice, once for each color
             res_left = getattr(ax_left, name)(x + offset_left, y,
-                                              color=self.colors[1], alpha=self.alpha,
-                                              *args, **kwargs)
+                                                color=self.colors[1], alpha=self.alpha,
+                                                *args, **kwargs)
             res_right = getattr(ax_right, name)(x - offset_right, y,
                                                 color=self.colors[0], alpha=self.alpha,
                                                 *args, **kwargs)
@@ -888,8 +888,8 @@ class AxesAnaglyph(AxesStereoBase, AxesStereo2DBase):
             The data from the right image.
         """
         named_colors = mpl.colors.get_named_colors_mapping()
-        color_tuple_left = mpl.colors.hex2color(named_colors[self.colors[1]])
-        color_tuple_right = mpl.colors.hex2color(named_colors[self.colors[0]])
+        color_tuple_left = mpl.colors.hex2color(named_colors[self.colors[0]])
+        color_tuple_right = mpl.colors.hex2color(named_colors[self.colors[1]])
 
         cmap_left = copy.deepcopy(plt.get_cmap('gray'))
         cmap_right = copy.deepcopy(cmap_left)

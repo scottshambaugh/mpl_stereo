@@ -10,6 +10,9 @@
 - AxesAnaglyph.imshow_stereo() other colormaps
 - AxesAnaglyph.imshow_stereo() full color images
 
+### Known issues:
+- Inconsistent coloring across redraws if not speficied
+
 ----
 
 ## [Unreleased]
@@ -17,6 +20,7 @@
 * Church full color anaglyph example
 ### Changed    
 * Default `zscale` is now 1/4 x-axis range, not 1
+* Fix anaglyph color ordering
 ### Removed    
 
 ## [0.5.0] - 2023-12-28
