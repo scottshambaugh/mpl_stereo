@@ -96,8 +96,13 @@ def animate_2d_trefoil(savedir=None, show=True):
     def animate(frame):
         x, y, z = trefoil(frame, n_steps=N_STEPS)
         x, y, z, _ = sort_by_z(x, y, z, kwargs=dict())
+        zautoscale = False
         offset_left, offset_right, zlim, zscale = calc_2d_offsets(axstereo.eye_balance, z,
-                                                                  axstereo.d, axstereo.ipd)
+                                                                  axstereo.d, axstereo.ipd,
+                                                                  zautoscale,
+                                                                  axstereo.zscale,
+                                                                  axstereo.zlim,
+                                                                  axstereo.zzero)
         scatter[0].set_offsets(np.stack([x + offset_left, y]).T)
         scatter[1].set_offsets(np.stack([x - offset_right, y]).T)
         colors = cmap(_cmap_norm(z))
