@@ -350,7 +350,8 @@ class AxesStereoSideBySide(AxesStereoBase):
         self.fig = fig
         self.axs = (self.ax_left, self.ax_right)
 
-    def wiggle(self, filepath: str | Path, interval: float = 200):
+    def wiggle(self, filepath: str | Path, interval: float = 125,
+               *args: Any, **kwargs: dict[str, Any]):
         """
         Save the figure as a wiggle stereogram.
 
@@ -359,7 +360,11 @@ class AxesStereoSideBySide(AxesStereoBase):
         filepath : str | pathlib.Path
             The filepath to save the figure to.
         interval : float
-            The interval between frames in milliseconds, default 200.
+            The interval between frames in milliseconds, default 125.
+        *args : Any
+            Additional arguments passed to animation.save.
+        **kwargs : dict[str, Any]
+            Additional keyword arguments passed to animation.save.
         """
         filepath = Path(filepath)
 
@@ -376,11 +381,13 @@ class AxesStereoSideBySide(AxesStereoBase):
 
         def update(frame):
             fig.axes[frame].set_visible(True)
+            if self.is_3d and frame == 1:
+                fig.axes[0].set_visible(False)
             return ax,
 
         ani = FuncAnimation(fig, update, frames=2, interval=interval)
 
-        ani.save(filepath)
+        ani.save(filepath, *args, **kwargs)
 
 
 class AxesStereo2DBase(ABC):

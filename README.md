@@ -91,10 +91,10 @@ Color anaglyph algorithms can be chosen from the methods `'dubois'`, `'photoshop
 
 ```python
 from mpl_stereo.example_data import church_left_right
-chruch_left_data, church_right_data = church_left_right
+church_left_data, church_right_data = church_left_right
 
 axstereo = AxesStereo2D()
-axstereo.ax_left.imshow(chruch_left_data)
+axstereo.ax_left.imshow(church_left_data)
 axstereo.ax_right.imshow(church_right_data)
 
 axstereo = AxesAnaglyph()
@@ -105,6 +105,20 @@ axstereo.imshow_stereo(church_left_data, church_right_data)
 </p>
 <p float="left" align="center">
 <img width="300" height="250" src="https://raw.githubusercontent.com/scottshambaugh/mpl_stereo/main/docs/church_anaglyph.png">
+</p>
+
+### Wiggle Stereograms
+As a final way to show off the stereoscopic effect, we can make a [wiggle stereogram](https://en.wikipedia.org/wiki/Wiggle_stereoscopy). This isn't as useful for examining data, but allows seeing the effect without having to train your eyes or using 3D glasses.
+
+```python
+axstereo = AxesStereo2D()  # Also works with AxesStereo3D, but not AxesAnaglyph
+axstereo.ax_left.imshow(sun_left_data, cmap='gray')
+axstereo.ax_right.imshow(sun_right_data, cmap='gray')
+axstereo.wiggle('sun_wiggle.gif')  # saves to file
+```
+
+<p float="left" align="center">
+<img width="250" height="250" src="https://raw.githubusercontent.com/scottshambaugh/mpl_stereo/main/docs/sun_wiggle.gif">
 </p>
 
 ## Advanced Usage

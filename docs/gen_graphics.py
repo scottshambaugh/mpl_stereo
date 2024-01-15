@@ -22,6 +22,15 @@ def plot_2d_trefoil(savedir=None, show=True):
     if show:
         plt.show()
 
+def wiggle_2d_trefoil(savedir=None, show=True):
+    x, y, z = trefoil()
+    axstereo = AxesStereo2D()
+    axstereo.plot(x, y, z, c='k', alpha=0.2)
+    axstereo.scatter(x, y, z, c=z, cmap='viridis', s=10)
+    axstereo.fig.set_size_inches(3, 3)
+    if savedir is not None:
+        axstereo.wiggle(savedir / 'trefoil_2d_wiggle.gif', dpi=100)
+
 def plot_3d_trefoil(savedir=None, show=True):
     x, y, z = trefoil()
     axstereo = AxesStereo3D()
@@ -32,6 +41,15 @@ def plot_3d_trefoil(savedir=None, show=True):
         plt.savefig(savedir / 'trefoil_3d.png', dpi=100)
     if show:
         plt.show()
+
+def wiggle_3d_trefoil(savedir=None, show=True):
+    x, y, z = trefoil()
+    axstereo = AxesStereo3D()
+    axstereo.plot(x, y, z, c='k', alpha=0.2)
+    axstereo.scatter(x, y, z, c=z, cmap='viridis', s=10)
+    axstereo.fig.set_size_inches(3, 3)
+    if savedir is not None:
+        axstereo.wiggle(savedir / 'trefoil_3d_wiggle.gif', dpi=100)
 
 def plot_anaglyph_trefoil(savedir=None, show=True):
     x, y, z = trefoil()
@@ -170,6 +188,16 @@ def plot_2d_sun(savedir=None, show=True):
     if show:
         plt.show()
 
+def wiggle_sun(savedir=None, show=True):
+    sun_left_data, sun_right_data = sun_left_right()
+
+    axstereo = AxesStereo2D()
+    axstereo.ax_left.imshow(sun_left_data, cmap='gray')
+    axstereo.ax_right.imshow(sun_right_data, cmap='gray')
+    axstereo.fig.set_size_inches(3, 3)
+    if savedir is not None:
+        axstereo.wiggle(savedir / 'sun_wiggle.gif', dpi=640)
+
 def plot_anaglyph_sun(savedir=None, show=True):
     sun_left_data, sun_right_data = sun_left_right()
     axstereo = AxesAnaglyph()
@@ -191,6 +219,16 @@ def plot_2d_church(savedir=None, show=True):
         plt.savefig(savedir / 'church_2d.png', bbox_inches='tight', dpi=640)
     if show:
         plt.show()
+
+def wiggle_church(savedir=None, show=True):
+    church_left_data, church_right_data = church_left_right()
+
+    axstereo = AxesStereo2D()
+    axstereo.ax_left.imshow(church_left_data)
+    axstereo.ax_right.imshow(church_right_data)
+    axstereo.fig.set_size_inches(4, 3)
+    if savedir is not None:
+        axstereo.wiggle(savedir / 'church_wiggle.gif', dpi=640)
 
 def plot_anaglyph_church(savedir=None, show=True):
     church_left_data, church_right_data = church_left_right()
@@ -214,6 +252,10 @@ def main():
     plot_anaglyph_trefoil_zzero(savedir, show)
     plot_anaglyph_sun(savedir, show)
     plot_anaglyph_church(savedir, show)
+    wiggle_2d_trefoil(savedir, show)
+    wiggle_3d_trefoil(savedir, show)
+    wiggle_sun(savedir, show)
+    wiggle_church(savedir, show)
     animate_2d_trefoil(savedir, show)
     animate_3d_trefoil(savedir, show)
     gen_logo(savedir, show)
