@@ -4,13 +4,17 @@ import numpy as np
 import inspect
 import copy
 import warnings
+import pickle
+import io
 
 from abc import ABC
 from typing import Optional, Union, Any
 from types import MethodType
+from pathlib import Path
 from matplotlib import _api
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
+from matplotlib.animation import FuncAnimation
 from mpl_toolkits.mplot3d.axes3d import Axes3D
 
 
@@ -346,6 +350,38 @@ class AxesStereoSideBySide(AxesStereoBase):
         self.fig = fig
         self.axs = (self.ax_left, self.ax_right)
 
+    def wiggle(self, filepath: str | Path, interval: float = 200):
+        """
+        Save the figure as a wiggle stereogram.
+
+        Parameters
+        ----------
+        filepath : str | pathlib.Path
+            The filepath to save the figure to.
+        interval : float
+            The interval between frames in milliseconds, default 200.
+        """
+        filepath = Path(filepath)
+
+        # Duplicate the figure
+        buf = io.BytesIO()
+        pickle.dump(self.fig, buf)
+        buf.seek(0)
+        fig = pickle.load(buf)
+
+        # Set the figure size to the same as the original
+        for ax in fig.axes:
+            ax.set_position([0.125, 0.11, 0.775, 0.77])  # Resize to full figure
+            ax.set_visible(False)  # Hide initially
+
+        def update(frame):
+            fig.axes[frame].set_visible(True)
+            return ax,
+
+        ani = FuncAnimation(fig, update, frames=2, interval=interval)
+
+        ani.save(filepath)
+
 
 class AxesStereo2DBase(ABC):
     def set_zlim(self,
@@ -518,8 +554,8 @@ class AxesStereo2DBase(ABC):
 
             # Plot the data twice, once for each color
             res_left = getattr(ax_left, name)(x + offset_left, y,
-                                                color=self.colors[1], alpha=self.alpha,
-                                                *args, **kwargs)
+                                              color=self.colors[1], alpha=self.alpha,
+                                              *args, **kwargs)
             res_right = getattr(ax_right, name)(x - offset_right, y,
                                                 color=self.colors[0], alpha=self.alpha,
                                                 *args, **kwargs)

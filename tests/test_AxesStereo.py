@@ -1,8 +1,9 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import inspect
-from mpl_toolkits.mplot3d.axes3d import get_test_data
 
+from pathlib import Path
+from mpl_toolkits.mplot3d.axes3d import get_test_data
 from mpl_stereo import AxesStereo2D, AxesStereo3D, AxesAnaglyph
 from mpl_stereo.example_data import trefoil, sun_left_right, church_left_right
 
@@ -228,7 +229,34 @@ def test_AxesAnaglyph_imshow_stereo():
         axstereo.imshow_stereo(church_left_data, church_right_data, method=method)
     assert True
 
+def test_wiggle():
+    # Smoke test wiggle
+    wiggle_filepath = Path('test.gif')
+    x, y, z = _testdata()['trefoil']
+    axstereo = AxesStereo2D()
+    axstereo.plot(x, y, z)
+    axstereo.wiggle(wiggle_filepath)
+    assert wiggle_filepath.exists()
+    wiggle_filepath.unlink()  # remove the file
+    assert True
 
+    axstereo = AxesStereo3D()
+    axstereo.plot(x, y, z)
+    axstereo.wiggle(wiggle_filepath)
+    assert wiggle_filepath.exists()
+    wiggle_filepath.unlink()  # remove the file
+    assert True
+
+    church_left_data, church_right_data = _testdata()['church']
+    axstereo = AxesStereo2D()
+    axstereo.ax_left.imshow(church_left_data)
+    axstereo.ax_right.imshow(church_right_data)
+    axstereo.wiggle(wiggle_filepath)
+    assert wiggle_filepath.exists()
+    wiggle_filepath.unlink()  # remove the file
+    assert True
+
+## The following tests are for visual inspection only
 def plotting_tests_2d_pairwise():
     # test plot and scatter
     x, y, z = _testdata()['trefoil']
@@ -324,11 +352,24 @@ def plotting_tests_anaglyph_imshow_stereo():
         axstereo.fig.set_size_inches(4, 3)
 
 
+def plotting_tests_wiggle(filepath):
+    church_left_data, church_right_data = _testdata()['church']
+    axstereo = AxesStereo2D()
+    axstereo.ax_left.imshow(church_left_data)
+    axstereo.ax_right.imshow(church_right_data)
+    axstereo.wiggle(filepath)
+
+
 if __name__ == '__main__':
+    wiggle_filepath = Path('test.gif')
+
     plotting_tests_2d_pairwise()
     plotting_tests_2d_pairwise_zlim()
     plotting_tests_3d()
     plotting_tests_anaglyph_pairwise()
     plotting_tests_anaglyph_pairwise_zzero()
     plotting_tests_anaglyph_imshow_stereo()
+    plotting_tests_wiggle(wiggle_filepath)
     plt.show()
+
+    wiggle_filepath.unlink()  # remove the file

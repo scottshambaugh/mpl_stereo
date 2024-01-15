@@ -7,7 +7,6 @@
 - 3D take into account roll angle, work at higher elevations
 - GH release publish to pypi
 - AxesAnaglyph.imshow_stereo() nonlinear color mapping methods
-- Wiggle stereograms
 
 ### Known issues:
 - Inconsistent coloring across redraws if not specified
@@ -19,9 +18,15 @@
 ### Changed    
 ### Removed    
 
+## [Unreleased]
+### Added    
+* Wiggle stereograms
+### Changed    
+* Better docs
+
 ## [0.6.1] - 2024-01-14
 ### Added    
-* Testing
+* More test coverage
 ### Changed    
 * Fixed `axstereo.autoscale_z()` not doing anything if `zlim` was set
 
