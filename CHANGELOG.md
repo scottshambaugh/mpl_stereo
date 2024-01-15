@@ -7,8 +7,7 @@
 - Flesh out testing of 3D plotting
 - 3D take into account roll angle
 - GH release publish to pypi
-- AxesAnaglyph.imshow_stereo() other colormaps
-- AxesAnaglyph.imshow_stereo() full color images
+- AxesAnaglyph.imshow_stereo() nonlinear color mapping methods
 
 ### Known issues:
 - Inconsistent coloring across redraws if not speficied
@@ -18,6 +17,8 @@
 ## [Unreleased]
 ### Added    
 * Church full color anaglyph example
+* Support for full color image anaglyphs, with methods `'dubois'`, `'photoshop'`, `'photoshop2'`
+* Support for colormaps in image anaglyphs
 ### Changed    
 * Default `zscale` is now 1/4 x-axis range, not 1
 * Fix anaglyph color ordering

@@ -299,19 +299,24 @@ def plotting_tests_anaglyph_pairwise():
 
 def plotting_tests_anaglyph_imshow_stereo():
     sun_left_data, sun_right_data = _testdata()['sun']
-    axstereo = AxesAnaglyph()
-    axstereo.imshow_stereo(sun_left_data, sun_right_data)
+    for cmap in [None, 'Oranges_r', 'viridis']:
+        axstereo = AxesAnaglyph()
+        axstereo.imshow_stereo(sun_left_data, sun_right_data, cmap=cmap)
+        axstereo.set_title(cmap)
 
     church_left_data, church_right_data = _testdata()['church']
-    axstereo = AxesAnaglyph()
-    axstereo.imshow_stereo(church_left_data, church_right_data)
+    for method in ['dubois', 'photoshop', 'photoshop2']:
+        axstereo = AxesAnaglyph()
+        axstereo.imshow_stereo(church_left_data, church_right_data, method=method)
+        axstereo.set_title(method)
+        axstereo.fig.set_size_inches(4, 3)
 
 
 if __name__ == '__main__':
-    #plotting_tests_2d_pairwise()
-    #plotting_tests_2d_pairwise_zlim()
-    #plotting_tests_3d()
-    #plotting_tests_anaglyph_pairwise()
-    #plotting_tests_anaglyph_pairwise_zzero()
+    plotting_tests_2d_pairwise()
+    plotting_tests_2d_pairwise_zlim()
+    plotting_tests_3d()
+    plotting_tests_anaglyph_pairwise()
+    plotting_tests_anaglyph_pairwise_zzero()
     plotting_tests_anaglyph_imshow_stereo()
     plt.show()

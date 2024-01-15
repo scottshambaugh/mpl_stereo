@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import inspect
 import copy
+import warnings
 
 from abc import ABC
 from typing import Optional, Union, Any
@@ -875,10 +876,22 @@ class AxesAnaglyph(AxesStereoBase, AxesStereo2DBase):
         return method
 
     def imshow_stereo(self, data_left: np.ndarray, data_right: np.ndarray,
+                      method: str = None, cmap: str = None,
                       *args: Any, **kwargs: dict[str, Any]):
         """
         From existing stereo image data, combine into an anaglyph. Any further
         args or kwargs will be passed on to the `imshow()` function.
+
+        The data can be of shape (M, N) or (M, N, 3) or (M, N, 4). If the data
+        is (M, N), then it will be converted to (M, N, 3) by stacking the data
+        three times, and so the baseline image will appear in grayscale.
+        If the data is (M, N, 4), then the fourth alpha channel will be passed
+        through to the anaglyph.
+
+        The methods are based on the following paper:
+        Sanders, William R., and David F. McAllister. "Producing anaglyphs from
+          synthetic images." Stereoscopic displays and virtual reality systems
+          X. Vol. 5006. SPIE, 2003.
 
         Parameters
         ----------
@@ -886,20 +899,125 @@ class AxesAnaglyph(AxesStereoBase, AxesStereo2DBase):
             The data from the left image.
         data_right : numpy.ndarray
             The data from the right image.
+        method : str
+            The method used to create the anaglyph. Options:
+            'dubois', default when cmap is None
+            'photoshop'
+            'photoshop2', default when cmap is not None
+        cmap : str
+            The colormap to use, default None. See above for default behavior.
+            Only recommended for 1-D shape (M, N) scalar data rather than color
+            images.
         """
-        named_colors = mpl.colors.get_named_colors_mapping()
-        color_tuple_left = mpl.colors.hex2color(named_colors[self.colors[0]])
-        color_tuple_right = mpl.colors.hex2color(named_colors[self.colors[1]])
+        # Check that the method is valid
+        if method is None:
+            if cmap is None:
+                method = 'dubois'
+            else:
+                method = 'photoshop2'
+        if method.lower() not in ['photoshop', 'photoshop2', 'dubois']:
+            raise ValueError(f"method={method} must be one of 'photoshop', ",
+                             "'photoshop2', 'dubois'")
+        method = method.lower()
 
-        cmap_left = copy.deepcopy(plt.get_cmap('gray'))
-        cmap_right = copy.deepcopy(cmap_left)
-        for color, val in zip(['red', 'green', 'blue'], color_tuple_left):
-            cmap_left._segmentdata[color] = [(0, 0, 0), (1, val, val)]
-        for color, val in zip(['red', 'green', 'blue'], color_tuple_right):
-            cmap_right._segmentdata[color] = [(0, 0, 0), (1, val, val)]
+        # Check that the data is valid
+        data_left = np.array(data_left)
+        data_right = np.array(data_right)
+        if data_left.shape != data_right.shape:
+            raise ValueError("data_left and data_right must have the same shape")
+        if data_left.dtype != data_right.dtype:
+            raise ValueError("data_left and data_right must have the same dtype")
 
-        # The [0:3] indexing is to discard the added alpha channel
-        data_colored = (cmap_left(data_left) + cmap_right(data_right))[:, :, 0:3]
+        # Accept both 0.0 - 1.0 and 0 - 255 data, map to 0.0 - 1.0
+        if np.issubdtype(data_left.dtype, np.integer):
+            data_left = data_left.astype(float)/255
+            data_right = data_right.astype(float)/255
+
+        # Map grayscale to rgb
+        if len(data_left.shape) == 2:
+            data_left = np.stack((data_left,)*3, axis=-1)
+            data_right = np.stack((data_right,)*3, axis=-1)
+        elif cmap is not None:
+            warnings.warn("cmap is not recommended for color images")
+
+        # Luma conversion
+        luma_map = np.array([0.2126, 0.7152, 0.0722])
+
+        # Color tuples (only used for 'photoshop', 'photoshop2' methods)
+        color_left = mpl.colors.to_rgb(self.colors[0])
+        color_right = mpl.colors.to_rgb(self.colors[1])
+
+        if method == 'dubois':
+            M_left = np.array([[ 0.4561,  0.500484,  0.176381],
+                               [-0.0400822, -0.0378246, -0.0157589],
+                               [-0.0152161, -0.0205971, -0.00546856]])
+            M_right = np.array([[ -0.0434706, -0.0879388, -0.00155529],
+                                [0.378476,  0.73364, -0.0184503],
+                                [-0.0721527, -0.112961,  1.2264]])
+
+        elif method == 'photoshop':
+            M_left = np.diag(color_left)
+            M_right = np.diag(color_right)
+
+        elif method == 'photoshop2':
+            # Known as "modified photoshop" in the paper
+            M_luma = np.array([luma_map,
+                               [0, 1, 0],
+                               [0, 0, 1]])
+            M_left = np.diag(color_left) @ M_luma
+            M_right = np.diag(color_right)
+
+        # Modify matrices to pass through alpha channel if it exists
+        if data_left.shape[-1] == 4:
+            M_left = np.block([[M_left,           np.zeros((3, 1))],
+                               [np.zeros((1, 3)), 1]])
+            M_right = np.block([[M_right,         np.zeros((3, 1))],
+                                [np.zeros((1, 3)), 1]])
+            luma_map = np.append(luma_map, 0)
+
+        if cmap is None:
+            # Matrix multiply every colored pixel
+            data_colored = (np.einsum('ij,klj->kli', M_left, data_left) +
+                            np.einsum('ij,klj->kli', M_right, data_right))
+
+        else:  # camp is not None
+            cmap_left = copy.deepcopy(plt.get_cmap(cmap))
+            cmap_right = copy.deepcopy(cmap_left)
+            if isinstance(cmap_left, mpl.colors.ListedColormap):
+                colors_left = []
+                colors_right = []
+                for color in cmap_left.colors:
+                    colors_left.append(np.clip(M_left @ color, 0, 1).tolist())
+                    colors_right.append(np.clip(M_right @ color, 0, 1).tolist())
+                cmap_left.colors = colors_left
+                cmap_right.colors = colors_right
+
+            elif isinstance(cmap_left, mpl.colors.LinearSegmentedColormap):
+                colors_left = []
+                colors_right = []
+                for i in range(len(cmap_left._segmentdata['red'])):
+                    color = [cmap_left._segmentdata[channel][i][1]
+                                for channel in ['red', 'green', 'blue']]
+                    colors_left.append(np.clip(M_left @ color, 0, 1).tolist())
+                    colors_right.append(np.clip(M_right @ color, 0, 1).tolist())
+                for i, channel in enumerate(['red', 'green', 'blue']):
+                    entries_left = []
+                    entries_right = []
+                    for j in range(len(cmap_left._segmentdata[channel])):
+                        entries_left.append((cmap_left._segmentdata[channel][j][0],
+                                             colors_left[j][i],
+                                             colors_left[j][i]))
+                        entries_right.append((cmap_right._segmentdata[channel][j][0],
+                                              colors_right[j][i],
+                                              colors_right[j][i]))
+                    cmap_left._segmentdata[channel] = entries_left
+                    cmap_right._segmentdata[channel] = entries_right
+
+            data_left_flattened = np.clip(data_left @ luma_map, 0, 1)
+            data_right_flattened = np.clip(data_right @ luma_map, 0, 1)
+            data_colored = (cmap_left(data_left_flattened) + cmap_right(data_right_flattened))
+
+        data_colored = np.clip(data_colored, 0, 1)
         self.ax.imshow(data_colored, *args, **kwargs)
 
     def set_axlabel_colors(self):

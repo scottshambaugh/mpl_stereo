@@ -192,6 +192,16 @@ def plot_2d_church(savedir=None, show=True):
     if show:
         plt.show()
 
+def plot_anaglyph_church(savedir=None, show=True):
+    church_left_data, church_right_data = church_left_right()
+    axstereo = AxesAnaglyph()
+    axstereo.imshow_stereo(church_left_data, church_right_data)
+    axstereo.fig.set_size_inches(4, 3)
+    if savedir is not None:
+        plt.savefig(savedir / 'church_anaglyph.png', bbox_inches='tight', dpi=640)
+    if show:
+        plt.show()
+
 def main():
     currdir = Path(__file__).parent.resolve()
     savedir = currdir
@@ -203,6 +213,7 @@ def main():
     plot_anaglyph_trefoil(savedir, show)
     plot_anaglyph_trefoil_zzero(savedir, show)
     plot_anaglyph_sun(savedir, show)
+    plot_anaglyph_church(savedir, show)
     animate_2d_trefoil(savedir, show)
     animate_3d_trefoil(savedir, show)
     gen_logo(savedir, show)
