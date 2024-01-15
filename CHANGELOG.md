@@ -16,13 +16,17 @@
 
 ## [Unreleased]
 ### Added    
+### Changed    
+### Removed    
+
+## [0.6.0] - 2024-01-14
+### Added    
 * Church full color anaglyph example
 * Support for full color image anaglyphs, with methods `'dubois'`, `'photoshop'`, `'photoshop2'`
 * Support for colormaps in image anaglyphs
 ### Changed    
 * Default `zscale` is now 1/4 x-axis range, not 1
 * Fix anaglyph color ordering
-### Removed    
 
 ## [0.5.0] - 2023-12-28
 ### Added    

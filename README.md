@@ -100,6 +100,7 @@ axstereo.imshow_stereo(church_left_data, church_right_data)
 <p float="left" align="center">
 <img width="550" height="250" src="https://raw.githubusercontent.com/scottshambaugh/mpl_stereo/main/docs/church_2d.png">
 </p>
+<p float="left" align="center">
 <img width="300" height="250" src="https://raw.githubusercontent.com/scottshambaugh/mpl_stereo/main/docs/church_anaglyph.png">
 </p>
 

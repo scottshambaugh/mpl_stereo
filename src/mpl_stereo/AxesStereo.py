@@ -876,7 +876,7 @@ class AxesAnaglyph(AxesStereoBase, AxesStereo2DBase):
         return method
 
     def imshow_stereo(self, data_left: np.ndarray, data_right: np.ndarray,
-                      method: str = None, cmap: str = None,
+                      method: Optional[str] = None, cmap: Optional[str] = None,
                       *args: Any, **kwargs: dict[str, Any]):
         """
         From existing stereo image data, combine into an anaglyph. Any further
