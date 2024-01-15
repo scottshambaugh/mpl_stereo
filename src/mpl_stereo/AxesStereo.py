@@ -911,7 +911,7 @@ class AxesAnaglyph(AxesStereoBase, AxesStereo2DBase):
             The data from the right image.
         method : str
             The method used to create the anaglyph. Options:
-            'dubois', default when cmap is None
+            'dubois', default when cmap is None, will always be red-cyan
             'photoshop'
             'photoshop2', default when cmap is not None
         cmap : str

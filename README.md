@@ -86,6 +86,8 @@ axstereo.imshow_stereo(sun_left_data, sun_right_data)
 </p>
 
 Here's another example, showing how this translates to full color data. This example is a pair of photos of [St. Mary's Church](https://commons.wikimedia.org/wiki/File:St_Mary%27s_Church,_Colston_Bassett_3D-35486887876.jpg) in Colston Basset, Britain, taken by David Skinner and shared under a [CC-BY2.0 license](https://creativecommons.org/licenses/by/2.0/deed.en).
+
+Color anaglyph algorithms can be chosen from the methods `'dubois'`, `'photoshop'`, and `'photoshop2'`, as described in the paper [Sanders, William R., and David F. McAllister. "Producing anaglyphs from synthetic images." *Stereoscopic displays and virtual reality systems X.* Vol. 5006. SPIE, 2003.](https://research.csc.ncsu.edu/stereographics/ei03.pdf).
 ```python
 from mpl_stereo.example_data import church_left_right
 chruch_left_data, church_right_data = church_left_right
