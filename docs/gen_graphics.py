@@ -6,7 +6,7 @@ from pathlib import Path
 from mpl_stereo import AxesStereo2D, AxesStereo3D, AxesAnaglyph, calc_2d_offsets, sort_by_z
 from mpl_stereo.example_data import trefoil, sun_left_right, church_left_right
 
-N_STEPS = 10
+N_STEPS = 30
 
 def _cmap_norm(z):
     return (z - np.min(z)) / np.ptp(z)
@@ -91,12 +91,12 @@ def animate_2d_trefoil(savedir=None, show=True):
     ani = animation.FuncAnimation(axstereo.fig, animate, frames=np.arange(N_STEPS),
                                   interval=20, repeat=False)
     if savedir is not None:
-        ani.save(savedir / "trefoil_2d_animation.gif", fps=10, dpi=100)
+        ani.save(savedir / "trefoil_2d_animation.gif", fps=30, dpi=100)
     if show:
         plt.show()
 
 def animate_3d_trefoil(savedir=None, show=True):
-    n_frames = 180
+    n_frames = 180*3
     dazim = 360/n_frames
 
     x, y, z = trefoil(0, n_steps=N_STEPS)
@@ -123,7 +123,7 @@ def animate_3d_trefoil(savedir=None, show=True):
     ani = animation.FuncAnimation(axstereo.fig, animate, frames=np.arange(n_frames),
                                   interval=20, repeat=False)
     if savedir is not None:
-        ani.save(savedir / "trefoil_3d_animation.gif", fps=10, dpi=100)
+        ani.save(savedir / "trefoil_3d_animation.gif", fps=30, dpi=100)
     if show:
         plt.show()
 
