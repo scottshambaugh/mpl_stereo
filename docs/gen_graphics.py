@@ -173,7 +173,7 @@ def plot_2d_sun(savedir=None, show=True):
 def plot_anaglyph_sun(savedir=None, show=True):
     sun_left_data, sun_right_data = sun_left_right()
     axstereo = AxesAnaglyph()
-    axstereo.imshow_stereo(sun_left_data, sun_right_data)
+    axstereo.imshow_stereo(sun_left_data, sun_right_data, cmap='gray')
     axstereo.fig.set_size_inches(3, 3)
     if savedir is not None:
         plt.savefig(savedir / 'sun_anaglyph.png', bbox_inches='tight', dpi=640)

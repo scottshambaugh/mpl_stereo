@@ -66,17 +66,17 @@ axstereo.scatter(x, y, z, s=10)
 </p>
 
 ### Existing Stereo Images
-Existing stereo image data can easily be plotted up side-by-side, or combined into an anaglyph. Here we plot up two images of the sun taken in July 2023 by the NASA STEREO-A and SDO spacecraft. This example was adapted from [the SunPy documentation](https://docs.sunpy.org/en/stable/generated/gallery/showcase/stereoscopic_3d.html#sphx-glr-generated-gallery-showcase-stereoscopic-3d-py).
+Existing stereo image data can easily be plotted up side-by-side, or combined into an anaglyph. Here we plot up two 1-D grayscale images of the sun taken in July 2023 by the NASA STEREO-A and SDO spacecraft. This example was adapted from [the SunPy documentation](https://docs.sunpy.org/en/stable/generated/gallery/showcase/stereoscopic_3d.html#sphx-glr-generated-gallery-showcase-stereoscopic-3d-py).
 ```python
 from mpl_stereo.example_data import sun_left_right
 sun_left_data, sun_right_data = sun_left_right
 
 axstereo = AxesStereo2D()
-axstereo.ax_left.imshow(sun_left_data, cmap='gray')
+axstereo.ax_left.imshow(sun_left_data, cmap='gray')  # try other colormaps!
 axstereo.ax_right.imshow(sun_right_data, cmap='gray')
 
 axstereo = AxesAnaglyph()
-axstereo.imshow_stereo(sun_left_data, sun_right_data)
+axstereo.imshow_stereo(sun_left_data, sun_right_data, cmap='gray')
 ```
 <p float="left" align="center">
 <img width="450" height="250" src="https://raw.githubusercontent.com/scottshambaugh/mpl_stereo/main/docs/sun_2d.png">
@@ -87,7 +87,8 @@ axstereo.imshow_stereo(sun_left_data, sun_right_data)
 
 Here's another example, showing how this translates to full color data. This example is a pair of photos of [St. Mary's Church](https://commons.wikimedia.org/wiki/File:St_Mary%27s_Church,_Colston_Bassett_3D-35486887876.jpg) in Colston Basset, Britain, taken by David Skinner and shared under a [CC-BY2.0 license](https://creativecommons.org/licenses/by/2.0/deed.en).
 
-Color anaglyph algorithms can be chosen from the methods `'dubois'`, `'photoshop'`, and `'photoshop2'`, as described in the paper [Sanders, William R., and David F. McAllister. "Producing anaglyphs from synthetic images." *Stereoscopic displays and virtual reality systems X.* Vol. 5006. SPIE, 2003.](https://research.csc.ncsu.edu/stereographics/ei03.pdf).
+Color anaglyph algorithms can be chosen from the methods `'dubois'`, `'photoshop'`, and `'photoshop2'`, as described in the paper [Sanders, William R., and David F. McAllister. "Producing anaglyphs from synthetic images." *Stereoscopic displays and virtual reality systems X.* Vol. 5006. SPIE, 2003.](https://research.csc.ncsu.edu/stereographics/ei03.pdf)
+
 ```python
 from mpl_stereo.example_data import church_left_right
 chruch_left_data, church_right_data = church_left_right
