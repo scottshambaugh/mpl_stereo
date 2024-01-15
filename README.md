@@ -111,7 +111,7 @@ axstereo.imshow_stereo(church_left_data, church_right_data)
 As a final way to show off the stereoscopic effect, we can make a [wiggle stereogram](https://en.wikipedia.org/wiki/Wiggle_stereoscopy). This isn't as useful for examining data, but allows seeing the effect without having to train your eyes or using 3D glasses.
 
 ```python
-axstereo = AxesStereo2D()  # Wiggle also works with AxesStereo3D
+axstereo = AxesStereo2D()  # wiggle also works with AxesStereo3D
 axstereo.ax_left.imshow(sun_left_data, cmap='gray')
 axstereo.ax_right.imshow(sun_right_data, cmap='gray')
 axstereo.wiggle('sun_wiggle.gif')  # saves to file
