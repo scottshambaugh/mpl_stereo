@@ -350,7 +350,7 @@ class AxesStereoSideBySide(AxesStereoBase):
         self.fig = fig
         self.axs = (self.ax_left, self.ax_right)
 
-    def wiggle(self, filepath: str | Path, interval: float = 125,
+    def wiggle(self, filepath: Union[str, Path], interval: float = 125,
                *args: Any, **kwargs: dict[str, Any]):
         """
         Save the figure as a wiggle stereogram.
@@ -374,13 +374,16 @@ class AxesStereoSideBySide(AxesStereoBase):
         buf.seek(0)
         fig = pickle.load(buf)
 
-        # Set the figure size to the same as the original
+        # Set up the axes to fill the figure
         for ax in fig.axes:
-            ax.set_position([0.125, 0.11, 0.775, 0.77])  # Resize to full figure
+            ax.set_position([0.125, 0.11, 0.775, 0.77])  # Default full size
             ax.set_visible(False)  # Hide initially
 
         def update(frame):
             fig.axes[frame].set_visible(True)
+
+            # Don't hide the underlying left axis for 2D plots, since the right
+            # one has the y axis hidded
             if self.is_3d and frame == 1:
                 fig.axes[0].set_visible(False)
             return ax,
