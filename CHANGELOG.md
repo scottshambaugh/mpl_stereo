@@ -19,6 +19,12 @@
 ### Changed    
 ### Removed    
 
+## [0.6.1] - 2024-01-14
+### Added    
+* Testing
+### Changed    
+* Fixed `axstereo.autoscale_z()` not doing anything if `zlim` was set
+
 ## [0.6.0] - 2024-01-14
 ### Added    
 * Church full color anaglyph example

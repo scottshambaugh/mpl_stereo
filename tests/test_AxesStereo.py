@@ -140,6 +140,9 @@ def test_AxesAnaglyph_zlim():
 
     assert axstereo.get_zlim() == (1, 2)
 
+    axstereo.autoscale_z()  # will redraw
+    assert axstereo.zlim == (0, 9)
+
     n_artists = 5  # from above plot()'s
     assert len(axstereo.artists_left) == n_artists
     assert len(axstereo.artists_right) == n_artists
@@ -210,10 +213,19 @@ def test_AxesAnaglyph():
     assert True
 
 
-def test_AxesAnaglyph_imshow_steroe():
-    # Smoke test imshow_stereo
-    axstereo = AxesAnaglyph()
-    axstereo.imshow_stereo(np.array([[1]]), np.array([[1]]))
+def test_AxesAnaglyph_imshow_stereo():
+    # Smoke test imshow_stereo for scalar data
+    sun_left_data, sun_right_data = _testdata()['sun']
+    for cmap in [None, 'Oranges_r', 'viridis']:
+        axstereo = AxesAnaglyph()
+        axstereo.imshow_stereo(sun_left_data, sun_right_data, cmap=cmap)
+    assert True
+
+    # Smoke test imshow_stereo for RGB data
+    church_left_data, church_right_data = _testdata()['church']
+    for method in ['dubois', 'photoshop', 'photoshop2']:
+        axstereo = AxesAnaglyph()
+        axstereo.imshow_stereo(church_left_data, church_right_data, method=method)
     assert True
 
 

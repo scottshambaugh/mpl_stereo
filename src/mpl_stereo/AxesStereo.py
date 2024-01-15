@@ -234,6 +234,7 @@ class AxesStereoBase(ABC):
         self.zautoscale = True
         if self.zlim is not None or zscale is not None:
             self.zautoscale = False
+        self.is_redrawing = False
 
         self.artists_left = []
         self.artists_right = []
@@ -391,6 +392,8 @@ class AxesStereo2DBase(ABC):
         """
         self.zautoscale = True
         self.zlim = self._calc_bounding_zlim()
+        for _, _, kwargs in self.artist_args:
+            kwargs.pop('zlim', None)
         self.redraw()
 
     def _calc_bounding_zlim(self) -> tuple[float, float]:
@@ -398,8 +401,13 @@ class AxesStereo2DBase(ABC):
         Calculate the z limits that will bound all the z data for all artists.
         """
         zlim = (np.inf, -np.inf)
-        for _, _, kwargs in self.artist_args:
-            z = kwargs['z']
+        for _, args, kwargs in self.artist_args:
+            # Check if 'z' is in the keyword arguments or if there is a third
+            # argument of the same shape as x
+            if 'z' in kwargs:
+                z = kwargs['z']
+            elif len(args) > 0:
+                z, *args = args
             zlim = (min(zlim[0], np.min(z)), max(zlim[1], np.max(z)))
         return zlim
 
@@ -414,10 +422,12 @@ class AxesStereo2DBase(ABC):
         self.artists_right = []
 
         # Plot the data again
+        self.is_redrawing = True
         artist_args = self.artist_args
         self.artist_args = []  # will repopulate in the getattr calls below
         for name, args, kwargs in artist_args:
             getattr(self, name)(*args, **kwargs)
+        self.is_redrawing = False
 
     def plot2d(self,
                ax_left: Axes,
@@ -492,7 +502,7 @@ class AxesStereo2DBase(ABC):
                                                                    xlim=ax_left.get_xlim())
         self.zscale = zscale
         self.zlim = zlim
-        if len(self.artist_args) > 0:
+        if len(self.artist_args) > 0 and not self.is_redrawing:
             self.redraw()
 
         if isinstance(self, AxesStereo2D):
