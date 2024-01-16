@@ -14,7 +14,7 @@ Stereographic images can significantly enhance the interpretability of 3D data b
 
 It takes some practice to be able to view the stereoscopic effect for the first time, but the effort is well worth it!
 
-## Usage
+## Basic Usage
 **Installation**
 ```
 pip install mpl_stereo
@@ -107,6 +107,7 @@ axstereo.imshow_stereo(church_left_data, church_right_data)
 <img width="300" height="250" src="https://raw.githubusercontent.com/scottshambaugh/mpl_stereo/main/docs/church_anaglyph.png">
 </p>
 
+## Advanced Usage
 
 ### Working With Plots
 The figure and subplot axes can be accessed with the following:
