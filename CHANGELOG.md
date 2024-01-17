@@ -2,7 +2,6 @@
 
 ## Future Work
 ### Features & Maintenance:
-- Better beginner instructions
 - Add on more known 2D plotting functions
 - Flesh out testing of 3D plotting
 - 3D take into account roll angle
@@ -10,7 +9,7 @@
 - AxesAnaglyph.imshow_stereo() nonlinear color mapping methods
 
 ### Known issues:
-- Inconsistent coloring across redraws if not speficied
+- Inconsistent coloring across redraws if not specified
 
 ----
 

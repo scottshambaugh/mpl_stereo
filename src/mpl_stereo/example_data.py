@@ -2,6 +2,8 @@ import numpy as np
 import matplotlib.image as mpimg
 from pathlib import Path
 
+DATA_DIR = Path(__file__).parent.resolve() / 'data'
+
 def trefoil(i: int = 0, n_points: int = 100, n_steps: int = 10):
     dt = 2*np.pi*i/n_points/n_steps
     t = np.linspace(0, 2*np.pi, n_points) + dt
@@ -11,14 +13,12 @@ def trefoil(i: int = 0, n_points: int = 100, n_steps: int = 10):
     return x, y, z
 
 def sun_left_right():
-    currdir = Path(__file__).parent.resolve()
     # Get only the red channel for a grayscale image
-    sun_left_data = mpimg.imread(currdir / 'sun_left.png')[:, :, 0]
-    sun_right_data = mpimg.imread(currdir / 'sun_right.png')[:, :, 0]
+    sun_left_data = mpimg.imread(DATA_DIR / 'sun_left.png')[:, :, 0]
+    sun_right_data = mpimg.imread(DATA_DIR / 'sun_right.png')[:, :, 0]
     return sun_left_data, sun_right_data
 
 def church_left_right():
-    currdir = Path(__file__).parent.resolve()
-    sun_left_data = mpimg.imread(currdir / 'church_left.jpg')
-    sun_right_data = mpimg.imread(currdir / 'church_right.jpg')
+    sun_left_data = mpimg.imread(DATA_DIR / 'church_left.jpg')
+    sun_right_data = mpimg.imread(DATA_DIR / 'church_right.jpg')
     return sun_left_data, sun_right_data
