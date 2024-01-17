@@ -15,7 +15,7 @@ Stereographic images can significantly enhance the interpretability of 3D data b
 It takes some practice to be able to view the stereoscopic effect for the first time, but the effort is well worth it!
 
 ## Basic Usage
-**Installation**
+**Python Installation**
 ```
 pip install mpl_stereo
 ```
