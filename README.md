@@ -156,17 +156,16 @@ See an example of how to use this with matplotlib animations in [docs/gen_graphi
 
 ## Viewing Stereograms
 
-These are not [*auto*stereograms](https://en.wikipedia.org/wiki/Autostereogram), like the "Magic Eye" books that were popular in the 1990's. However, they use the same viewing technique. Below is ChatGPT's how-to guide on viewing these, but I'll try to find a better beginner-friendly resource to put here.
+These are not [*auto*stereograms](https://en.wikipedia.org/wiki/Autostereogram), like the "Magic Eye" books that were popular in the 1990's. However, they use the same viewing technique. Below is a great video by Vox on how to view stereograms, click on the image and skip to 0:35 for the how-to portion and then 4:29 for more examples.
 
-1) **Position the Stereogram**: Place it at arm's length and ensure it's level with your eyes.
-2) **Relax Your Focus**: Look through the image, as if focusing on something distant, rather than the stereogram itself.
-3) **Parallel Viewing**: Try to view the image with your eyes parallel, similar to how you would look at a distant object.
-4) **Align and Overlap**: Adjust the angle and distance of the stereogram until the two images begin to overlap.
-5) **Perceive the 3D Image**: As the images overlap, a 3D image should emerge. Keep your focus steady to maintain the illusion.
-6) **Practice**: If initially unsuccessful, take breaks and try again. It might require some practice to get used to this method.
+<p float="left" align="center">
+<a href="https://www.youtube.com/watch?v=v8O8Em_RPNg">
+<img width="500" height="320" src="https://raw.githubusercontent.com/scottshambaugh/mpl_stereo/main/docs/vox_stereogram_title_card.png">
+</a>
+</p>
 
-### Parallel vs Cross-Eyed Viewing
-By default, the stereograms are set up for "parallel" viewing method as described above. For "cross-eyed" viewing, initialize with a negative `ipd` parameter. An ipd (Inter-Pupilary Distance) of 65 millimeters is the default, so call `AxesStereo2D(ipd=-65)` for the default cross-eyed viewing.
+### Divergent vs Cross-Eyed Viewing
+By default, the stereograms are set up for the "divergent" or "parallel" viewing method as described above. For "cross-eyed" viewing, initialize with a negative `ipd` parameter. An ipd (Inter-Pupilary Distance) of 65 millimeters is the default, so call `AxesStereo2D(ipd=-65)` for the default cross-eyed viewing.
 
 ### Derivation of Geometry
 Two eyes with separation `IPD` are looking at a point a distance `z` offset from a focal plane at distance `d`, resulting in view angle `θ`. If this point were projected back to the focal plane, it would be offset by `δ` from where it visually appears on that plane. This offset `δ` is used to displace each point in the stereogram for each eye based on its `z` value to achieve the stereoscopic effect. The `eye_balance` parameter allocates the total relative displacement of `2δ` between the two eyes.
