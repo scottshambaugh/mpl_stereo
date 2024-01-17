@@ -156,7 +156,7 @@ See an example of how to use this with matplotlib animations in [docs/gen_graphi
 
 ## Viewing Stereograms
 
-These are not [*auto*stereograms](https://en.wikipedia.org/wiki/Autostereogram), like the "Magic Eye" books that were popular in the 1990's. However, they use the same viewing technique. Below is a great video by Vox on how to view stereograms, click on the image and skip to 0:35 for the how-to portion and then 4:29 for more examples.
+These are not [*auto*stereograms](https://en.wikipedia.org/wiki/Autostereogram), like the "Magic Eye" books that were popular in the 1990's. However, they use the same viewing technique. Below is a great video by Vox on how to view stereograms, click on the image and skip to [0:35](https://www.youtube.com/watch?v=v8O8Em_RPNg&t=35s) for the how-to portion and then [4:33](https://www.youtube.com/watch?v=v8O8Em_RPNg&t=4m33s) for more examples.
 
 <p float="left" align="center">
 <a href="https://www.youtube.com/watch?v=v8O8Em_RPNg">
