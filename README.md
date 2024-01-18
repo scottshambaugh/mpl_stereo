@@ -122,9 +122,6 @@ axstereo.wiggle('sun_wiggle.gif')  # saves to file
 
 ## Advanced Usage
 
-### Parallel vs Cross-Eyed Viewing
-By default, the stereograms are set up for the "parallel" or "divergent" viewing method as described above. For "cross-eyed" viewing, initialize with a negative `ipd` parameter. An ipd (Inter-Pupilary Distance) of 65 millimeters is the default, so call `AxesStereo2D(ipd=-65)` for the default cross-eyed viewing.
-
 ### Working With Plots
 The figure and subplot axes can be accessed with the following:
 ```python
@@ -147,6 +144,10 @@ axstereo.set_xlabel('X Label')
 (line_left, line_right) = axstereo.plot(x, y, z)
 ```
 
+### Parallel vs Cross-Eyed Viewing
+By default, the stereograms are set up for the "parallel" or "divergent" viewing method as described above. For "cross-eyed" viewing, initialize with a negative `ipd` parameter. An ipd (Inter-Pupilary Distance) of 65 millimeters is the default, so call `AxesStereo2D(ipd=-65)` for the default cross-eyed viewing.
+
+## Depth and Focal Plane Location
 The apparent depth of 2D stereograms can be adjusted with the `zscale` parameter. The default is 1/4th the x-axis range, i.e. `zscale=(max(ax.get_xlim()) - ax.get_xlim()) / 4`. Decrease this number to flatten the stereogram, or increase it to exaggerate the depth.
 
 For 2D plots and anaglyphs, the focal plane can be set with the `zzero` parameter. This is the z value that will be "on the page" when viewing the stereogram.
