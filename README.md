@@ -145,7 +145,7 @@ axstereo.set_xlabel('X Label')
 ```
 
 ### Parallel vs Cross-Eyed Viewing
-By default, the stereograms are set up for the "parallel" or "divergent" viewing method as described above. For "cross-eyed" viewing, initialize with a negative `ipd` parameter. An ipd (Inter-Pupilary Distance) of 65 millimeters is the default, so call `AxesStereo2D(ipd=-65)` for the default cross-eyed viewing.
+By default, the stereograms are set up for the "parallel" / "divergent" / "wall-eyed" viewing method as described above. For "cross-eyed" viewing, initialize with a negative `ipd` parameter. An ipd (Inter-Pupilary Distance) of 65 millimeters is the default, so call `AxesStereo2D(ipd=-65)` for the default cross-eyed viewing.
 
 ### Depth and Focal Plane Location
 The apparent depth of 2D stereograms can be adjusted with the `zscale` parameter. The default is 1/4th the x-axis range, i.e. `zscale=(max(ax.get_xlim()) - ax.get_xlim()) / 4`. Decrease this number to flatten the stereogram, or increase it to exaggerate the depth.
