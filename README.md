@@ -182,7 +182,9 @@ These are not [*auto*stereograms](https://en.wikipedia.org/wiki/Autostereogram),
 </p>
 
 ## Derivation of Geometry
-Two eyes with separation `IPD` are looking at a point a distance `z` offset from a focal plane at distance `d`, resulting in view angle `θ`. If this point were projected back to the focal plane, it would be offset by `δ` from where it visually appears on that plane. This offset `δ` is used to displace each point in the stereogram for each eye based on its `z` value to achieve the stereoscopic effect. The `eye_balance` parameter allocates the total relative displacement of `2δ` between the two eyes.
+Two eyes with separation `IPD` are looking at a point a distance `z` offset from a focal plane at distance `d`, resulting in view angle `θ`. If this point were projected back to the focal plane, it would be offset by `δ` from where it visually appears on that plane. This offset `δ` is used to displace each point in the 2D stereograms and anaglyphs for each eye based on its `z` value to achieve the stereoscopic effect. The `eye_balance` parameter allocates the total relative displacement of `2δ` between the two eyes.
+
+For 3D stereograms, the azimuth view angle for the two plots is simply shifted by `θ`, with no modification to the data.
 
 ```
 θ = arctan((d - z) / (IPD / 2))
