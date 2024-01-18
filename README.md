@@ -107,7 +107,7 @@ axstereo.imshow_stereo(church_left_data, church_right_data)
 </p>
 
 ### Wiggle Stereograms
-As a final way to show off the stereoscopic effect, we can make a [wiggle stereogram](https://en.wikipedia.org/wiki/Wiggle_stereoscopy). This isn't as useful for examining data, but allows seeing the effect without having to train your eyes or using 3D glasses.
+As a final way to show off the stereoscopic effect, we can make a [wiggle stereogram](https://en.wikipedia.org/wiki/Wiggle_stereoscopy) or "wigglegram". This isn't as useful for examining data, but allows seeing the effect without having to train your eyes or using 3D glasses. The sense of depth may be enhanced if you close one eye.
 
 ```python
 axstereo = AxesStereo2D()  # wiggle also works with AxesStereo3D
@@ -179,6 +179,8 @@ These are not [*auto*stereograms](https://en.wikipedia.org/wiki/Autostereogram),
 <img width="500" height="320" src="https://raw.githubusercontent.com/scottshambaugh/mpl_stereo/main/docs/vox_stereogram_title_card.png">
 </a>
 </p>
+
+There is also a great how-to guide at the stereoscopy blog here: [Learning to Free-View: See Stereoscopic Images with the Naked Eye](https://stereoscopy.blog/2022/03/11/learning-to-free-view-see-stereoscopic-images-with-the-naked-eye/)
 
 ## Derivation of Geometry
 Two eyes with separation `IPD` are looking at a point a distance `z` offset from a focal plane at distance `d`, resulting in view angle `θ`. If this point were projected back to the focal plane, it would be offset by `δ` from where it visually appears on that plane. This offset `δ` is used to displace each point in the 2D stereograms and anaglyphs for each eye based on its `z` value to achieve the stereoscopic effect. The `eye_balance` parameter allocates the total relative displacement of `2δ` between the two eyes.
