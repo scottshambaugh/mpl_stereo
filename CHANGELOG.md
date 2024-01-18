@@ -16,6 +16,7 @@
 ## [Unreleased]
 ### Added    
 ### Changed    
+* Fixed 3D cross-view stereograms
 ### Removed    
 
 ## [0.7.0] - 2024-01-17

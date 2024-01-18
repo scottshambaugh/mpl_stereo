@@ -804,8 +804,8 @@ class AxesStereo3D(AxesStereoSideBySide):
         offset_right : float
             The offset for the right subplot [deg].
         """
-        ang = 90 - np.rad2deg(np.arctan(2 * self.d / self.ipd))
-        offset = ang / 2
+        ang = 90 - np.rad2deg(np.arctan(2 * self.d / abs(self.ipd)))
+        offset = ang / 2 * np.sign(self.ipd)
         offset_left = (self.eye_balance + 1)/2 * offset
         offset_right = (1 - self.eye_balance)/2 * offset
         return offset_left, offset_right
