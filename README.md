@@ -21,7 +21,6 @@ pip install mpl_stereo
 ```
 **Setup**
 ```python
-import numpy as np
 from mpl_stereo import AxesStereo2D, AxesStereo3D, AxesAnaglyph
 from mpl_stereo.example_data import trefoil
 x, y, z = trefoil()  # trefoil knot
