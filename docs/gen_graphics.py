@@ -7,13 +7,14 @@ from mpl_stereo import AxesStereo2D, AxesStereo3D, AxesAnaglyph, calc_2d_offsets
 from mpl_stereo.example_data import trefoil, sun_left_right, church_left_right
 
 N_STEPS = 30
+IPD = 65  # 65 for parallel, -65 for cross-eye
 
 def _cmap_norm(z):
     return (z - np.min(z)) / np.ptp(z)
 
 def plot_2d_trefoil(savedir=None, show=True):
     x, y, z = trefoil()
-    axstereo = AxesStereo2D()
+    axstereo = AxesStereo2D(ipd=IPD)
     axstereo.plot(x, y, z, c='k', alpha=0.2)
     axstereo.scatter(x, y, z, c=z, cmap='viridis', s=10)
     axstereo.fig.set_size_inches(6, 3)
@@ -24,7 +25,7 @@ def plot_2d_trefoil(savedir=None, show=True):
 
 def wiggle_2d_trefoil(savedir=None, show=True):
     x, y, z = trefoil()
-    axstereo = AxesStereo2D()
+    axstereo = AxesStereo2D(ipd=IPD)
     axstereo.plot(x, y, z, c='k', alpha=0.2)
     axstereo.scatter(x, y, z, c=z, cmap='viridis', s=10)
     axstereo.fig.set_size_inches(3, 3)
@@ -33,7 +34,7 @@ def wiggle_2d_trefoil(savedir=None, show=True):
 
 def plot_3d_trefoil(savedir=None, show=True):
     x, y, z = trefoil()
-    axstereo = AxesStereo3D()
+    axstereo = AxesStereo3D(ipd=IPD)
     axstereo.plot(x, y, z, c='k', alpha=0.2)
     axstereo.scatter(x, y, z, c=z, cmap='viridis', s=10)
     axstereo.fig.set_size_inches(6, 3)
@@ -44,7 +45,7 @@ def plot_3d_trefoil(savedir=None, show=True):
 
 def wiggle_3d_trefoil(savedir=None, show=True):
     x, y, z = trefoil()
-    axstereo = AxesStereo3D()
+    axstereo = AxesStereo3D(ipd=IPD)
     axstereo.plot(x, y, z, c='k', alpha=0.2)
     axstereo.scatter(x, y, z, c=z, cmap='viridis', s=10)
     axstereo.fig.set_size_inches(3, 3)
@@ -53,7 +54,7 @@ def wiggle_3d_trefoil(savedir=None, show=True):
 
 def plot_anaglyph_trefoil(savedir=None, show=True):
     x, y, z = trefoil()
-    axstereo = AxesAnaglyph()
+    axstereo = AxesAnaglyph(ipd=IPD)
     axstereo.plot(x, y, z)
     axstereo.scatter(x, y, z, s=10)
     axstereo.fig.set_size_inches(3.0, 3)
@@ -70,7 +71,7 @@ def plot_anaglyph_trefoil_zzero(savedir=None, show=True):
               'zzero = None\ndata midpoint at page',
               'zzero = max(z)\ndata sinks below page')
     for ax, zzero, title in zip(axs, zzeros, titles):
-        axstereo = AxesAnaglyph(ax=ax, zzero=zzero)
+        axstereo = AxesAnaglyph(ax=ax, ipd=IPD, zzero=zzero)
         axstereo.plot(x, y, z)
         axstereo.scatter(x, y, z, s=10)
         axstereo.set_title(title)
@@ -84,7 +85,7 @@ def plot_anaglyph_trefoil_zzero(savedir=None, show=True):
 def animate_2d_trefoil(savedir=None, show=True):
     x, y, z = trefoil(0, n_steps=N_STEPS)
     cmap = matplotlib.colormaps['viridis']
-    axstereo = AxesStereo2D()
+    axstereo = AxesStereo2D(ipd=IPD)
     axstereo.plot(x, y, z, c='k', alpha=0.2)
     scatter = axstereo.scatter(x, y, z, s=10)
     colors = cmap(_cmap_norm(z))
@@ -124,7 +125,7 @@ def animate_3d_trefoil(savedir=None, show=True):
 
     x, y, z = trefoil(0, n_steps=N_STEPS)
     cmap = matplotlib.colormaps['viridis']
-    axstereo = AxesStereo3D()
+    axstereo = AxesStereo3D(ipd=IPD)
     axstereo.plot(x, y, z, c='k', alpha=0.2)
     scatter = axstereo.scatter(x, y, z, s=10)
     colors = cmap(_cmap_norm(z))
@@ -185,8 +186,12 @@ def plot_2d_sun(savedir=None, show=True):
     sun_left_data, sun_right_data = sun_left_right()
 
     axstereo = AxesStereo2D()
-    axstereo.ax_left.imshow(sun_left_data, cmap='gray')
-    axstereo.ax_right.imshow(sun_right_data, cmap='gray')
+    if IPD > 0:
+        axstereo.ax_left.imshow(sun_left_data, cmap='gray')
+        axstereo.ax_right.imshow(sun_right_data, cmap='gray')
+    else:
+        axstereo.ax_right.imshow(sun_left_data, cmap='gray')
+        axstereo.ax_left.imshow(sun_right_data, cmap='gray')
     axstereo.fig.set_size_inches(6, 3)
     if savedir is not None:
         plt.savefig(savedir / 'sun_2d.png', bbox_inches='tight', dpi=640)
@@ -217,8 +222,12 @@ def plot_2d_church(savedir=None, show=True):
     church_left_data, church_right_data = church_left_right()
 
     axstereo = AxesStereo2D()
-    axstereo.ax_left.imshow(church_left_data)
-    axstereo.ax_right.imshow(church_right_data)
+    if IPD > 0:
+        axstereo.ax_left.imshow(church_left_data)
+        axstereo.ax_right.imshow(church_right_data)
+    else:
+        axstereo.ax_right.imshow(church_left_data)
+        axstereo.ax_left.imshow(church_right_data)
     axstereo.fig.set_size_inches(8, 3)
     if savedir is not None:
         plt.savefig(savedir / 'church_2d.png', bbox_inches='tight', dpi=640)
