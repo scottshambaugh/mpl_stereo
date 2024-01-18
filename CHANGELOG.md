@@ -17,6 +17,7 @@
 ### Added    
 ### Changed    
 * Fixed 3D cross-view stereograms
+* For anaglyphs, force all ipds to be positive
 ### Removed    
 
 ## [0.7.0] - 2024-01-17

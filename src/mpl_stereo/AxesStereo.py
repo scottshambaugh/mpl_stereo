@@ -842,8 +842,10 @@ class AxesAnaglyph(AxesStereoBase, AxesStereo2DBase):
         d : float
             Distance from the focal plane to the viewer (in millimeters).
         ipd : float
-            Interpupillary distance (in millimeters). Default is 65. Negative
-            values for cross-view.
+            Interpupillary distance (in millimeters). Default is 65. Note that
+            for anaglyphs, there is no cross-eyed viewing and coloring is
+            determined by the `colors` argument. So any negative ipds passed in
+            will be changed to their absolute value.
         zscale : Optional[float]
             Scaling factor for the visual depth of the z-data (in x-axis units).
             If None (default), then will be set to 1/4 the x-axis range.
@@ -863,6 +865,7 @@ class AxesAnaglyph(AxesStereoBase, AxesStereo2DBase):
             the left eye has a red lens and sees cyan, and the right eye has a
             cyan lens and sees red.
         """
+        ipd = abs(ipd)
         super().__init__(eye_balance=eye_balance, d=d, ipd=ipd,
                          zscale=zscale, zlim=zlim, zzero=zzero, is_3d=False)
 
