@@ -94,8 +94,8 @@ church_left_data, church_right_data = church_left_right
 
 # or
 import matplotlib as mpl
-sun_left_data = mpl.image.imread('church_left.jpg')
-sun_right_data = mpl.image.imread('church_right.jpg')
+church_left_data = mpl.image.imread('church_left.jpg')
+church_right_data = mpl.image.imread('church_right.jpg')
 
 axstereo = AxesStereo2D()
 axstereo.ax_left.imshow(church_left_data)

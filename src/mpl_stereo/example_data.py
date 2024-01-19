@@ -19,6 +19,6 @@ def sun_left_right():
     return sun_left_data, sun_right_data
 
 def church_left_right():
-    sun_left_data = mpimg.imread(MPL_STEREO_DATA_DIR / 'church_left.jpg')
-    sun_right_data = mpimg.imread(MPL_STEREO_DATA_DIR / 'church_right.jpg')
-    return sun_left_data, sun_right_data
+    church_left_data = mpimg.imread(MPL_STEREO_DATA_DIR / 'church_left.jpg')
+    church_right_data = mpimg.imread(MPL_STEREO_DATA_DIR / 'church_right.jpg')
+    return church_left_data, church_right_data
