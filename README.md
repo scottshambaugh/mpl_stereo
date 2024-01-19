@@ -92,6 +92,11 @@ Color anaglyph algorithms can be chosen from the methods `'dubois'`, `'photoshop
 from mpl_stereo.example_data import church_left_right
 church_left_data, church_right_data = church_left_right
 
+# or
+import matplotlib as mpl
+sun_left_data = mpl.image.imread('church_left.jpg')
+sun_right_data = mpl.image.imread('church_right.jpg')
+
 axstereo = AxesStereo2D()
 axstereo.ax_left.imshow(church_left_data)
 axstereo.ax_right.imshow(church_right_data)
