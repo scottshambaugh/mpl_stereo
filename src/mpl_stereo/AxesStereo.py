@@ -189,6 +189,34 @@ def view_init(self, elev=None, azim=None, roll=None, vertical_axis="z",
         ax._vertical_axis = vertical_axis
 
 
+def crop_image_center(data: np.ndarray, shape: tuple[int, int]):
+    """
+    Crop an image array to a specified shape, trimming equally on each side
+    such that the center of the array is kept.
+
+    Parameters
+    ----------
+    data : np.ndarray
+        The array to crop.
+    shape : tuple[int, int]
+        The shape to crop to.
+    """
+    ndim = len(data.shape)
+    data = np.atleast_3d(data)
+    x, y, z = data.shape
+    if len(shape) == 2:
+        shape = (shape[0], shape[1], 1)
+    cropx, cropy, _ = shape
+    if cropx > x or cropy > y:
+        raise ValueError(f'Crop shape ({cropx}, {cropy}) is larger than data shape ({x}, {y})')
+    startx = x//2 - (cropx//2)
+    starty = y//2 - (cropy//2)
+    cropped_data = data[startx:startx + cropx, starty:starty + cropy, :]
+    if ndim == 2:
+        cropped_data = cropped_data[:, :, 0]
+    return cropped_data
+
+
 ## Classes
 class AxesStereoBase(ABC):
     def __init__(self,
@@ -936,7 +964,7 @@ class AxesAnaglyph(AxesStereoBase, AxesStereo2DBase):
 
     def imshow_stereo(self, data_left: np.ndarray, data_right: np.ndarray,
                       method: Optional[str] = None, cmap: Optional[str] = None,
-                      *args: Any, **kwargs: dict[str, Any]):
+                      crop: bool = False, *args: Any, **kwargs: dict[str, Any]):
         """
         From existing stereo image data, combine into an anaglyph. Any further
         args or kwargs will be passed on to the `imshow()` function.
@@ -967,6 +995,9 @@ class AxesAnaglyph(AxesStereoBase, AxesStereo2DBase):
             The colormap to use, default None. See above for default behavior.
             Only recommended for 1-D shape (M, N) scalar data rather than color
             images.
+        crop : bool
+            Whether to crop the image to the minimum size of the two images,
+            keeping the images centered. Default is False.
         """
         # Check that the method is valid
         if method is None:
@@ -983,7 +1014,12 @@ class AxesAnaglyph(AxesStereoBase, AxesStereo2DBase):
         data_left = np.array(data_left)
         data_right = np.array(data_right)
         if data_left.shape != data_right.shape:
-            raise ValueError("data_left and data_right must have the same shape")
+            if crop:
+                min_shape = tuple(np.min([data_left.shape, data_right.shape], axis=0).tolist())
+                data_left = crop_image_center(data_left, min_shape)
+                data_right = crop_image_center(data_right, min_shape)
+            else:
+                raise ValueError("data_left and data_right must have the same shape")
         if data_left.dtype != data_right.dtype:
             raise ValueError("data_left and data_right must have the same dtype")
 

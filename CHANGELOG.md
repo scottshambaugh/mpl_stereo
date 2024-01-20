@@ -15,6 +15,7 @@
 
 ## [Unreleased]
 ### Added    
+* `imshow_stereo()` now has a `crop` keyword argument to crop the images to the same size if they are different, keeping the center of the image
 ### Changed    
 ### Removed    
 

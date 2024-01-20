@@ -5,7 +5,7 @@ import inspect
 from pathlib import Path
 from mpl_toolkits.mplot3d.axes3d import get_test_data
 from mpl_stereo import AxesStereo2D, AxesStereo3D, AxesAnaglyph
-from mpl_stereo.example_data import trefoil, sun_left_right, church_left_right
+from mpl_stereo.example_data import trefoil, sun_left_right, church_left_right, church_left_cropped
 
 
 def _testdata():
@@ -25,6 +25,10 @@ def _testdata():
     # Church data
     church_left_data, church_right_data = church_left_right()
     data['church'] = (church_left_data, church_right_data)
+
+    # Church data cropped
+    church_left_data = church_left_cropped()
+    data['church_cropped'] = (church_left_data, church_right_data)
     return data
 
 
@@ -229,6 +233,13 @@ def test_AxesAnaglyph_imshow_stereo():
         axstereo.imshow_stereo(church_left_data, church_right_data, method=method)
     assert True
 
+    # Smoke test cropping
+    church_left_data, church_right_data = _testdata()['church_cropped']
+    axstereo = AxesAnaglyph()
+    axstereo.imshow_stereo(church_left_data, church_right_data, crop=True)
+    assert True
+
+
 def test_wiggle():
     # Smoke test wiggle
     wiggle_filepath = Path('test.gif')
@@ -255,6 +266,7 @@ def test_wiggle():
     assert wiggle_filepath.exists()
     wiggle_filepath.unlink()  # remove the file
     assert True
+
 
 ## The following tests are for visual inspection only
 def plotting_tests_2d_pairwise():
@@ -350,6 +362,11 @@ def plotting_tests_anaglyph_imshow_stereo():
         axstereo.imshow_stereo(church_left_data, church_right_data, method=method)
         axstereo.set_title(method)
         axstereo.fig.set_size_inches(4, 3)
+
+    church_left_data, church_right_data = _testdata()['church_cropped']
+    axstereo = AxesAnaglyph()
+    axstereo.imshow_stereo(church_left_data, church_right_data, crop=True)
+    axstereo.set_title('cropped')
 
 
 def plotting_tests_wiggle(filepath):
