@@ -15,9 +15,13 @@
 
 ## [Unreleased]
 ### Added    
-* `imshow_stereo()` now has a `crop` keyword argument to crop the images to the same size if they are different, keeping the center of the image
 ### Changed    
 ### Removed    
+
+## [0.8.0] - 2024-02-19
+### Added    
+* `imshow_stereo()` now has a `crop` keyword argument to crop the images to the same size if they are different, keeping the center of the image
+* Automated publishing to PyPI via github actions
 
 ## [0.7.1] - 2024-01-18
 ### Changed    
