@@ -5,7 +5,6 @@
 - Add on more known 2D plotting functions
 - Flesh out testing of 3D plotting
 - 3D take into account roll angle, work at higher elevations
-- GH release publish to pypi
 - AxesAnaglyph.imshow_stereo() nonlinear color mapping methods
 
 ### Known issues:
