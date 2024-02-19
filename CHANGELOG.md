@@ -18,6 +18,7 @@
 ### Removed    
 
 ## [0.8.1] - 2024-02-19
+Note: v0.8.0 never published to PyPI, skipped.
 ### Added    
 * `imshow_stereo()` now has a `crop` keyword argument to crop the images to the same size if they are different, keeping the center of the image
 * Automated publishing to PyPI via github actions
