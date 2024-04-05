@@ -13,8 +13,8 @@ classifiers = [
 
 [tool.poetry.dependencies]
 python = "^3.9"
-matplotlib = "^3.8.2"
-numpy = "^1.26.2"
+matplotlib = ">=3.8.2"
+numpy = ">=1.26"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.4.3"
@@ -22,8 +22,8 @@ pytest-cov = "^4.0.0"
 flake8 = "^6"
 pre-commit = "^3"
 mypy = "^1.7"
-pillow = ">10.0.0"
+pillow = ">=10.3.0"
 
 [build-system]
-requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+requires = ["poetry-core", "numpy>=2.0.0rc1"]
