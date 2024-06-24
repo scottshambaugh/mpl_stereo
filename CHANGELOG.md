@@ -4,7 +4,7 @@
 ### Features & Maintenance:
 - Add on more known 2D plotting functions
 - Flesh out testing of 3D plotting
-- 3D take into account roll angle, work at higher elevations
+- 3D take into account roll angle, work at higher elevations (see https://github.com/matplotlib/matplotlib/pull/28290/files once matplotlib 3.10 is released)
 - AxesAnaglyph.imshow_stereo() nonlinear color mapping methods
 
 ### Known issues:
@@ -15,6 +15,7 @@
 ## [Unreleased]
 ### Added    
 ### Changed    
+* Fix Axes3D.plot and .plot3D not working
 ### Removed    
 
 ## [0.8.1] - 2024-02-19

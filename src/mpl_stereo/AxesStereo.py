@@ -748,8 +748,9 @@ class AxesStereo3D(AxesStereoSideBySide):
         """
         super().__init__(fig=fig, axs=axs, eye_balance=eye_balance, d=d, ipd=ipd,
                          zscale=None, zlim=None, zzero=None, is_3d=True)
-        self.known_methods = ['plot', 'scatter', 'stem', 'voxels', 'plot_wireframe',
-                              'plot_surface', 'plot_trisurf', 'contour', 'contourf']
+        self.known_methods = ['plot', 'plot3D', 'scatter', 'stem', 'voxels',
+                              'plot_wireframe', 'plot_surface', 'plot_trisurf',
+                              'contour', 'contourf']
 
         self.ax_left.sharez(self.ax_right)
 
@@ -796,6 +797,9 @@ class AxesStereo3D(AxesStereoSideBySide):
             for keyword_group in keyword_groups:
                 if all([keyword in parameters for keyword in keyword_group]):
                     is_plottable = True
+            if name in ('plot', 'plot3D'):
+                # 'zs' is implicit and not in the parameters
+                is_plottable = True
 
             if (ax_method and is_plottable):
                 offset_left, offset_right = self.calc_3d_offsets()
