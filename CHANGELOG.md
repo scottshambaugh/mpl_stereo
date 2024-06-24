@@ -14,8 +14,9 @@
 
 ## [Unreleased]
 ### Added    
+* Can specify a target axis for wiggle stereograms
 ### Changed    
-* Fix Axes3D.plot and .plot3D not working
+* Fix `Axes3D.plot()` and `.plot3D()` not working
 ### Removed    
 
 ## [0.8.1] - 2024-02-19

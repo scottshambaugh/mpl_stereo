@@ -379,7 +379,7 @@ class AxesStereoSideBySide(AxesStereoBase):
         self.axs = (self.ax_left, self.ax_right)
 
     def wiggle(self, filepath: Union[str, Path], interval: float = 125,
-               *args: Any, **kwargs: dict[str, Any]):
+               ax: Optional[Axes] = None, *args: Any, **kwargs: dict[str, Any]):
         """
         Save the figure as a wiggle stereogram.
 
@@ -389,31 +389,46 @@ class AxesStereoSideBySide(AxesStereoBase):
             The filepath to save the figure to.
         interval : float
             The interval between frames in milliseconds, default 125.
+        ax : matplotlib.axes.Axes, optional
+            The target axes to plot the wiggle stereogram on. If None (default),
+            then will plot on the axes of a new Figure.
         *args : Any
             Additional arguments passed to animation.save.
         **kwargs : dict[str, Any]
             Additional keyword arguments passed to animation.save.
         """
         filepath = Path(filepath)
+        if ax is None:
+            fig, ax_target = plt.subplots()
+        else:
+            ax_target = ax
+            fig = ax_target.figure
+        pos = ax_target.get_position()
 
         # Duplicate the figure
         buf = io.BytesIO()
         pickle.dump(self.fig, buf)
         buf.seek(0)
-        fig = pickle.load(buf)
+        fig_buffer = pickle.load(buf)
+
+        fig.delaxes(ax_target)
 
         # Set up the axes to fill the figure
-        for ax in fig.axes:
-            ax.set_position([0.125, 0.11, 0.775, 0.77])  # Default full size
+        axs = fig_buffer.axes
+        for ax in axs:
+            ax.figure = fig
+            fig.axes.append(ax)
+            fig.add_axes(ax)
+            ax.set_position(pos)
             ax.set_visible(False)  # Hide initially
 
         def update(frame):
-            fig.axes[frame].set_visible(True)
+            axs[frame].set_visible(True)
 
             # Don't hide the underlying left axis for 2D plots, since the right
-            # one has the y axis hidded
+            # one has the y axis hidden
             if self.is_3d and frame == 1:
-                fig.axes[0].set_visible(False)
+                axs[0].set_visible(False)
             return ax,
 
         ani = FuncAnimation(fig, update, frames=2, interval=interval)

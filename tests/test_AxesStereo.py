@@ -244,6 +244,7 @@ def test_wiggle():
     # Smoke test wiggle
     wiggle_filepath = Path('test.gif')
     x, y, z = _testdata()['trefoil']
+
     axstereo = AxesStereo2D()
     axstereo.plot(x, y, z)
     axstereo.wiggle(wiggle_filepath)
@@ -374,7 +375,7 @@ def plotting_tests_wiggle(filepath):
     axstereo = AxesStereo2D()
     axstereo.ax_left.imshow(church_left_data)
     axstereo.ax_right.imshow(church_right_data)
-    axstereo.wiggle(filepath)
+    axstereo.wiggle(filepath, ax=None)
 
 
 if __name__ == '__main__':
