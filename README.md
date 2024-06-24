@@ -170,10 +170,11 @@ axstereo = AxesAnaglyph(zzero=max(z))  # data will sink below the page
 The side-by-side, anaglyph, and wiggle plots all have somewhat different viewing methods, and people prefer different methods. For sharing stereograms widely, the `StereoSquare2D` and `StereoSquare3D` classes can be used to generate a single plot that shows all three plots on a 2x2 grid.
 
 ```python
-from mpl_stereo import StereoSquare2D
+from mpl_stereo import StereoSquare2D  # or StereoSquare3D
 stereosquare = StereoSquare2D()
-stereosquare.imshow_stereo(church_left_data, church_right_data)  # imshow_stereo is the only special method
-# For other plotting, just call them on the stereosquare object, eg stereosquare.plot(x, y, z)
+stereosquare.imshow_stereo(church_left_data, church_right_data) 
+# stereosquare.imshow_stereo() is the only special method
+# For other plotting call them directly on the object, eg stereosquare.plot(x, y, z)
 ```
 
 <p float="left" align="center">
