@@ -1,14 +1,12 @@
 [tool.poetry]
 name = "mpl_stereo"
-version = "0.8.1"
+version = "0.9.0"
 description = "See your matplotlib plots in 3D by making stereograms and anaglyphs"
 authors = ["Scott Shambaugh <scottshambaugh@users.noreply.github.com>"]
 license = "MIT"
 readme = "README.md"
 classifiers = [
     "Framework :: Matplotlib",
-    # Classifier for Python 3.12 can be removed after Poetry 1.8.0 has been released.
-    "Programming Language :: Python :: 3.12",
 ]
 
 [tool.poetry.dependencies]
@@ -26,4 +24,4 @@ pillow = ">=10.3.0"
 
 [build-system]
 build-backend = "poetry.core.masonry.api"
-requires = ["poetry-core", "numpy>=2.0.0rc1"]
+requires = ["poetry-core>=1.0.0", "setuptools", "numpy>=2.0.0"]
