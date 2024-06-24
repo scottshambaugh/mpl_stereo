@@ -471,6 +471,13 @@ class AxesStereoSideBySide(AxesStereoBase):
             if yaxis_off:
                 ax.yaxis.set_visible(False)
 
+            # workaround for https://github.com/matplotlib/matplotlib/issues/28448
+            artists = ax.get_children()
+            for artist in artists:
+                if isinstance(artist, mpl.image.AxesImage):
+                    array = artist.get_array()
+                    artist.set_array(array.data.astype('float64'))
+
         def update(frame):
             axs[frame].set_visible(True)
 
