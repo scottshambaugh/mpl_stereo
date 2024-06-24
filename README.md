@@ -52,7 +52,7 @@ axstereo.scatter(x, y, z, c=z, cmap='viridis', s=10)
 </p>
 
 ### Red-Cyan Anaglyphs
-Some 2D plots can also be made into anaglyphs, which are stereograms that can be viewed with red-cyan 3D glasses. While this allows for seeing the stereoscopic effect without training your eyes, it also means that the data cannot be otherwise colored.
+Some 2D plots can also be made into anaglyphs, which are stereograms that can be viewed with red-cyan 3D glasses. While this allows for seeing the stereoscopic effect without training your eyes, it also means that the data cannot be otherwise colored. Note that 3D plots cannot currently be made into anaglyphs.
 
 The same warning as for the 2D stereo plots about shifting data applies here as well. If `eye_balance` is -1 or +1 such that the data for one of the colors is not shifted, then that color will be applied to the x-axis tick labels to show that they are accurate.
 ```python
@@ -164,6 +164,20 @@ axstereo = AxesAnaglyph(zzero=max(z))  # data will sink below the page
 ```
 <p float="left" align="center">
 <img width="750" height="250" src="https://raw.githubusercontent.com/scottshambaugh/mpl_stereo/main/docs/trefoil_anaglyph_zzero.png">
+</p>
+
+### Stereo Squares
+The side-by-side, anaglyph, and wiggle plots all have somewhat different viewing methods, and people prefer different methods. For sharing stereograms widely, the `StereoSquare2D` and `StereoSquare3D` classes can be used to generate a single plot that shows all three plots on a 2x2 grid.
+
+```python
+from mpl_stereo import StereoSquare2D
+stereosquare = StereoSquare2D()
+stereosquare.imshow_stereo(church_left_data, church_right_data)  # imshow_stereo is the only special method
+# For other plotting, just call them on the stereosquare object, eg stereosquare.plot(x, y, z)
+```
+
+<p float="left" align="center">
+<img width="600" height="450" src="https://raw.githubusercontent.com/scottshambaugh/mpl_stereo/main/docs/church_2d_square.gif">
 </p>
 
 ### Animations
