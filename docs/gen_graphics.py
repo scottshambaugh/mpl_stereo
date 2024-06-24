@@ -3,7 +3,9 @@ import numpy as np
 import matplotlib.animation as animation
 import matplotlib.pyplot as plt
 from pathlib import Path
-from mpl_stereo import AxesStereo2D, AxesStereo3D, AxesAnaglyph, calc_2d_offsets, sort_by_z
+from mpl_stereo import (AxesStereo2D, AxesStereo3D, AxesAnaglyph,
+                        StereoSquare2D, StereoSquare3D,
+                        calc_2d_offsets, sort_by_z)
 from mpl_stereo.example_data import trefoil, sun_left_right, church_left_right
 
 N_STEPS = 30
@@ -254,10 +256,45 @@ def plot_anaglyph_church(savedir=None, show=True):
     if show:
         plt.show()
 
+def stereo_square_2d_trefoil(savedir=None, show=True):
+    x, y, z = trefoil()
+    stereosquare = StereoSquare2D()
+    stereosquare.plot(x, y, z, c='k', alpha=0.2)
+    stereosquare.scatter(x, y, z, c=z, cmap='viridis', s=10)
+    stereosquare.fig.set_size_inches(6, 6)
+    if savedir is not None:
+        stereosquare.wiggle(savedir / 'trefoil_2d_square.gif', dpi=100)
+    if show:
+        plt.show()
+
+def stereo_square_3d_trefoil(savedir=None, show=True):
+    x, y, z = trefoil()
+    stereosquare = StereoSquare3D()
+    stereosquare.plot(x, y, z, c='k', alpha=0.2)
+    stereosquare.scatter(x, y, z, c=z, cmap='viridis', s=10)
+    stereosquare.fig.set_size_inches(6, 6)
+    if savedir is not None:
+        stereosquare.wiggle(savedir / 'trefoil_3d_square.gif', dpi=100)
+    if show:
+        plt.show()
+
+def stereo_square_church(savedir=None, show=True):
+    church_left_data, church_right_data = church_left_right()
+    stereosquare = StereoSquare2D()
+    stereosquare.imshow_stereo(church_left_data, church_right_data, crop=True)
+    stereosquare.fig.set_size_inches(8, 6)
+    stereosquare.fig.set_dpi(320)
+    if savedir is not None:
+        stereosquare.wiggle(savedir / 'church_2d_square.gif')
+    if show:
+        plt.show()
+
+
 def main():
     currdir = Path(__file__).parent.resolve()
     savedir = currdir
     show = False
+
     plot_2d_trefoil(savedir, show)
     plot_2d_sun(savedir, show)
     plot_2d_church(savedir, show)
@@ -272,6 +309,9 @@ def main():
     wiggle_church(savedir, show)
     animate_2d_trefoil(savedir, show)
     animate_3d_trefoil(savedir, show)
+    stereo_square_2d_trefoil(savedir, show)
+    stereo_square_3d_trefoil(savedir, show)
+    stereo_square_church(savedir, show)
     gen_logo(savedir, show)
     gen_logo_with_text(savedir, show)
 

@@ -217,6 +217,50 @@ def crop_image_center(data: np.ndarray, shape: tuple[int, int]):
     return cropped_data
 
 
+def sanitize_data_left_right(data_left: np.ndarray,
+                             data_right: np.ndarray,
+                             crop: bool) -> tuple[np.ndarray, np.ndarray]:
+    """
+    Sanitize the data for the left and right images, ensuring that they have
+    the same shape and dtype, and that they are in the range 0.0 - 1.0.
+
+    Parameters
+    ----------
+    data_left : np.ndarray
+        The data from the left image.
+    data_right : np.ndarray
+        The data for the right image.
+    crop : bool
+        Whether to crop the image to the minimum size of the two images,
+        keeping the images centered.
+
+    Returns
+    -------
+    data_left : np.ndarray
+        The sanitized data for the left axes.
+    data_right : np.ndarray
+        The sanitized data for the right axes.
+    """
+    # Check that the data is valid
+    data_left = np.array(data_left)
+    data_right = np.array(data_right)
+    if data_left.shape != data_right.shape:
+        if crop:
+            min_shape = tuple(np.min([data_left.shape, data_right.shape], axis=0).tolist())
+            data_left = crop_image_center(data_left, min_shape)
+            data_right = crop_image_center(data_right, min_shape)
+        else:
+            raise ValueError("data_left and data_right must have the same shape")
+    if data_left.dtype != data_right.dtype:
+        raise ValueError("data_left and data_right must have the same dtype")
+
+    # Accept both 0.0 - 1.0 and 0 - 255 data, map to 0.0 - 1.0
+    if np.issubdtype(data_left.dtype, np.integer):
+        data_left = data_left.astype(float)/255
+        data_right = data_right.astype(float)/255
+    return data_left, data_right
+
+
 ## Classes
 class AxesStereoBase(ABC):
     def __init__(self,
@@ -379,7 +423,8 @@ class AxesStereoSideBySide(AxesStereoBase):
         self.axs = (self.ax_left, self.ax_right)
 
     def wiggle(self, filepath: Union[str, Path], interval: float = 125,
-               ax: Optional[Axes] = None, *args: Any, **kwargs: dict[str, Any]):
+               ax: Optional[Axes] = None, yaxis_off: bool = False,
+               *args: Any, **kwargs: dict[str, Any]):
         """
         Save the figure as a wiggle stereogram.
 
@@ -392,10 +437,12 @@ class AxesStereoSideBySide(AxesStereoBase):
         ax : matplotlib.axes.Axes, optional
             The target axes to plot the wiggle stereogram on. If None (default),
             then will plot on the axes of a new Figure.
+        yaxis_off : bool
+            Whether to hide the y-axis. Default is False.
         *args : Any
-            Additional arguments passed to animation.save.
+            Additional arguments passed to `animation.save`.
         **kwargs : dict[str, Any]
-            Additional keyword arguments passed to animation.save.
+            Additional keyword arguments passed to `animation.save`.
         """
         filepath = Path(filepath)
         if ax is None:
@@ -414,13 +461,15 @@ class AxesStereoSideBySide(AxesStereoBase):
         fig.delaxes(ax_target)
 
         # Set up the axes to fill the figure
-        axs = fig_buffer.axes
+        axs = fig_buffer.axes[0:2]
         for ax in axs:
             ax.figure = fig
             fig.axes.append(ax)
             fig.add_axes(ax)
             ax.set_position(pos)
             ax.set_visible(False)  # Hide initially
+            if yaxis_off:
+                ax.yaxis.set_visible(False)
 
         def update(frame):
             axs[frame].set_visible(True)
@@ -1029,23 +1078,7 @@ class AxesAnaglyph(AxesStereoBase, AxesStereo2DBase):
                              "'photoshop2', 'dubois'")
         method = method.lower()
 
-        # Check that the data is valid
-        data_left = np.array(data_left)
-        data_right = np.array(data_right)
-        if data_left.shape != data_right.shape:
-            if crop:
-                min_shape = tuple(np.min([data_left.shape, data_right.shape], axis=0).tolist())
-                data_left = crop_image_center(data_left, min_shape)
-                data_right = crop_image_center(data_right, min_shape)
-            else:
-                raise ValueError("data_left and data_right must have the same shape")
-        if data_left.dtype != data_right.dtype:
-            raise ValueError("data_left and data_right must have the same dtype")
-
-        # Accept both 0.0 - 1.0 and 0 - 255 data, map to 0.0 - 1.0
-        if np.issubdtype(data_left.dtype, np.integer):
-            data_left = data_left.astype(float)/255
-            data_right = data_right.astype(float)/255
+        data_left, data_right = sanitize_data_left_right(data_left, data_right, crop)
 
         # Map grayscale to rgb
         if len(data_left.shape) == 2:

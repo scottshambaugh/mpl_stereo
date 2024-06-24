@@ -379,7 +379,7 @@ def plotting_tests_wiggle(filepath):
 
 
 if __name__ == '__main__':
-    wiggle_filepath = Path('test.gif')
+    filepath = Path('test.gif')
 
     plotting_tests_2d_pairwise()
     plotting_tests_2d_pairwise_zlim()
@@ -387,7 +387,8 @@ if __name__ == '__main__':
     plotting_tests_anaglyph_pairwise()
     plotting_tests_anaglyph_pairwise_zzero()
     plotting_tests_anaglyph_imshow_stereo()
-    plotting_tests_wiggle(wiggle_filepath)
+    plotting_tests_wiggle(filepath)
+
     plt.show()
 
-    wiggle_filepath.unlink()  # remove the file
+    filepath.unlink()  # remove the file

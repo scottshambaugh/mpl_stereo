@@ -14,9 +14,10 @@
 
 ## [Unreleased]
 ### Added    
+* `StereoSquare2D` and `StereoSquare3D` classes for making a 2x2 grid showing all stereogram types at once - side-by-side, anaglyph, and wiggle
 * Can specify a target axis for wiggle stereograms
 ### Changed    
-* Fix `Axes3D.plot()` and `.plot3D()` not working
+* Fix `Axes3D.plot()` and `.plot3D()` not working for 3D plotting
 ### Removed    
 
 ## [0.8.1] - 2024-02-19
