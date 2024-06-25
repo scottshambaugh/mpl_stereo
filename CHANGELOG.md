@@ -6,6 +6,8 @@
 - Flesh out testing of 3D plotting
 - 3D take into account roll angle, work at higher elevations (see https://github.com/matplotlib/matplotlib/pull/28290/files once matplotlib 3.10 is released)
 - AxesAnaglyph.imshow_stereo() nonlinear color mapping methods
+- 3D plot analglyphs
+- More frames for plotted wigglegrams
 
 ### Known issues:
 - Inconsistent coloring across redraws if not specified
