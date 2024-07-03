@@ -206,7 +206,7 @@ There is also a great how-to guide at the stereoscopy blog here: [Learning to Fr
 ## Derivation of Geometry
 Two eyes with separation `IPD` are looking at a point a distance `z` offset from a focal plane at distance `d`, resulting in view angle `θ`. If this point were projected back to the focal plane, it would be offset by `δ` from where it visually appears on that plane. This offset `δ` is used to displace each point in the 2D stereograms and anaglyphs for each eye based on its `z` value to achieve the stereoscopic effect. The `eye_balance` parameter allocates the total relative displacement of `2δ` between the two eyes.
 
-For 3D stereograms, the azimuth view angle for the two plots is simply shifted by `θ`, with no modification to the data.
+For 3D stereograms, the azimuth view angles for the two plots are simply shifted by `90 - θ` degrees, with no modification to the data. For a notional `IPD = 65 mm` and distance to screen `d = 350 mm`, `θ ≈ 84.7 deg`, so the plots will be offset by a total of `2 * 6.3 = 12.6 deg`.
 
 ```
 θ = arctan((d - z) / (IPD / 2))
