@@ -16,6 +16,7 @@
 
 ## [Unreleased]
 ### Added    
+* `examples/` directory for example scripts
 ### Changed    
 ### Removed    
 
