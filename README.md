@@ -1,5 +1,5 @@
 ![Release](https://img.shields.io/github/v/release/scottshambaugh/mpl_stereo?sort=semver)
-[![Downloads](https://static.pepy.tech/badge/monaco)](https://pepy.tech/project/mpl_stereo)
+[![Downloads](https://static.pepy.tech/badge/mpl_stereo)](https://pepy.tech/project/mpl_stereo)
 ![Builds](https://github.com/scottshambaugh/mpl_stereo/actions/workflows/builds.yml/badge.svg)
 ![Tests](https://github.com/scottshambaugh/mpl_stereo/actions/workflows/tests.yml/badge.svg)
 [![codecov](https://codecov.io/gh/scottshambaugh/mpl_stereo/graph/badge.svg?token=V2ZSLFUK03)](https://codecov.io/gh/scottshambaugh/mpl_stereo)
