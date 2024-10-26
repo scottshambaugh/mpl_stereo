@@ -15,7 +15,7 @@ from matplotlib import _api
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
 from matplotlib.animation import FuncAnimation
-from mpl_toolkits.mplot3d.axes3d import Axes3D
+from mpl_toolkits.mplot3d.axes3d import Axes3D, _Quaternion
 
 
 ## Functions
@@ -181,11 +181,17 @@ def view_init(self, elev=None, azim=None, roll=None, vertical_axis="z",
         axes = [self]
 
     for ax in axes:
+        if hasattr(ax, "stereo_offset") and hasattr(self, "stereo_offset") and ax is not self:
+            q = _Quaternion.from_cardan_angles(
+                        *np.deg2rad((elev, azim, roll)))
+            th = ax.stereo_offset
+            k = np.array([0, 0, 1])
+            dq = _Quaternion(np.cos(th), k*np.sin(th))
+            q = dq * q
+            elev, azim, roll = np.rad2deg(q.as_cardan_angles())
         ax.elev = elev
         ax.azim = azim
         ax.roll = roll
-        if hasattr(ax, "stereo_offset") and hasattr(self, "stereo_offset") and ax is not self:
-            ax.azim += (ax.stereo_offset - self.stereo_offset)
         ax._vertical_axis = vertical_axis
 
 
