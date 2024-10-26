@@ -5,17 +5,17 @@ from mpl_stereo import StereoSquare2D
 curr_dir = Path(__file__).parent
 
 ## User inputs
-data_dir = curr_dir / '..' / 'src' / 'mpl_stereo' / 'data'
-image_left = data_dir / 'church_left.jpg'
-image_right = data_dir / 'church_right.jpg'
-output = curr_dir / 'output.gif'
+data_dir = curr_dir
+image_left = data_dir / 'gas_tube_holder_left.png'
+image_right = data_dir / 'gas_tube_holder_right.png'
+output = curr_dir / 'gas_tube_holder_stereo_square.gif'
 
 ## Plot the stereo square
 data_left = mpl.image.imread(image_left)
 data_right = mpl.image.imread(image_right)
 stereosquare = StereoSquare2D()
 stereosquare.imshow_stereo(data_left, data_right, crop=True)
-stereosquare.fig.set_size_inches(8, 6)
+stereosquare.fig.set_size_inches(6, 6)
 stereosquare.fig.set_dpi(320)
 
 ## Save to file
