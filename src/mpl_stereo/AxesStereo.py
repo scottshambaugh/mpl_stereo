@@ -469,6 +469,7 @@ class AxesStereoSideBySide(AxesStereoBase):
         # Set up the axes to fill the figure
         axs = fig_buffer.axes[0:2]
         for ax in axs:
+            ax._parent_figure = None
             ax.figure = fig
             fig.axes.append(ax)
             fig.add_axes(ax)
