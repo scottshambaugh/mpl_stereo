@@ -10,6 +10,7 @@
 
 ### Known issues:
 - Inconsistent coloring across redraws if not specified
+- 3D rotation only works on left plot
 
 ----
 

@@ -184,7 +184,7 @@ def view_init(self, elev=None, azim=None, roll=None, vertical_axis="z",
         if hasattr(ax, "stereo_offset") and hasattr(self, "stereo_offset") and ax is not self:
             q = _Quaternion.from_cardan_angles(
                         *np.deg2rad((elev, azim, roll)))
-            th = ax.stereo_offset
+            th = np.deg2rad(self.stereo_offset - ax.stereo_offset)
             k = np.array([0, 0, 1])
             dq = _Quaternion(np.cos(th), k*np.sin(th))
             q = dq * q
@@ -882,10 +882,10 @@ class AxesStereo3D(AxesStereoSideBySide):
                 offset_left, offset_right = self.calc_3d_offsets()
 
                 # Set the views for both subplots
-                self.ax_left.view_init(azim=self.ax_left.azim - offset_left)
-                self.ax_right.view_init(azim=self.ax_right.azim + offset_right)
                 self.ax_left.stereo_offset = -offset_left
                 self.ax_right.stereo_offset = offset_right
+                self.ax_left.view_init(azim=self.ax_left.azim - offset_left)
+                self.ax_right.view_init(azim=self.ax_right.azim + offset_right)
 
                 # Plot the data twice, once for each subplot
                 res_left = getattr(self.ax_left, name)(*args, **kwargs)
