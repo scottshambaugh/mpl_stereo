@@ -177,6 +177,9 @@ def view_init(self, elev=None, azim=None, roll=None, vertical_axis="z",
     if share:
         axes = {sibling for sibling
                 in self._shared_axes['view'].get_siblings(self)}
+        # Ensure self is at the beginning
+        axes.remove(self)
+        axes = [self] + list(axes)
     else:
         axes = [self]
 

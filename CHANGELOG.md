@@ -10,7 +10,6 @@
 
 ### Known issues:
 - Inconsistent coloring across redraws if not specified
-- 3D rotation only works on left plot
 
 ----
 
@@ -19,11 +18,13 @@
 ### Changed    
 ### Removed    
 
-## [0.9.1] - TODO
+## [0.10.0] - 2024-12-22
 ### Added    
 * `examples/` directory for example scripts
 ### Changed    
 * 3D plots now accurately account for roll angle and elevation
+### Removed    
+* Python 3.9 support
 
 ## [0.9.0] - 2024-06-24
 ### Added    
