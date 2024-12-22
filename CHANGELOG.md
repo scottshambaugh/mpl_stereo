@@ -19,6 +19,8 @@
 ### Removed    
 
 ## [0.10.1] - 2024-12-22
+### Added    
+* Python 3.13 support
 ### Changed    
 * Fix github actions
 
