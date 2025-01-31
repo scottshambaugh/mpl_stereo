@@ -206,9 +206,10 @@ def wiggle_sun(savedir=None, show=True):
     axstereo = AxesStereo2D()
     axstereo.ax_left.imshow(sun_left_data, cmap='gray')
     axstereo.ax_right.imshow(sun_right_data, cmap='gray')
-    axstereo.fig.set_size_inches(3, 3)
+    fig, ax = plt.subplots()
+    fig.set_size_inches(3, 3)
     if savedir is not None:
-        axstereo.wiggle(savedir / 'sun_wiggle.gif', dpi=640)
+        axstereo.wiggle(savedir / 'sun_wiggle.gif', ax=ax, dpi=640)
 
 def plot_anaglyph_sun(savedir=None, show=True):
     sun_left_data, sun_right_data = sun_left_right()
@@ -243,8 +244,9 @@ def wiggle_church(savedir=None, show=True):
     axstereo.ax_left.imshow(church_left_data)
     axstereo.ax_right.imshow(church_right_data)
     axstereo.fig.set_size_inches(4, 3)
+    fig, ax = plt.subplots()
     if savedir is not None:
-        axstereo.wiggle(savedir / 'church_wiggle.gif', dpi=640)
+        axstereo.wiggle(savedir / 'church_wiggle.gif', ax=ax, dpi=640)
 
 def plot_anaglyph_church(savedir=None, show=True):
     church_left_data, church_right_data = church_left_right()
