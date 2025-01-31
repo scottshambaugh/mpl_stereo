@@ -459,15 +459,21 @@ class AxesStereoSideBySide(AxesStereoBase):
         else:
             ax_target = ax
             fig = ax_target.figure
+
         pos = ax_target.get_position()
+        fig.delaxes(ax_target)
 
         # Duplicate the figure
         buf = io.BytesIO()
         pickle.dump(self.fig, buf)
         buf.seek(0)
         fig_buffer = pickle.load(buf)
+        fig_buffer.set_size_inches(fig.get_size_inches())
 
-        fig.delaxes(ax_target)
+        if 'dpi' in kwargs:
+            fig_buffer.set_dpi(kwargs['dpi'])
+        else:
+            fig_buffer.set_dpi(fig.get_dpi())
 
         # Set up the axes to fill the figure
         axs = fig_buffer.axes[0:2]
@@ -476,17 +482,10 @@ class AxesStereoSideBySide(AxesStereoBase):
             ax.figure = fig
             fig.axes.append(ax)
             fig.add_axes(ax)
-            ax.set_position(pos)
-            ax.set_visible(False)  # Hide initially
+            ax.set_position(pos.bounds)
+            ax.set_visible(False)
             if yaxis_off:
                 ax.yaxis.set_visible(False)
-
-            # workaround for https://github.com/matplotlib/matplotlib/issues/28448
-            artists = ax.get_children()
-            for artist in artists:
-                if isinstance(artist, mpl.image.AxesImage):
-                    array = artist.get_array()
-                    artist.set_array(array.data.astype('float64'))
 
         def update(frame):
             axs[frame].set_visible(True)

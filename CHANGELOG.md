@@ -18,6 +18,10 @@
 ### Changed    
 ### Removed    
 
+## [0.10.2] - 2025-01-31
+### Added    
+* Fixed wiggle not properly scaling after setting a new figure size
+
 ## [0.10.1] - 2024-12-22
 ### Added    
 * Python 3.13 support
