@@ -136,6 +136,12 @@ axstereo.axs  # (ax_left, ax_right), for AxesStereo2D and AxesStereo3D
 axstereo.ax  # for AxesAnaglyph
 ```
 
+This lets you save the plot to file like so:
+
+```python
+axstereo.fig.savefig('stereogram.png')
+```
+
 Calling any method on `axstereo` will pass that method call onto all the subplot axes. In the 2D cases, the plotting methods which take in `x` and `y` arguments are intercepted and the additional `z` data is processed to obtain appropriate horizontal offsets.
 
 ```python
