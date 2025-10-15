@@ -33,6 +33,10 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
+      - name: Print Python version
+        id: full-python-version
+        run: echo version=$(python -c "import sys; print('-'.join(str(v) for v in sys.version_info))") >> $GITHUB_OUTPUT
+
       - name: Install dependencies
         run: uv sync --group dev --frozen
 
@@ -44,6 +48,7 @@ jobs:
           uv run coverage html
 
       - name: Upload coverage reports to Codecov
+        if: matrix.os == 'Ubuntu' && matrix.python-version == '3.14'
         uses: codecov/codecov-action@v5
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
