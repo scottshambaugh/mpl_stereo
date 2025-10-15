@@ -11,15 +11,14 @@ pip install mpl_stereo
 ```
 git clone https://github.com/scottshambaugh/mpl_stereo.git
 cd mpl_stereo
-pip install poetry
-poetry install
+uv sync --group dev
 ```
 
 ## Running Tests and Type Checking
 
 ```
-poetry run coverage run --source=mpl_stereo -m pytest && poetry run coverage report -m 
-poetry run mypy src tests/test*
+uv run coverage run --source=mpl_stereo -m pytest && uv run coverage report -m 
+uv run mypy src tests/test*
 ```
 
 ## Releasing a New Version and Publishing to PyPi
@@ -28,14 +27,13 @@ poetry run mypy src tests/test*
 2) Update the version in `pyproject.toml`
 3) Update and install the package
     ```
-    poetry update
-    poetry install
+    uv sync --upgrade --group dev
     ```
 4) Run tests, type checking, and linting locally
     ```
-    poetry run coverage run --source=mpl_stereo -m pytest && poetry run coverage report -m 
-    poetry run mypy src tests/test*
-    poetry run flake8 src tests docs
+    uv run coverage run --source=mpl_stereo -m pytest && uv run coverage report -m 
+    uv run mypy src tests/test*
+    uv run flake8 src tests docs
     ```
 5) Run plotting tests manually
 6) Commit any changes and push up the main branch
@@ -45,6 +43,6 @@ poetry run mypy src tests/test*
     **Changelog**: https://github.com/scottshambaugh/mpl_stereo/blob/main/CHANGELOG.md    
     **Full Diff**: https://github.com/scottshambaugh/mpl_stereo/compare/v0.x.x...v0.x.x
     ```
-9) Build wheels: `poetry build`
-10) Publish to PyPi: `poetry publish`
+9) Build wheels: `uv build`
+10) Publish to PyPi: `uv publish`
 11) Check that [the package](https://pypi.org/project/mpl_stereo/) has updated

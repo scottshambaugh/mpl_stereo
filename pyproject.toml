@@ -1,27 +1,27 @@
-[tool.poetry]
+[project]
 name = "mpl_stereo"
-version = "0.10.2"
+version = "0.11.0"
 description = "See your matplotlib plots in 3D by making stereograms and anaglyphs"
-authors = ["Scott Shambaugh <scottshambaugh@users.noreply.github.com>"]
-license = "MIT"
+authors = [{ name = "Scott Shambaugh", email = "scottshambaugh@users.noreply.github.com" }]
+requires-python = ">=3.10, <4"
 readme = "README.md"
-classifiers = [
-    "Framework :: Matplotlib",
+license = "MIT"
+classifiers = ["Framework :: Matplotlib"]
+dependencies = [
+    "matplotlib>=3.10.0",
+    "numpy>=1.26",
 ]
 
-[tool.poetry.dependencies]
-python = "^3.10"
-matplotlib = ">=3.10.0"
-numpy = ">=1.26"
-
-[tool.poetry.group.dev.dependencies]
-pytest = "^7.4.3"
-pytest-cov = "^4.0.0"
-flake8 = "^6"
-pre-commit = "^3"
-mypy = "^1.7"
-pillow = ">=10.3.0"
+[dependency-groups]
+dev = [
+    "pytest>=7.4.3,<8",
+    "pytest-cov>=4.0.0,<5",
+    "flake8>=6,<7",
+    "pre-commit>=3,<4",
+    "mypy~=1.7",
+    "pillow>=10.3.0",
+]
 
 [build-system]
-build-backend = "poetry.core.masonry.api"
-requires = ["poetry-core>=1.0.0", "setuptools", "numpy>=2.0.0"]
+requires = ["uv_build"]
+build-backend = "uv_build"

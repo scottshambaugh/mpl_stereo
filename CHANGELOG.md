@@ -18,6 +18,12 @@
 ### Changed    
 ### Removed    
 
+## [0.11.0] - 2025-10-15
+### Added    
+* Python 3.14 support
+### Changed    
+* Switched to `uv` for environment and package management
+
 ## [0.10.2] - 2025-01-31
 ### Added    
 * Fixed wiggle not properly scaling after setting a new figure size

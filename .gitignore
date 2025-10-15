@@ -12,7 +12,7 @@ _templates/
 # Local configs
 mypy.ini
 
-# Poetry
+# Build
 dist/
 
 # Pytest
