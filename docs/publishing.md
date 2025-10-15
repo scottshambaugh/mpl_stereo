@@ -43,6 +43,4 @@ uv run mypy src tests/test*
     **Changelog**: https://github.com/scottshambaugh/mpl_stereo/blob/main/CHANGELOG.md    
     **Full Diff**: https://github.com/scottshambaugh/mpl_stereo/compare/v0.x.x...v0.x.x
     ```
-9) Build wheels: `uv build`
-10) Publish to PyPi: `uv publish`
-11) Check that [the package](https://pypi.org/project/mpl_stereo/) has updated
+    This will automatically publish the release to [PyPI](https://pypi.org/project/mpl-stereo/).
