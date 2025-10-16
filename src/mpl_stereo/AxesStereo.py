@@ -42,17 +42,14 @@ def sort_by_z(x: np.ndarray, y: np.ndarray, z: np.ndarray, kwargs: dict[str, Any
     x = x[sort_idx]
     y = y[sort_idx]
     z = z[sort_idx]
-    if 'c' in kwargs and np.array(kwargs['c']).shape == np.array(z).shape:
-        c = kwargs.pop('c')
+    if "c" in kwargs and np.array(kwargs["c"]).shape == np.array(z).shape:
+        c = kwargs.pop("c")
         c = c[sort_idx]
-        kwargs['c'] = c
+        kwargs["c"] = c
     return x, y, z, kwargs
 
 
-def process_args(ax_method: Any,
-                 known_methods: list[str],
-                 args: Any,
-                 kwargs: dict[str, Any]):
+def process_args(ax_method: Any, known_methods: list[str], args: Any, kwargs: dict[str, Any]):
     """
     Process the arguments to a method call to determine if the method is
     plotting x-y data and if there is a z argument or keyword argument.
@@ -70,33 +67,35 @@ def process_args(ax_method: Any,
     """
     x = y = z = None
     parameters = inspect.signature(ax_method).parameters
-    if 'x' in kwargs:
-        x = kwargs.pop('x')
-    elif 'x' in parameters or ax_method.__name__ in known_methods:
+    if "x" in kwargs:
+        x = kwargs.pop("x")
+    elif "x" in parameters or ax_method.__name__ in known_methods:
         x, *args = args
-    if 'y' in kwargs:
-        y = kwargs.pop('y')
-    elif 'y' in parameters or ax_method.__name__ in known_methods:
+    if "y" in kwargs:
+        y = kwargs.pop("y")
+    elif "y" in parameters or ax_method.__name__ in known_methods:
         y, *args = args
 
     # Check if 'z' is in the keyword arguments or if there is a third
     # argument of the same shape as x
-    if 'z' in kwargs:
-        z = kwargs.pop('z')
+    if "z" in kwargs:
+        z = kwargs.pop("z")
     elif len(args) > 0 and (np.array(args[0]).shape == np.array(x).shape):
         z, *args = args
     return x, y, z, args, kwargs
 
 
-def calc_2d_offsets(eye_balance: float,
-                    z: np.ndarray,
-                    d: float,
-                    ipd: float,
-                    zautoscale: bool = True,
-                    zscale: Optional[float] = None,
-                    zlim: Optional[tuple[float, float]] = None,
-                    zzero: Optional[float] = None,
-                    xlim: Optional[tuple[float, float]] = None):
+def calc_2d_offsets(
+    eye_balance: float,
+    z: np.ndarray,
+    d: float,
+    ipd: float,
+    zautoscale: bool = True,
+    zscale: Optional[float] = None,
+    zlim: Optional[tuple[float, float]] = None,
+    zzero: Optional[float] = None,
+    xlim: Optional[tuple[float, float]] = None,
+):
     """
     Calculates the x-offsets for a 2D plot to create a stereoscopic effect
     based on the z-coordinates of the data points.
@@ -143,19 +142,18 @@ def calc_2d_offsets(eye_balance: float,
         zrange = np.max(abs(z))
         if zrange == 0:
             zrange = 1
-    z_midpoint = zlim[0] + zrange/2
+    z_midpoint = zlim[0] + zrange / 2
     if zzero is None:
         zzero = z_midpoint
 
     zscaled = (z + z_midpoint - zzero) / zrange * zscale
     offset = ipd * zscaled / (d + zscaled)
-    offset_left = (eye_balance + 1)/2 * offset
-    offset_right = (1 - eye_balance)/2 * offset
+    offset_left = (eye_balance + 1) / 2 * offset
+    offset_right = (1 - eye_balance) / 2 * offset
     return offset_left, offset_right, zlim, zscale
 
 
-def view_init(self, elev=None, azim=None, roll=None, vertical_axis="z",
-              share=False):
+def view_init(self, elev=None, azim=None, roll=None, vertical_axis="z", share=False):
     """
     Overrides the Axes3D.view_init method to link the views of the left and
     right 3D axes while maintaining the correct offset. See that method's
@@ -170,13 +168,10 @@ def view_init(self, elev=None, azim=None, roll=None, vertical_axis="z",
         azim = self.initial_azim
     if roll is None:
         roll = self.initial_roll
-    vertical_axis = _api.check_getitem(
-        dict(x=0, y=1, z=2), vertical_axis=vertical_axis
-    )
+    vertical_axis = _api.check_getitem(dict(x=0, y=1, z=2), vertical_axis=vertical_axis)
 
     if share:
-        axes = {sibling for sibling
-                in self._shared_axes['view'].get_siblings(self)}
+        axes = {sibling for sibling in self._shared_axes["view"].get_siblings(self)}
         # Ensure self is at the beginning
         axes.remove(self)
         axes = [self] + list(axes)
@@ -185,11 +180,10 @@ def view_init(self, elev=None, azim=None, roll=None, vertical_axis="z",
 
     for ax in axes:
         if hasattr(ax, "stereo_offset") and hasattr(self, "stereo_offset") and ax is not self:
-            q = _Quaternion.from_cardan_angles(
-                        *np.deg2rad((elev, azim, roll)))
+            q = _Quaternion.from_cardan_angles(*np.deg2rad((elev, azim, roll)))
             th = np.deg2rad(self.stereo_offset - ax.stereo_offset)
             k = np.array([0, 0, 1])
-            dq = _Quaternion(np.cos(th), k*np.sin(th))
+            dq = _Quaternion(np.cos(th), k * np.sin(th))
             q = dq * q
             elev, azim, roll = np.rad2deg(q.as_cardan_angles())
         ax.elev = elev
@@ -217,18 +211,18 @@ def crop_image_center(data: np.ndarray, shape: tuple[int, int]):
         shape = (shape[0], shape[1], 1)
     cropx, cropy, _ = shape
     if cropx > x or cropy > y:
-        raise ValueError(f'Crop shape ({cropx}, {cropy}) is larger than data shape ({x}, {y})')
-    startx = x//2 - (cropx//2)
-    starty = y//2 - (cropy//2)
-    cropped_data = data[startx:startx + cropx, starty:starty + cropy, :]
+        raise ValueError(f"Crop shape ({cropx}, {cropy}) is larger than data shape ({x}, {y})")
+    startx = x // 2 - (cropx // 2)
+    starty = y // 2 - (cropy // 2)
+    cropped_data = data[startx : startx + cropx, starty : starty + cropy, :]
     if ndim == 2:
         cropped_data = cropped_data[:, :, 0]
     return cropped_data
 
 
-def sanitize_data_left_right(data_left: np.ndarray,
-                             data_right: np.ndarray,
-                             crop: bool) -> tuple[np.ndarray, np.ndarray]:
+def sanitize_data_left_right(
+    data_left: np.ndarray, data_right: np.ndarray, crop: bool
+) -> tuple[np.ndarray, np.ndarray]:
     """
     Sanitize the data for the left and right images, ensuring that they have
     the same shape and dtype, and that they are in the range 0.0 - 1.0.
@@ -265,21 +259,23 @@ def sanitize_data_left_right(data_left: np.ndarray,
 
     # Accept both 0.0 - 1.0 and 0 - 255 data, map to 0.0 - 1.0
     if np.issubdtype(data_left.dtype, np.integer):
-        data_left = data_left.astype(float)/255
-        data_right = data_right.astype(float)/255
+        data_left = data_left.astype(float) / 255
+        data_right = data_right.astype(float) / 255
     return data_left, data_right
 
 
 ## Classes
 class AxesStereoBase(ABC):
-    def __init__(self,
-                 eye_balance: float = -1,
-                 d: float = 350,
-                 ipd: float = 65,
-                 zscale: Optional[float] = None,
-                 zlim: Optional[tuple[float, float]] = None,
-                 zzero: Optional[float] = None,
-                 is_3d: bool = False):
+    def __init__(
+        self,
+        eye_balance: float = -1,
+        d: float = 350,
+        ipd: float = 65,
+        zscale: Optional[float] = None,
+        zlim: Optional[tuple[float, float]] = None,
+        zzero: Optional[float] = None,
+        is_3d: bool = False,
+    ):
         """
         Parameters
         ----------
@@ -325,12 +321,9 @@ class AxesStereoBase(ABC):
         self.artists_right = []
         self.artist_args = []
 
-    def log_artists(self,
-                    res_left: Any,
-                    res_right: Any,
-                    name: str,
-                    args: Any,
-                    kwargs: dict[str, Any]):
+    def log_artists(
+        self, res_left: Any, res_right: Any, name: str, args: Any, kwargs: dict[str, Any]
+    ):
         """
         Log artists in each of the self.artists_left and self.artists_right
         lists, and log the arguments in self.artist_args.
@@ -361,16 +354,18 @@ class AxesStereoBase(ABC):
 
 
 class AxesStereoSideBySide(AxesStereoBase):
-    def __init__(self,
-                 fig: Optional[Figure] = None,
-                 axs: Optional[Union[tuple[Axes, Axes], tuple[Axes3D, Axes3D]]] = None,
-                 eye_balance: float = -1,
-                 d: float = 350,
-                 ipd: float = 65,
-                 zscale: Optional[float] = None,
-                 zlim: Optional[tuple[float, float]] = None,
-                 zzero: Optional[float] = None,
-                 is_3d: bool = False):
+    def __init__(
+        self,
+        fig: Optional[Figure] = None,
+        axs: Optional[Union[tuple[Axes, Axes], tuple[Axes3D, Axes3D]]] = None,
+        eye_balance: float = -1,
+        d: float = 350,
+        ipd: float = 65,
+        zscale: Optional[float] = None,
+        zlim: Optional[tuple[float, float]] = None,
+        zzero: Optional[float] = None,
+        is_3d: bool = False,
+    ):
         """
         Parameters
         ----------
@@ -402,15 +397,22 @@ class AxesStereoSideBySide(AxesStereoBase):
         is_3d : bool
             Whether the axes are 3D. Default is False.
         """
-        super().__init__(eye_balance=eye_balance, d=d, ipd=ipd, zscale=zscale,
-                         zlim=zlim, zzero=zzero, is_3d=is_3d)
+        super().__init__(
+            eye_balance=eye_balance,
+            d=d,
+            ipd=ipd,
+            zscale=zscale,
+            zlim=zlim,
+            zzero=zzero,
+            is_3d=is_3d,
+        )
 
         # Generate two side-by-side subplots
         if fig is None and axs is None:
             if not is_3d:
                 fig, axs = plt.subplots(1, 2)
             else:
-                fig, axs = plt.subplots(1, 2, subplot_kw={'projection': '3d'})
+                fig, axs = plt.subplots(1, 2, subplot_kw={"projection": "3d"})
             self.ax_left = axs[0]
             self.ax_right = axs[1]
         elif axs is None:
@@ -418,8 +420,8 @@ class AxesStereoSideBySide(AxesStereoBase):
                 self.ax_left = fig.add_subplot(121)
                 self.ax_right = fig.add_subplot(122)
             else:
-                self.ax_left = fig.add_subplot(121, projection='3d')
-                self.ax_right = fig.add_subplot(122, projection='3d')
+                self.ax_left = fig.add_subplot(121, projection="3d")
+                self.ax_right = fig.add_subplot(122, projection="3d")
         else:
             fig = axs[0].figure
             self.ax_left = axs[0]
@@ -431,9 +433,15 @@ class AxesStereoSideBySide(AxesStereoBase):
         self.fig = fig
         self.axs = (self.ax_left, self.ax_right)
 
-    def wiggle(self, filepath: Union[str, Path], interval: float = 125,
-               ax: Optional[Axes] = None, yaxis_off: bool = False,
-               *args: Any, **kwargs: dict[str, Any]):
+    def wiggle(
+        self,
+        filepath: Union[str, Path],
+        interval: float = 125,
+        ax: Optional[Axes] = None,
+        yaxis_off: bool = False,
+        *args: Any,
+        **kwargs: dict[str, Any],
+    ):
         """
         Save the figure as a wiggle stereogram.
 
@@ -470,8 +478,8 @@ class AxesStereoSideBySide(AxesStereoBase):
         fig_buffer = pickle.load(buf)
         fig_buffer.set_size_inches(fig.get_size_inches())
 
-        if 'dpi' in kwargs:
-            fig_buffer.set_dpi(kwargs['dpi'])
+        if "dpi" in kwargs:
+            fig_buffer.set_dpi(kwargs["dpi"])
         else:
             fig_buffer.set_dpi(fig.get_dpi())
 
@@ -494,7 +502,7 @@ class AxesStereoSideBySide(AxesStereoBase):
             # one has the y axis hidden
             if self.is_3d and frame == 1:
                 axs[0].set_visible(False)
-            return ax,
+            return (ax,)
 
         ani = FuncAnimation(fig, update, frames=2, interval=interval)
 
@@ -502,11 +510,13 @@ class AxesStereoSideBySide(AxesStereoBase):
 
 
 class AxesStereo2DBase(ABC):
-    def set_zlim(self,
-                 zlim: tuple[float, float],
-                 zscale: Optional[float] = None,
-                 zautoscale: bool = False,
-                 redraw: Optional[bool] = None):
+    def set_zlim(
+        self,
+        zlim: tuple[float, float],
+        zscale: Optional[float] = None,
+        zautoscale: bool = False,
+        redraw: Optional[bool] = None,
+    ):
         """
         Set the z limits of both axes to the same value.
 
@@ -522,9 +532,7 @@ class AxesStereo2DBase(ABC):
         redraw : bool
             Whether to redraw the plot. If None, then will redraw.
         """
-        if (redraw is None
-            and (self.zlim != zlim
-                 or (self.zscale != zscale and zscale is not None))):
+        if redraw is None and (self.zlim != zlim or (self.zscale != zscale and zscale is not None)):
             redraw = True
         self.zlim = zlim
         if zscale is not None:
@@ -547,7 +555,7 @@ class AxesStereo2DBase(ABC):
         self.zautoscale = True
         self.zlim = self._calc_bounding_zlim()
         for _, _, kwargs in self.artist_args:
-            kwargs.pop('zlim', None)
+            kwargs.pop("zlim", None)
         self.redraw()
 
     def _calc_bounding_zlim(self) -> tuple[float, float]:
@@ -558,8 +566,8 @@ class AxesStereo2DBase(ABC):
         for _, args, kwargs in self.artist_args:
             # Check if 'z' is in the keyword arguments or if there is a third
             # argument of the same shape as x
-            if 'z' in kwargs:
-                z = kwargs['z']
+            if "z" in kwargs:
+                z = kwargs["z"]
             elif len(args) > 0:
                 z, *args = args
             zlim = (min(zlim[0], np.min(z)), max(zlim[1], np.max(z)))
@@ -583,15 +591,17 @@ class AxesStereo2DBase(ABC):
             getattr(self, name)(*args, **kwargs)
         self.is_redrawing = False
 
-    def plot2d(self,
-               ax_left: Axes,
-               ax_right: Axes,
-               name: str,
-               x: np.ndarray,
-               y: np.ndarray,
-               z: np.ndarray,
-               args: Any,
-               kwargs: dict[str, Any]) -> tuple[Any, Any]:
+    def plot2d(
+        self,
+        ax_left: Axes,
+        ax_right: Axes,
+        name: str,
+        x: np.ndarray,
+        y: np.ndarray,
+        z: np.ndarray,
+        args: Any,
+        kwargs: dict[str, Any],
+    ) -> tuple[Any, Any]:
         """
         Plot the data twice, once for each eye view. This happens either on
         two subplots (for AxesStereo2D), or on the same subplot with different
@@ -625,35 +635,37 @@ class AxesStereo2DBase(ABC):
         """
         # for scatter plots, sort the data by z to not occlude improperly
         kwargs_original = copy.deepcopy(kwargs)
-        kwargs_original['x'] = x
-        kwargs_original['y'] = y
-        kwargs_original['z'] = z
-        if name == 'scatter':
+        kwargs_original["x"] = x
+        kwargs_original["y"] = y
+        kwargs_original["z"] = z
+        if name == "scatter":
             x, y, z, kwargs = sort_by_z(x, y, z, kwargs)
 
         # Extract the zzero and zscale keyword arguments if they exist
-        zzero = kwargs.pop('zzero', None)
+        zzero = kwargs.pop("zzero", None)
         if zzero is None and self.zzero is not None:
             zzero = self.zzero
-        zscale = kwargs.pop('zscale', None)
+        zscale = kwargs.pop("zscale", None)
         if zscale is None and self.zscale is not None:
             zscale = self.zscale
 
         # Extract the zlim keyword argument if it exists and update limits
-        zlim = kwargs.pop('zlim', None)
+        zlim = kwargs.pop("zlim", None)
         if zlim is not None:
             self.set_zlim(zlim, zscale, redraw=False)
 
         # Calculate the x-offsets
-        offset_left, offset_right, zlim, zscale  = calc_2d_offsets(self.eye_balance,
-                                                                   z,
-                                                                   self.d,
-                                                                   self.ipd,
-                                                                   self.zautoscale,
-                                                                   zscale=zscale,
-                                                                   zlim=self.zlim,
-                                                                   zzero=zzero,
-                                                                   xlim=ax_left.get_xlim())
+        offset_left, offset_right, zlim, zscale = calc_2d_offsets(
+            self.eye_balance,
+            z,
+            self.d,
+            self.ipd,
+            self.zautoscale,
+            zscale=zscale,
+            zlim=self.zlim,
+            zzero=zzero,
+            xlim=ax_left.get_xlim(),
+        )
         self.zscale = zscale
         self.zlim = zlim
         if len(self.artist_args) > 0 and not self.is_redrawing:
@@ -665,18 +677,18 @@ class AxesStereo2DBase(ABC):
             res_right = getattr(ax_right, name)(x - offset_right, y, *args, **kwargs)
         elif isinstance(self, AxesAnaglyph):
             # Clear all color arguments (anaglyph case)
-            kwargs.pop('c', None)
-            kwargs.pop('color', None)
-            kwargs.pop('cmap', None)
-            kwargs.pop('alpha', None)
+            kwargs.pop("c", None)
+            kwargs.pop("color", None)
+            kwargs.pop("cmap", None)
+            kwargs.pop("alpha", None)
 
             # Plot the data twice, once for each color
-            res_left = getattr(ax_left, name)(x + offset_left, y,
-                                              color=self.colors[1], alpha=self.alpha,
-                                              *args, **kwargs)
-            res_right = getattr(ax_right, name)(x - offset_right, y,
-                                                color=self.colors[0], alpha=self.alpha,
-                                                *args, **kwargs)
+            res_left = getattr(ax_left, name)(
+                x + offset_left, y, color=self.colors[1], alpha=self.alpha, *args, **kwargs
+            )
+            res_right = getattr(ax_right, name)(
+                x - offset_right, y, color=self.colors[0], alpha=self.alpha, *args, **kwargs
+            )
 
         # Keep track of the artists
         self.log_artists(res_left, res_right, name, args, kwargs_original)
@@ -685,15 +697,17 @@ class AxesStereo2DBase(ABC):
 
 
 class AxesStereo2D(AxesStereoSideBySide, AxesStereo2DBase):
-    def __init__(self,
-                 fig: Optional[Figure] = None,
-                 axs: Optional[tuple[Axes, Axes]] = None,
-                 eye_balance: float = -1,
-                 d: float = 350,
-                 ipd: float = 65,
-                 zscale: Optional[float] = None,
-                 zlim: Optional[tuple[float, float]] = None,
-                 zzero: Optional[float] = None):
+    def __init__(
+        self,
+        fig: Optional[Figure] = None,
+        axs: Optional[tuple[Axes, Axes]] = None,
+        eye_balance: float = -1,
+        d: float = 350,
+        ipd: float = 65,
+        zscale: Optional[float] = None,
+        zlim: Optional[tuple[float, float]] = None,
+        zzero: Optional[float] = None,
+    ):
         """
         A class for creating stereoscopic 2D plots.
 
@@ -726,13 +740,22 @@ class AxesStereo2D(AxesStereoSideBySide, AxesStereo2DBase):
             sink into the page. If None (default), will be set to the midpoint
             of the z range.
         """
-        super().__init__(fig=fig, axs=axs, eye_balance=eye_balance, d=d, ipd=ipd,
-                         zlim=zlim, zscale=zscale, zzero=zzero, is_3d=False)
-        self.known_methods = ['plot', 'scatter', 'stem', 'bar', 'text']
+        super().__init__(
+            fig=fig,
+            axs=axs,
+            eye_balance=eye_balance,
+            d=d,
+            ipd=ipd,
+            zlim=zlim,
+            zscale=zscale,
+            zzero=zzero,
+            is_3d=False,
+        )
+        self.known_methods = ["plot", "scatter", "stem", "bar", "text"]
 
         # Minimize whitespace between plots
         self.fig.subplots_adjust(wspace=0.01)
-        self.ax_right.tick_params(axis='y', length=0, labelcolor=(0, 0, 0, 0))
+        self.ax_right.tick_params(axis="y", length=0, labelcolor=(0, 0, 0, 0))
 
         # Give the innaccurate x-axis labels some transparency
         self.set_axlabel_alphas(alpha=0.5)
@@ -750,6 +773,7 @@ class AxesStereo2D(AxesStereoSideBySide, AxesStereo2DBase):
         name : str
             The name of the attribute.
         """
+
         def method(*args: Any, **kwargs: dict[str, Any]) -> tuple[Any, Any]:
             """
             The method that will be called on the left and right axes. If the
@@ -770,8 +794,9 @@ class AxesStereo2D(AxesStereoSideBySide, AxesStereo2DBase):
             x, y, z, args, kwargs = process_args(ax_method, self.known_methods, args, kwargs)
 
             if all(var is not None for var in [ax_method, x, y, z]):
-                res_left, res_right = self.plot2d(self.ax_left, self.ax_right,
-                                                  name, x, y, z, args, kwargs)
+                res_left, res_right = self.plot2d(
+                    self.ax_left, self.ax_right, name, x, y, z, args, kwargs
+                )
             else:
                 # For methods that don't plot x-y data
                 res_left = getattr(self.ax_left, name)(*args_original, **kwargs)
@@ -799,12 +824,14 @@ class AxesStereo2D(AxesStereoSideBySide, AxesStereo2DBase):
 
 
 class AxesStereo3D(AxesStereoSideBySide):
-    def __init__(self,
-                 fig: Optional[Figure] = None,
-                 axs: Optional[tuple[Axes3D, Axes3D]] = None,
-                 eye_balance: float = -1,
-                 d: float = 350,
-                 ipd: float = 65):
+    def __init__(
+        self,
+        fig: Optional[Figure] = None,
+        axs: Optional[tuple[Axes3D, Axes3D]] = None,
+        eye_balance: float = -1,
+        d: float = 350,
+        ipd: float = 65,
+    ):
         """
         A class for creating stereoscopic 3D plots.
 
@@ -826,11 +853,29 @@ class AxesStereo3D(AxesStereoSideBySide):
             Interpupillary distance (in millimeters). Default is 65. Negative
             values for cross-view.
         """
-        super().__init__(fig=fig, axs=axs, eye_balance=eye_balance, d=d, ipd=ipd,
-                         zscale=None, zlim=None, zzero=None, is_3d=True)
-        self.known_methods = ['plot', 'plot3D', 'scatter', 'stem', 'voxels',
-                              'plot_wireframe', 'plot_surface', 'plot_trisurf',
-                              'contour', 'contourf']
+        super().__init__(
+            fig=fig,
+            axs=axs,
+            eye_balance=eye_balance,
+            d=d,
+            ipd=ipd,
+            zscale=None,
+            zlim=None,
+            zzero=None,
+            is_3d=True,
+        )
+        self.known_methods = [
+            "plot",
+            "plot3D",
+            "scatter",
+            "stem",
+            "voxels",
+            "plot_wireframe",
+            "plot_surface",
+            "plot_trisurf",
+            "contour",
+            "contourf",
+        ]
 
         self.ax_left.sharez(self.ax_right)
 
@@ -853,6 +898,7 @@ class AxesStereo3D(AxesStereoSideBySide):
         name : str
             The name of the attribute.
         """
+
         def method(*args, **kwargs):
             """
             The method that will be called on the left and right axes. If the
@@ -873,15 +919,15 @@ class AxesStereo3D(AxesStereoSideBySide):
             parameters = inspect.signature(ax_method).parameters
 
             is_plottable = False
-            keyword_groups = [['x', 'y', 'z'], ['xs', 'ys', 'zs'], ['X', 'Y', 'Z']]
+            keyword_groups = [["x", "y", "z"], ["xs", "ys", "zs"], ["X", "Y", "Z"]]
             for keyword_group in keyword_groups:
                 if all([keyword in parameters for keyword in keyword_group]):
                     is_plottable = True
-            if name in ('plot', 'plot3D'):
+            if name in ("plot", "plot3D"):
                 # 'zs' is implicit and not in the parameters
                 is_plottable = True
 
-            if (ax_method and is_plottable):
+            if ax_method and is_plottable:
                 offset_left, offset_right = self.calc_3d_offsets()
 
                 # Set the views for both subplots
@@ -918,22 +964,24 @@ class AxesStereo3D(AxesStereoSideBySide):
         """
         ang = 90 - np.rad2deg(np.arctan(2 * self.d / abs(self.ipd)))
         offset = ang / 2 * np.sign(self.ipd)
-        offset_left = (self.eye_balance + 1)/2 * offset
-        offset_right = (1 - self.eye_balance)/2 * offset
+        offset_left = (self.eye_balance + 1) / 2 * offset
+        offset_right = (1 - self.eye_balance) / 2 * offset
         return offset_left, offset_right
 
 
 class AxesAnaglyph(AxesStereoBase, AxesStereo2DBase):
-    def __init__(self,
-                 fig: Optional[Figure] = None,
-                 ax: Optional[Axes] = None,
-                 eye_balance: float = -1,
-                 d: float = 350,
-                 ipd: float = 65,
-                 zscale: Optional[float] = None,
-                 zlim: Optional[tuple[float, float]] = None,
-                 zzero: Optional[float] = None,
-                 colors: list[str, str] = ['red', 'cyan']):
+    def __init__(
+        self,
+        fig: Optional[Figure] = None,
+        ax: Optional[Axes] = None,
+        eye_balance: float = -1,
+        d: float = 350,
+        ipd: float = 65,
+        zscale: Optional[float] = None,
+        zlim: Optional[tuple[float, float]] = None,
+        zzero: Optional[float] = None,
+        colors: list[str, str] = ["red", "cyan"],
+    ):
         """
         A class for creating anaglyph plots, that are viewed with red-cyan
         "3D glasses". Note that anaglyph plots need to be 2D. Also, any color
@@ -978,8 +1026,15 @@ class AxesAnaglyph(AxesStereoBase, AxesStereo2DBase):
             cyan lens and sees red.
         """
         ipd = abs(ipd)
-        super().__init__(eye_balance=eye_balance, d=d, ipd=ipd,
-                         zscale=zscale, zlim=zlim, zzero=zzero, is_3d=False)
+        super().__init__(
+            eye_balance=eye_balance,
+            d=d,
+            ipd=ipd,
+            zscale=zscale,
+            zlim=zlim,
+            zzero=zzero,
+            is_3d=False,
+        )
 
         if fig is None and ax is None:
             self.fig, self.ax = plt.subplots()
@@ -990,7 +1045,7 @@ class AxesAnaglyph(AxesStereoBase, AxesStereo2DBase):
             self.fig = ax.figure
             self.ax = ax
 
-        self.known_methods = ['plot', 'scatter', 'bar', 'text']
+        self.known_methods = ["plot", "scatter", "bar", "text"]
         self.colors = colors
         self.alpha = 0.5
 
@@ -1006,6 +1061,7 @@ class AxesAnaglyph(AxesStereoBase, AxesStereo2DBase):
         name : str
             The name of the attribute.
         """
+
         def method(*args: Any, **kwargs: dict[str, Any]) -> Union[tuple[Any, Any], Any]:
             """
             The method that will be called on the left and right axes. If the
@@ -1034,8 +1090,7 @@ class AxesAnaglyph(AxesStereoBase, AxesStereo2DBase):
             x, y, z, args, kwargs = process_args(ax_method, self.known_methods, args, kwargs)
 
             if all(var is not None for var in [ax_method, x, y, z]):
-                res_left, res_right = self.plot2d(self.ax, self.ax,
-                                                  name, x, y, z, args, kwargs)
+                res_left, res_right = self.plot2d(self.ax, self.ax, name, x, y, z, args, kwargs)
                 result = (res_left, res_right)
                 # Set the xlabel color to the right color
                 self.set_axlabel_colors()
@@ -1046,9 +1101,16 @@ class AxesAnaglyph(AxesStereoBase, AxesStereo2DBase):
 
         return method
 
-    def imshow_stereo(self, data_left: np.ndarray, data_right: np.ndarray,
-                      method: Optional[str] = None, cmap: Optional[str] = None,
-                      crop: bool = False, *args: Any, **kwargs: dict[str, Any]):
+    def imshow_stereo(
+        self,
+        data_left: np.ndarray,
+        data_right: np.ndarray,
+        method: Optional[str] = None,
+        cmap: Optional[str] = None,
+        crop: bool = False,
+        *args: Any,
+        **kwargs: dict[str, Any],
+    ):
         """
         From existing stereo image data, combine into an anaglyph. Any further
         args or kwargs will be passed on to the `imshow()` function.
@@ -1086,20 +1148,21 @@ class AxesAnaglyph(AxesStereoBase, AxesStereo2DBase):
         # Check that the method is valid
         if method is None:
             if cmap is None:
-                method = 'dubois'
+                method = "dubois"
             else:
-                method = 'photoshop2'
-        if method.lower() not in ['photoshop', 'photoshop2', 'dubois']:
-            raise ValueError(f"method={method} must be one of 'photoshop', ",
-                             "'photoshop2', 'dubois'")
+                method = "photoshop2"
+        if method.lower() not in ["photoshop", "photoshop2", "dubois"]:
+            raise ValueError(
+                f"method={method} must be one of 'photoshop', ", "'photoshop2', 'dubois'"
+            )
         method = method.lower()
 
         data_left, data_right = sanitize_data_left_right(data_left, data_right, crop)
 
         # Map grayscale to rgb
         if len(data_left.shape) == 2:
-            data_left = np.stack((data_left,)*3, axis=-1)
-            data_right = np.stack((data_right,)*3, axis=-1)
+            data_left = np.stack((data_left,) * 3, axis=-1)
+            data_right = np.stack((data_right,) * 3, axis=-1)
         elif cmap is not None:
             warnings.warn("cmap is not recommended for color images")
 
@@ -1110,38 +1173,43 @@ class AxesAnaglyph(AxesStereoBase, AxesStereo2DBase):
         color_left = mpl.colors.to_rgb(self.colors[0])
         color_right = mpl.colors.to_rgb(self.colors[1])
 
-        if method == 'dubois':
-            M_left = np.array([[ 0.4561,  0.500484,  0.176381],
-                               [-0.0400822, -0.0378246, -0.0157589],
-                               [-0.0152161, -0.0205971, -0.00546856]])
-            M_right = np.array([[ -0.0434706, -0.0879388, -0.00155529],
-                                [0.378476,  0.73364, -0.0184503],
-                                [-0.0721527, -0.112961,  1.2264]])
+        if method == "dubois":
+            M_left = np.array(
+                [
+                    [0.4561, 0.500484, 0.176381],
+                    [-0.0400822, -0.0378246, -0.0157589],
+                    [-0.0152161, -0.0205971, -0.00546856],
+                ]
+            )
+            M_right = np.array(
+                [
+                    [-0.0434706, -0.0879388, -0.00155529],
+                    [0.378476, 0.73364, -0.0184503],
+                    [-0.0721527, -0.112961, 1.2264],
+                ]
+            )
 
-        elif method == 'photoshop':
+        elif method == "photoshop":
             M_left = np.diag(color_left)
             M_right = np.diag(color_right)
 
-        elif method == 'photoshop2':
+        elif method == "photoshop2":
             # Known as "modified photoshop" in the paper
-            M_luma = np.array([luma_map,
-                               [0, 1, 0],
-                               [0, 0, 1]])
+            M_luma = np.array([luma_map, [0, 1, 0], [0, 0, 1]])
             M_left = np.diag(color_left) @ M_luma
             M_right = np.diag(color_right)
 
         # Modify matrices to pass through alpha channel if it exists
         if data_left.shape[-1] == 4:
-            M_left = np.block([[M_left,           np.zeros((3, 1))],
-                               [np.zeros((1, 3)), 1]])
-            M_right = np.block([[M_right,         np.zeros((3, 1))],
-                                [np.zeros((1, 3)), 1]])
+            M_left = np.block([[M_left, np.zeros((3, 1))], [np.zeros((1, 3)), 1]])
+            M_right = np.block([[M_right, np.zeros((3, 1))], [np.zeros((1, 3)), 1]])
             luma_map = np.append(luma_map, 0)
 
         if cmap is None:
             # Matrix multiply every colored pixel
-            data_colored = (np.einsum('ij,klj->kli', M_left, data_left) +
-                            np.einsum('ij,klj->kli', M_right, data_right))
+            data_colored = np.einsum("ij,klj->kli", M_left, data_left) + np.einsum(
+                "ij,klj->kli", M_right, data_right
+            )
 
         else:  # camp is not None
             cmap_left = copy.deepcopy(plt.get_cmap(cmap))
@@ -1158,27 +1226,37 @@ class AxesAnaglyph(AxesStereoBase, AxesStereo2DBase):
             elif isinstance(cmap_left, mpl.colors.LinearSegmentedColormap):
                 colors_left = []
                 colors_right = []
-                for i in range(len(cmap_left._segmentdata['red'])):
-                    color = [cmap_left._segmentdata[channel][i][1]
-                                for channel in ['red', 'green', 'blue']]
+                for i in range(len(cmap_left._segmentdata["red"])):
+                    color = [
+                        cmap_left._segmentdata[channel][i][1]
+                        for channel in ["red", "green", "blue"]
+                    ]
                     colors_left.append(np.clip(M_left @ color, 0, 1).tolist())
                     colors_right.append(np.clip(M_right @ color, 0, 1).tolist())
-                for i, channel in enumerate(['red', 'green', 'blue']):
+                for i, channel in enumerate(["red", "green", "blue"]):
                     entries_left = []
                     entries_right = []
                     for j in range(len(cmap_left._segmentdata[channel])):
-                        entries_left.append((cmap_left._segmentdata[channel][j][0],
-                                             colors_left[j][i],
-                                             colors_left[j][i]))
-                        entries_right.append((cmap_right._segmentdata[channel][j][0],
-                                              colors_right[j][i],
-                                              colors_right[j][i]))
+                        entries_left.append(
+                            (
+                                cmap_left._segmentdata[channel][j][0],
+                                colors_left[j][i],
+                                colors_left[j][i],
+                            )
+                        )
+                        entries_right.append(
+                            (
+                                cmap_right._segmentdata[channel][j][0],
+                                colors_right[j][i],
+                                colors_right[j][i],
+                            )
+                        )
                     cmap_left._segmentdata[channel] = entries_left
                     cmap_right._segmentdata[channel] = entries_right
 
             data_left_flattened = np.clip(data_left @ luma_map, 0, 1)
             data_right_flattened = np.clip(data_right @ luma_map, 0, 1)
-            data_colored = (cmap_left(data_left_flattened) + cmap_right(data_right_flattened))
+            data_colored = cmap_left(data_left_flattened) + cmap_right(data_right_flattened)
 
         data_colored = np.clip(data_colored, 0, 1)
         self.ax.imshow(data_colored, *args, **kwargs)

@@ -5,13 +5,20 @@ from abc import ABC
 from typing import Optional, Union, Any
 from pathlib import Path
 
-from mpl_stereo.AxesStereo import (AxesStereo2D, AxesStereo3D, AxesStereoSideBySide,
-                                   AxesAnaglyph, sanitize_data_left_right)
+from mpl_stereo.AxesStereo import (
+    AxesStereo2D,
+    AxesStereo3D,
+    AxesStereoSideBySide,
+    AxesAnaglyph,
+    sanitize_data_left_right,
+)
+
 
 class StereoSquareBase(ABC):
     """
     Base class for StereoSquare2D and StereoSquare3D.
     """
+
     def __init__(self):
         self.axs = None
         self.fig = None
@@ -28,6 +35,7 @@ class StereoSquareBase(ABC):
         name : str
             The name of the attribute.
         """
+
         def method(*args: Any, **kwargs: dict[str, Any]) -> tuple[Any, Any, Any]:
             """
             The method that will be called on the stereo and anaglyph axes.
@@ -47,9 +55,16 @@ class StereoSquareBase(ABC):
 
         return method
 
-    def imshow_stereo(self, data_left: np.ndarray, data_right: np.ndarray,
-                      method: Optional[str] = None, cmap: Optional[str] = None,
-                      crop: bool = False, *args: Any, **kwargs: dict[str, Any]):
+    def imshow_stereo(
+        self,
+        data_left: np.ndarray,
+        data_right: np.ndarray,
+        method: Optional[str] = None,
+        cmap: Optional[str] = None,
+        crop: bool = False,
+        *args: Any,
+        **kwargs: dict[str, Any],
+    ):
         """
         From existing stereo image data, combine into an anaglyph. Any further
         args or kwargs will be passed on to the `imshow()` function.
@@ -88,14 +103,19 @@ class StereoSquareBase(ABC):
         res_left = self.axesstereo.ax_left.imshow(data_left, *args, **kwargs)
         res_right = self.axesstereo.ax_right.imshow(data_right, *args, **kwargs)
         if self.axesanaglyph is not None:
-            res_anaglyph = self.axesanaglyph.imshow_stereo(data_left, data_right,
-                                                           method=method, cmap=cmap, crop=crop,
-                                                           *args, **kwargs)
+            res_anaglyph = self.axesanaglyph.imshow_stereo(
+                data_left, data_right, method=method, cmap=cmap, crop=crop, *args, **kwargs
+            )
 
         return (res_left, res_right, res_anaglyph)
 
-    def wiggle(self, filepath: Union[str, Path], interval: float = 125,
-               *args: Any, **kwargs: dict[str, Any]):
+    def wiggle(
+        self,
+        filepath: Union[str, Path],
+        interval: float = 125,
+        *args: Any,
+        **kwargs: dict[str, Any],
+    ):
         """
         Save the figure with a wiggle stereogram in the bottom right plot.
 
@@ -110,9 +130,9 @@ class StereoSquareBase(ABC):
         **kwargs : dict[str, Any]
             Additional keyword arguments passed to `animation.save`.
         """
-        self.axesstereo.wiggle(filepath=filepath, interval=interval,
-                               ax=self.axs[1, 1], yaxis_off=True,
-                               *args, **kwargs)
+        self.axesstereo.wiggle(
+            filepath=filepath, interval=interval, ax=self.axs[1, 1], yaxis_off=True, *args, **kwargs
+        )
 
 
 class StereoSquare2D(StereoSquareBase):
@@ -126,6 +146,7 @@ class StereoSquare2D(StereoSquareBase):
     stereogram animation by calling the `wiggle` method.
 
     """
+
     def __init__(self):
         super().__init__()
         self.fig, self.axs = plt.subplots(2, 2)
@@ -145,9 +166,10 @@ class StereoSquare3D(StereoSquareBase):
     Create the figure with the wiggle stereogram animation by calling the
     `wiggle` method.
     """
+
     def __init__(self):
         super().__init__()
-        self.fig, self.axs = plt.subplots(2, 2, subplot_kw={'projection': '3d'})
+        self.fig, self.axs = plt.subplots(2, 2, subplot_kw={"projection": "3d"})
 
         self.axesstereo = AxesStereo3D(fig=self.fig, axs=self.axs[0, :])
         self.axesanaglyph = None  # No anaglyph for 3D plots
