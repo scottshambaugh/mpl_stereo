@@ -16,6 +16,7 @@
 ## [Unreleased]
 ### Added    
 ### Changed    
+* Switched from flake8 to ruff for linting
 ### Removed    
 
 ## [0.11.0] - 2025-10-15

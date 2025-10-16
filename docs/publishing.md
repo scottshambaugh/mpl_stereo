@@ -32,8 +32,9 @@ uv run mypy src tests/test*
 4) Run tests, type checking, and linting locally
     ```
     uv run coverage run --source=mpl_stereo -m pytest && uv run coverage report -m 
+    uv run ruff check .
+    uv run ruff format --check .
     uv run mypy src tests/test*
-    uv run flake8 src tests docs
     ```
 5) Run plotting tests manually
 6) Commit any changes and push up the main branch
