@@ -30,7 +30,7 @@ dev = [
     "pytest>=7.4.3,<8",
     "pytest-cov>=4.0.0,<5",
     "ruff>=0.14.0",
-    "pre-commit>=3,<4",
+    "prek>=0.3",
     "mypy~=1.7",
     "pillow>=10.3.0",
 ]

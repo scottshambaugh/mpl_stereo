@@ -17,6 +17,7 @@
 ### Added    
 ### Changed    
 * Switched from flake8 to ruff for linting
+* Switched from pre-commit to prek
 ### Removed    
 
 ## [0.11.0] - 2025-10-15
