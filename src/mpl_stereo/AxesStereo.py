@@ -11,7 +11,6 @@ from abc import ABC
 from typing import Optional, Union, Any
 from types import MethodType
 from pathlib import Path
-from matplotlib import _api
 from matplotlib.axes import Axes
 from matplotlib.figure import Figure
 from matplotlib.animation import FuncAnimation
@@ -168,7 +167,14 @@ def view_init(self, elev=None, azim=None, roll=None, vertical_axis="z", share=Fa
         azim = self.initial_azim
     if roll is None:
         roll = self.initial_roll
-    vertical_axis = _api.check_getitem(dict(x=0, y=1, z=2), vertical_axis=vertical_axis)
+    _vertical_axes = {"x": 0, "y": 1, "z": 2}
+    try:
+        vertical_axis = _vertical_axes[vertical_axis]
+    except KeyError:
+        raise ValueError(
+            f"{vertical_axis!r} is not a valid value for vertical_axis; "
+            f"supported values are {', '.join(map(repr, _vertical_axes))}"
+        ) from None
 
     if share:
         axes = {sibling for sibling in self._shared_axes["view"].get_siblings(self)}

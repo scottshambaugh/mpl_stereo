@@ -18,6 +18,7 @@
 ### Changed    
 * Switched from flake8 to ruff for linting
 * Switched from pre-commit to prek
+* Fixed matplotlib 3.11 compatibility
 ### Removed    
 
 ## [0.11.0] - 2025-10-15
