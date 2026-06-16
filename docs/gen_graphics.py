@@ -331,25 +331,31 @@ def main():
     savedir = currdir
     show = False
 
-    plot_2d_trefoil(savedir, show)
-    plot_2d_sun(savedir, show)
-    plot_2d_church(savedir, show)
-    plot_3d_trefoil(savedir, show)
-    plot_anaglyph_trefoil(savedir, show)
-    plot_anaglyph_trefoil_zzero(savedir, show)
-    plot_anaglyph_sun(savedir, show)
-    plot_anaglyph_church(savedir, show)
-    wiggle_2d_trefoil(savedir, show)
-    wiggle_3d_trefoil(savedir, show)
-    wiggle_sun(savedir, show)
-    wiggle_church(savedir, show)
-    animate_2d_trefoil(savedir, show)
-    animate_3d_trefoil(savedir, show)
-    stereo_square_2d_trefoil(savedir, show)
-    stereo_square_3d_trefoil(savedir, show)
-    stereo_square_church(savedir, show)
-    gen_logo(savedir, show)
-    gen_logo_with_text(savedir, show)
+    funcs = [
+        plot_2d_trefoil,
+        plot_2d_sun,
+        plot_2d_church,
+        plot_3d_trefoil,
+        plot_anaglyph_trefoil,
+        plot_anaglyph_trefoil_zzero,
+        plot_anaglyph_sun,
+        plot_anaglyph_church,
+        wiggle_2d_trefoil,
+        wiggle_3d_trefoil,
+        wiggle_sun,
+        wiggle_church,
+        animate_2d_trefoil,
+        animate_3d_trefoil,
+        stereo_square_2d_trefoil,
+        stereo_square_3d_trefoil,
+        stereo_square_church,
+        gen_logo,
+        gen_logo_with_text,
+    ]
+
+    for fcn in funcs:
+        print(fcn.__name__)
+        fcn(savedir, show)
 
 
 if __name__ == "__main__":
