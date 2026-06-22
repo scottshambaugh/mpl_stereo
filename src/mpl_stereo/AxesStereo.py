@@ -1350,8 +1350,7 @@ class AxesStereo3D(AxesStereoSideBySide):
                 self.ax_right.view_init(azim=self.ax_right.azim + offset_right)
 
                 # Plot the data twice, once for each subplot
-                res_left = getattr(self.ax_left, name)(*args, **kwargs)
-                res_right = getattr(self.ax_right, name)(*args, **kwargs)
+                res_left, res_right = self._plot_left_right(name, args, kwargs)
 
                 # Keep track of the artists
                 self.log_artists(res_left, res_right, name, args, kwargs)
@@ -1380,6 +1379,116 @@ class AxesStereo3D(AxesStereoSideBySide):
         offset_left = (self.eye_balance + 1) / 2 * offset
         offset_right = (1 - self.eye_balance) / 2 * offset
         return offset_left, offset_right
+
+    def _plot_left_right(self, name: str, args: Any, kwargs: dict[str, Any]):
+        """
+        Draw the data on the left and right axes. Overridable so subclasses
+        (e.g. AxesAnaglyph3D) can inject per-eye styling.
+        """
+        return (
+            getattr(self.ax_left, name)(*args, **kwargs),
+            getattr(self.ax_right, name)(*args, **kwargs),
+        )
+
+
+class AxesAnaglyph3D(AxesStereo3D):
+    def __init__(
+        self,
+        fig: Optional[Figure] = None,
+        axs: Optional[tuple[Axes3D, Axes3D]] = None,
+        eye_balance: float = -1,
+        d: float = 350,
+        ipd: float = 65,
+        colors: list[str, str] = ["red", "cyan"],
+        alpha: float = 0.5,
+    ):
+        """
+        A class for creating stereoscopic 3D anaglyph plots, viewed with red-cyan
+        "3D glasses". Two 3D axes are stacked on top of each other at the correct
+        left- and right-eye view offsets, and the data is drawn once per eye in
+        each glasses-lens color. Any color arguments to plotting methods are
+        ignored and replaced.
+
+        Parameters
+        ----------
+        fig : matplotlib.figure.Figure, optional
+            The figure object to plot on.
+        axs : tuple[mpl_toolkits.mplot3d.axes3d.Axes3D,
+                    mpl_toolkits.mplot3d.axes3d.Axes3D], optional
+            The axes3d objects to plot on (ax_left, ax_right).
+        eye_balance : float
+            The eye balance parameter, from -1 to 1. A value of -1 means the
+            left view will have accurate axis labels, and a value of 1 means the
+            right view will.
+        d : float
+            Distance from the focal plane to the viewer (in millimeters).
+        ipd : float
+            Interpupillary distance (in millimeters). Default is 65. Note that
+            for anaglyphs there is no cross-eyed viewing, so any negative ipds
+            passed in will be changed to their absolute value.
+        colors : list[str, str]
+            Colors for the left and right glasses lenses. Default is
+            ['red', 'cyan']. Because a lens color prevents that eye from seeing
+            that color of data, each eye sees the opposite color. Eg.
+            ['red', 'cyan'] means the left eye has a red lens and sees cyan.
+        alpha : float
+            The transparency of each eye's data, so the two overlaid views
+            blend. Default is 0.5.
+        """
+        ipd = abs(ipd)  # anaglyphs are not cross-view
+        super().__init__(fig=fig, axs=axs, eye_balance=eye_balance, d=d, ipd=ipd)
+        self.colors = colors
+        self.alpha = alpha
+
+        # Stack the two eye axes on top of each other. When created standalone,
+        # overlap them filling the figure. When handed existing axes (e.g. a
+        # StereoSquare3D cell), the caller is responsible for overlapping them.
+        # We leave their positions alone so 3D aspect handling stays consistent.
+        if axs is None:
+            for ax in (self.ax_left, self.ax_right):
+                ax.set_position([0, 0, 1, 1])
+
+        # Make both axes see-through (so the figure and the other eye show
+        # through) and color every decoration in that eye's color, so the panes,
+        # gridlines, ticks, and labels all become part of the anaglyph too.
+        self.ax_left.patch.set_alpha(0)
+        self.ax_right.patch.set_alpha(0)
+        self._color_decorations(self.ax_left, self.colors[1])
+        self._color_decorations(self.ax_right, self.colors[0])
+
+    def _color_decorations(self, ax: Axes3D, color: str):
+        """
+        Color all of a 3D axis's decorations (panes, gridlines, axis lines,
+        tick marks, tick labels, and axis labels) a single color, with the pane
+        fill left transparent so the two overlaid views show through each other.
+        """
+        pane_color = mpl.colors.to_rgba(color, 0.08)  # faint pane shading
+        grid_color = mpl.colors.to_rgba(color, 0.3)  # transparent so it recedes
+        for axis in (ax.xaxis, ax.yaxis, ax.zaxis):
+            # set_pane_color (not pane.set_facecolor) so the chosen alpha
+            # survives the draw. A direct facecolor has its alpha reset to 0.5.
+            axis.set_pane_color(pane_color)  # slight shading, mostly see-through
+            axis.pane.set_edgecolor(color)  # colored box edges
+            axis.line.set_color(color)
+            axis.label.set_color(color)
+            axis._axinfo["grid"]["color"] = grid_color
+        ax.tick_params(colors=color)  # tick marks and tick labels, all three axes
+
+    def _plot_left_right(self, name: str, args: Any, kwargs: dict[str, Any]):
+        """
+        Draw the data on each eye's axis in that eye's anaglyph color. Mirrors
+        the color handling of AxesAnaglyph.plot2d: any user-supplied color
+        arguments are dropped and replaced with the glasses-lens colors.
+        """
+        for key in ("c", "color", "cmap", "alpha"):
+            kwargs.pop(key, None)
+        res_left = getattr(self.ax_left, name)(
+            *args, color=self.colors[1], alpha=self.alpha, **kwargs
+        )
+        res_right = getattr(self.ax_right, name)(
+            *args, color=self.colors[0], alpha=self.alpha, **kwargs
+        )
+        return (res_left, res_right)
 
 
 class AxesAnaglyph(AxesStereoBase, AxesStereo2DBase):

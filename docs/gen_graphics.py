@@ -7,6 +7,7 @@ from mpl_stereo import (
     AxesStereo2D,
     AxesStereo3D,
     AxesAnaglyph,
+    AxesAnaglyph3D,
     StereoSquare2D,
     StereoSquare3D,
     calc_2d_offsets,
@@ -74,6 +75,18 @@ def plot_anaglyph_trefoil(savedir=None, show=True):
     axstereo.fig.set_size_inches(3.0, 3)
     if savedir is not None:
         plt.savefig(savedir / "trefoil_anaglyph.png", dpi=100)
+    if show:
+        plt.show()
+
+
+def plot_anaglyph_3d_trefoil(savedir=None, show=True):
+    x, y, z = trefoil()
+    axstereo = AxesAnaglyph3D(ipd=IPD)
+    axstereo.plot(x, y, z)
+    axstereo.scatter(x, y, z, s=10)
+    axstereo.fig.set_size_inches(3.0, 3)
+    if savedir is not None:
+        plt.savefig(savedir / "trefoil_anaglyph_3d.png", dpi=100)
     if show:
         plt.show()
 
@@ -334,6 +347,7 @@ def main():
         plot_2d_church,
         plot_3d_trefoil,
         plot_anaglyph_trefoil,
+        plot_anaglyph_3d_trefoil,
         plot_anaglyph_trefoil_zzero,
         plot_anaglyph_sun,
         plot_anaglyph_church,

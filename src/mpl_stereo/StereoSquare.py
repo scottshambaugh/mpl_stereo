@@ -10,6 +10,7 @@ from mpl_stereo.AxesStereo import (
     AxesStereo3D,
     AxesStereoSideBySide,
     AxesAnaglyph,
+    AxesAnaglyph3D,
     sanitize_images,
     ANIMATION_SUFFIXES,
 )
@@ -169,7 +170,10 @@ class StereoSquareBase(ABC):
             self.axesstereo.ax_left.set_axis_off()
             self.axesstereo.ax_right.set_axis_off()
             if self.axesanaglyph is not None:
-                self.axesanaglyph.ax.set_axis_off()
+                # AxesAnaglyph has a single .ax, AxesAnaglyph3D has overlaid .axs
+                anaglyph_axes = getattr(self.axesanaglyph, "axs", (self.axesanaglyph.ax,))
+                for ax in anaglyph_axes:
+                    ax.set_axis_off()
             self.fig.subplots_adjust(left=0, right=1, top=1, bottom=0, wspace=0, hspace=0)
 
         if animate:
@@ -229,10 +233,9 @@ class StereoSquare3D(StereoSquareBase):
 
     A stereo square is a 2x2 grid of plots for showing all viewing methods at
     once. Along the top, the stereo plots are shown side-by-side. Along the
-    bottom, the left plot is the anaglyph (currently unsupported for 3D plots),
-    and the right plot is a placeholder for a wiggle stereogram animation.
-    Create the figure with the wiggle stereogram animation by calling the
-    `wiggle` method.
+    bottom, the left plot is the anaglyph and the right plot is a placeholder
+    for a wiggle stereogram animation. Create the figure with the wiggle
+    stereogram animation by calling the `wiggle` method.
     """
 
     def __init__(self):
@@ -240,5 +243,11 @@ class StereoSquare3D(StereoSquareBase):
         self.fig, self.axs = plt.subplots(2, 2, subplot_kw={"projection": "3d"})
 
         self.axesstereo = AxesStereo3D(fig=self.fig, axs=self.axs[0, :])
-        self.axesanaglyph = None  # No anaglyph for 3D plots
-        self.fig.delaxes(self.axs[1, 0])
+
+        # The anaglyph overlays two 3D axes, so add a second one on the
+        # bottom-left cell. Reuse that cell's subplotspec (with a distinct label)
+        # so both axes share identical 3D aspect handling and line up exactly.
+        overlay = self.fig.add_subplot(
+            self.axs[1, 0].get_subplotspec(), projection="3d", label="anaglyph_overlay"
+        )
+        self.axesanaglyph = AxesAnaglyph3D(fig=self.fig, axs=(self.axs[1, 0], overlay))

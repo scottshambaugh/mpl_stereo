@@ -5,7 +5,7 @@ import pytest
 
 from pathlib import Path
 from mpl_toolkits.mplot3d.axes3d import get_test_data
-from mpl_stereo import AxesStereo2D, AxesStereo3D, AxesAnaglyph
+from mpl_stereo import AxesStereo2D, AxesStereo3D, AxesAnaglyph, AxesAnaglyph3D
 from mpl_stereo.example_data import trefoil, sun_left_right, church_left_right, church_left_cropped
 
 
@@ -185,6 +185,31 @@ def test_AxesStereo3D():
     assert True
 
 
+def test_AxesAnaglyph3D(tmp_path):
+    x, y, z = _testdata()["trefoil"]
+
+    axstereo = AxesAnaglyph3D(ipd=65)
+    axstereo.plot(x, y, z)
+
+    # The two eye axes are stacked on top of each other (overlapping)
+    assert axstereo.ax_left.get_position().bounds == axstereo.ax_right.get_position().bounds
+
+    # Each eye's data is drawn in its glasses-lens color with blending alpha
+    line_left = axstereo.ax_left.get_lines()[0]
+    line_right = axstereo.ax_right.get_lines()[0]
+    assert line_left.get_color() == axstereo.colors[1]
+    assert line_right.get_color() == axstereo.colors[0]
+    assert line_left.get_alpha() == axstereo.alpha
+
+    # Negative ipd is forced positive (anaglyphs are not cross-view)
+    assert AxesAnaglyph3D(ipd=-65).ipd == 65
+
+    # Smoke test saving to file
+    filepath = tmp_path / "anaglyph3d.png"
+    axstereo.save(filepath)
+    assert filepath.exists()
+
+
 def test_AxesAnaglyph():
     # Smoke test plotting
     x, y, z = _testdata()["trefoil"]
@@ -349,7 +374,7 @@ def test_save_plot_area(tmp_path):
     x, y, z = _testdata()["trefoil"]
     dpi = 100
 
-    # Anaglyph: a normal save keeps decorations; plot_area=True crops to the
+    # Anaglyph: a normal save keeps decorations, plot_area=True crops to the
     # plot area and leaves the original figure untouched.
     axstereo = AxesAnaglyph()
     axstereo.plot(x, y, z)
