@@ -289,6 +289,20 @@ def test_AxesStereo3D():
     assert True
 
 
+def test_anaglyph_stem():
+    x = np.linspace(0, 6, 20)
+    y = np.sin(x) + 1.5
+    z = np.cos(x)
+    axstereo = AxesAnaglyph()
+    assert "stem" in axstereo.known_methods
+    rl, rr = axstereo.stem(x, y, z)
+    # stem takes no color/alpha keyword, so its container is colored per eye
+    assert rl.markerline.get_color() == axstereo.colors[1]
+    assert rr.markerline.get_color() == axstereo.colors[0]
+    assert rl.markerline.get_alpha() == axstereo.alpha
+    assert rr.stemlines.get_alpha() == axstereo.alpha
+
+
 def test_AxesAnaglyph3D(tmp_path):
     x, y, z = _testdata()["trefoil"]
 

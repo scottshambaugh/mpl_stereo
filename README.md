@@ -28,7 +28,9 @@ x, y, z = trefoil()  # trefoil knot
 ```
 
 ### 2D Stereogram plots
-Currently, only a subset of matplotlib's 2D plots are officially supported. See the list in `axstereo.known_methods`.
+Currently, only a subset of matplotlib's 2D plotting methods are officially supported: `plot`, `step`, `scatter`, `stem`, `bar`, `fill`, `fill_between`, `errorbar`, `text`, `semilogx`, `semilogy`, and `loglog`.
+
+`fill_between` takes the depth as a `z` keyword (`fill_between(x, y1, y2, z=z)`) since its positional arguments are the two fill boundaries. For the log methods, the `z` depth is always treated as linear. This list is also available at runtime as `axstereo.known_methods`.
 ```python
 axstereo = AxesStereo2D()
 axstereo.plot(x, y, z, c='k', alpha=0.2)
@@ -65,7 +67,6 @@ axstereo.scatter(x, y, z, s=10)
 <img width="250" height="250" src="https://raw.githubusercontent.com/scottshambaugh/mpl_stereo/main/docs/trefoil_anaglyph.png">
 </p>
 
-For 3D data, `AxesAnaglyph3D` works like `AxesStereo3D` but overlays the two eye views in red and cyan. The axis panes, gridlines, and labels are colored too, so the whole scene fuses with the glasses.
 ```python
 axstereo = AxesAnaglyph3D()
 axstereo.plot(x, y, z)

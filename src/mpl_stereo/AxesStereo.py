@@ -208,6 +208,70 @@ def apply_x_offset(ax: Axes, x: np.ndarray, offset: np.ndarray) -> np.ndarray:
     return tf.inverted().transform(tf.transform(np.asarray(x, dtype=float)) + offset)
 
 
+def color_stem_container(container: Any, color: str, alpha: float):
+    """
+    Color the marker line, stem lines, and baseline of a stem plot's container.
+    Used to apply an anaglyph eye color to a stem plot, which takes no ``color``
+    keyword of its own (it uses ``linefmt``/``markerfmt`` format strings).
+
+    Parameters
+    ----------
+    container : matplotlib.container.StemContainer
+        The container returned by a ``stem`` call.
+    color : str
+        The color to apply.
+    alpha : float
+        The transparency to apply.
+    """
+    for artist in (container.markerline, container.stemlines, container.baseline):
+        artist.set_color(color)
+        artist.set_alpha(alpha)
+
+
+def plot_anaglyph_eye(
+    ax: Axes,
+    name: str,
+    x: np.ndarray,
+    offset: np.ndarray,
+    y: np.ndarray,
+    color: str,
+    alpha: float,
+    args: Any,
+    kwargs: dict[str, Any],
+) -> Any:
+    """
+    Draw one eye's copy of the data for an anaglyph: offset x by ``offset`` in
+    the x-axis's scaled space and draw it in ``color``. Most methods take a
+    ``color`` keyword, but ``stem`` does not (it uses format strings), so it is
+    drawn plainly and its returned container colored afterwards.
+
+    Parameters
+    ----------
+    ax : matplotlib.axes.Axes
+        The axes to draw on.
+    name : str
+        The name of the plotting method.
+    x, y : np.ndarray
+        The data coordinates.
+    offset : np.ndarray
+        The horizontal offset to apply, in the x-axis's transformed units.
+    color : str
+        The eye's color.
+    alpha : float
+        The transparency to apply.
+    args, kwargs : Any
+        Additional arguments forwarded to the plotting method.
+    """
+    x_offset = apply_x_offset(ax, x, offset)
+    if name == "stem":
+        # stem() takes no color/alpha keywords, so color the container after.
+        res = getattr(ax, name)(x_offset, y, *args, **kwargs)
+        color_stem_container(res, color, alpha)
+    else:
+        res = getattr(ax, name)(x_offset, y, color=color, alpha=alpha, *args, **kwargs)
+    return res
+
+
 def log_scale_kwargs(kwargs: dict[str, Any], axis: str) -> dict[str, Any]:
     """
     Pick the log-scale keyword arguments for one axis out of ``kwargs``, to
@@ -1212,21 +1276,11 @@ class AxesStereo2DBase(ABC):
             kwargs.pop("alpha", None)
 
             # Plot the data twice, once for each color
-            res_left = getattr(ax_left, name)(
-                apply_x_offset(ax_left, x, offset_left),
-                y,
-                color=self.colors[1],
-                alpha=self.alpha,
-                *args,
-                **kwargs,
+            res_left = plot_anaglyph_eye(
+                ax_left, name, x, offset_left, y, self.colors[1], self.alpha, args, kwargs
             )
-            res_right = getattr(ax_right, name)(
-                apply_x_offset(ax_right, x, -offset_right),
-                y,
-                color=self.colors[0],
-                alpha=self.alpha,
-                *args,
-                **kwargs,
+            res_right = plot_anaglyph_eye(
+                ax_right, name, x, -offset_right, y, self.colors[0], self.alpha, args, kwargs
             )
 
         # Keep track of the artists
@@ -1711,6 +1765,7 @@ class AxesAnaglyph(AxesStereoBase, AxesStereo2DBase):
             "plot",
             "step",
             "scatter",
+            "stem",
             "bar",
             "fill",
             "fill_between",
