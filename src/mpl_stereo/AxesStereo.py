@@ -286,6 +286,40 @@ def sanitize_data_left_right(
     return data_left, data_right
 
 
+def sanitize_images(images: list[np.ndarray], crop: bool) -> list[np.ndarray]:
+    """
+    Sanitize a sequence of images, ensuring that they all share the same shape
+    and dtype, and that they are in the range 0.0 - 1.0.
+
+    Parameters
+    ----------
+    images : list[np.ndarray]
+        The images to sanitize.
+    crop : bool
+        Whether to crop the images to the minimum common size, keeping them
+        centered. If False, mismatched shapes raise a ValueError.
+
+    Returns
+    -------
+    images : list[np.ndarray]
+        The sanitized images.
+    """
+    arrays = [np.array(image) for image in images]
+    if len({a.shape for a in arrays}) > 1:
+        if crop:
+            min_shape = tuple(np.min([a.shape for a in arrays], axis=0).tolist())
+            arrays = [crop_image_center(a, min_shape) for a in arrays]
+        else:
+            raise ValueError("all images must have the same shape")
+    if len({a.dtype for a in arrays}) > 1:
+        raise ValueError("all images must have the same dtype")
+
+    # Accept both 0.0 - 1.0 and 0 - 255 data, map to 0.0 - 1.0
+    if np.issubdtype(arrays[0].dtype, np.integer):
+        arrays = [a.astype(float) / 255 for a in arrays]
+    return arrays
+
+
 ## Classes
 class AxesStereoBase(ABC):
     def __init__(
@@ -342,6 +376,12 @@ class AxesStereoBase(ABC):
         self.artists_left = []
         self.artists_right = []
         self.artist_args = []
+
+        # All image frames supplied to imshow_stereo, used for wiggle animations,
+        # along with the imshow arguments they were displayed with.
+        self.wiggle_images: list[np.ndarray] = []
+        self.wiggle_imshow_args: tuple = ()
+        self.wiggle_imshow_kwargs: dict[str, Any] = {}
 
     def log_artists(
         self, res_left: Any, res_right: Any, name: str, args: Any, kwargs: dict[str, Any]
@@ -459,7 +499,7 @@ class AxesStereoSideBySide(AxesStereoBase):
         self,
         filepath: Union[str, Path],
         interval: float = 125,
-        frames: int = 2,
+        frames: Optional[int] = 2,
         ax: Optional[Axes] = None,
         yaxis_off: bool = False,
         *args: Any,
@@ -474,13 +514,14 @@ class AxesStereoSideBySide(AxesStereoBase):
             The filepath to save the figure to.
         interval : float
             The interval between frames in milliseconds, default 125.
-        frames : int
-            The number of distinct eye viewpoints to sample across the stereo
+        frames : Optional[int]
+            The number of distinct viewpoints to sample across the stereo
             baseline, default 2. The animation rocks back and forth between the
-            left and right views (a boomerang loop), so with ``frames > 2`` the
+            outermost views (a boomerang loop), so with ``frames > 2`` the
             intermediate viewpoints produce a smooth rocking motion. Any number
-            of frames is supported for plotted 2D and 3D data. Image-based
-            wiggles (a fixed pair of images) only support 2 frames.
+            of frames is supported for plotted 2D and 3D data. For image-based
+            wiggles created with `imshow_stereo`, set ``frames=None`` to use
+            all the supplied images.
         ax : matplotlib.axes.Axes, optional
             The target axes to plot the wiggle stereogram on. If None (default),
             then will plot on the axes of a new Figure.
@@ -491,8 +532,12 @@ class AxesStereoSideBySide(AxesStereoBase):
         **kwargs : dict[str, Any]
             Additional keyword arguments passed to `animation.save`.
         """
+        # frames=None means "use every available image" for image wiggles, and
+        # falls back to the default of 2 for plotted data.
+        if frames is None:
+            frames = len(self.wiggle_images) if self.wiggle_images else 2
         if not isinstance(frames, int) or frames < 2:
-            raise ValueError(f"frames must be an integer >= 2, got {frames!r}")
+            raise ValueError(f"frames must be an integer >= 2 or None, got {frames!r}")
 
         filepath = Path(filepath)
         if ax is None:
@@ -506,6 +551,8 @@ class AxesStereoSideBySide(AxesStereoBase):
 
         if self.is_3d:
             ani = self._wiggle_3d(fig, pos, frames, interval, yaxis_off, kwargs)
+        elif self.wiggle_images:
+            ani = self._wiggle_images(fig, pos, frames, interval, yaxis_off, kwargs)
         else:
             ani = self._wiggle_2d(fig, pos, frames, interval, yaxis_off, kwargs)
 
@@ -570,9 +617,10 @@ class AxesStereoSideBySide(AxesStereoBase):
         # frames > 2: re-render the plotted data at intermediate viewpoints.
         if not self.artist_args:
             raise NotImplementedError(
-                "frames > 2 is only supported for plotted 2D data, not for "
-                "image-based wiggles (there are no intermediate viewpoints to "
-                "synthesize from a fixed pair of images)."
+                "frames > 2 is only supported for plotted 2D data. For image "
+                "wiggles, pass all frames to `imshow_stereo` so they can be "
+                "animated (intermediate viewpoints cannot be synthesized from a "
+                "fixed pair of images)."
             )
 
         frame_axes = []
@@ -628,6 +676,88 @@ class AxesStereoSideBySide(AxesStereoBase):
         def update(i):
             ax_wiggle.view_init(elev=elev, azim=azims[sequence[i]], roll=roll)
             return (ax_wiggle,)
+
+        return FuncAnimation(fig, update, frames=len(sequence), interval=interval)
+
+    def imshow_stereo(
+        self,
+        images: list[np.ndarray],
+        cmap: Optional[str] = None,
+        crop: bool = False,
+        *args: Any,
+        **kwargs: Any,
+    ) -> tuple[Any, Any]:
+        """
+        Display existing stereo images side-by-side. A list of two or more images
+        may be passed; the first is shown on the left axes and the last on the
+        right axes. All of the images are kept for use by `wiggle` (see its
+        ``frames`` argument). Any further args or kwargs are passed to `imshow`.
+
+        Parameters
+        ----------
+        images : list[numpy.ndarray]
+            The stereo images, ordered from the left-eye view to the right-eye
+            view. Each may be of shape (M, N), (M, N, 3), or (M, N, 4).
+        cmap : str, optional
+            The colormap to use, default None. Recommended for (M, N) scalar
+            data rather than color images.
+        crop : bool
+            Whether to crop the images to the minimum common size, keeping them
+            centered. Default is False.
+        """
+        if len(images) < 2:
+            raise ValueError("imshow_stereo requires a list of at least two images")
+
+        self.wiggle_images = sanitize_images(list(images), crop)
+        if cmap is not None:
+            kwargs["cmap"] = cmap
+        self.wiggle_imshow_args = args
+        self.wiggle_imshow_kwargs = dict(kwargs)
+
+        res_left = self.ax_left.imshow(self.wiggle_images[0], *args, **kwargs)
+        res_right = self.ax_right.imshow(self.wiggle_images[-1], *args, **kwargs)
+        return (res_left, res_right)
+
+    def _wiggle_images(
+        self,
+        fig: Figure,
+        pos: Any,
+        frames: int,
+        interval: float,
+        yaxis_off: bool,
+        kwargs: dict[str, Any],
+    ) -> FuncAnimation:
+        """
+        Build a wiggle animation from the images supplied to `imshow_stereo`. The
+        images are sampled evenly on a single axis as a boomerang loop.
+        """
+        n = len(self.wiggle_images)
+        if frames >= n:
+            selected = self.wiggle_images
+        else:
+            idx = np.unique(np.linspace(0, n - 1, frames).round().astype(int))
+            selected = [self.wiggle_images[i] for i in idx]
+
+        fig_buffer = self._duplicate_fig(fig, kwargs)
+        ax_wiggle = fig_buffer.axes[0]  # left-eye axis
+        self._attach_axis(ax_wiggle, fig, pos, yaxis_off)
+
+        # Replace the displayed image with one artist per sampled frame.
+        for image in list(ax_wiggle.images):
+            image.set_visible(False)
+        artists = [
+            ax_wiggle.imshow(image, *self.wiggle_imshow_args, **self.wiggle_imshow_kwargs)
+            for image in selected
+        ]
+        for artist in artists:
+            artist.set_visible(False)
+
+        sequence = boomerang_sequence(len(artists))
+
+        def update(i):
+            for k, artist in enumerate(artists):
+                artist.set_visible(k == sequence[i])
+            return (artists[sequence[i]],)
 
         return FuncAnimation(fig, update, frames=len(sequence), interval=interval)
 
@@ -1226,8 +1356,7 @@ class AxesAnaglyph(AxesStereoBase, AxesStereo2DBase):
 
     def imshow_stereo(
         self,
-        data_left: np.ndarray,
-        data_right: np.ndarray,
+        images: list[np.ndarray],
         method: Optional[str] = None,
         cmap: Optional[str] = None,
         crop: bool = False,
@@ -1237,6 +1366,9 @@ class AxesAnaglyph(AxesStereoBase, AxesStereo2DBase):
         """
         From existing stereo image data, combine into an anaglyph. Any further
         args or kwargs will be passed on to the `imshow()` function.
+
+        A list of two or more images may be passed; the first (left-eye view)
+        and the last (right-eye view) are used to form the anaglyph.
 
         The data can be of shape (M, N) or (M, N, 3) or (M, N, 4). If the data
         is (M, N), then it will be converted to (M, N, 3) by stacking the data
@@ -1251,10 +1383,9 @@ class AxesAnaglyph(AxesStereoBase, AxesStereo2DBase):
 
         Parameters
         ----------
-        data_left : numpy.ndarray
-            The data from the left image.
-        data_right : numpy.ndarray
-            The data from the right image.
+        images : list[numpy.ndarray]
+            The stereo images, ordered from the left-eye view to the right-eye
+            view. The first and last are combined into the anaglyph.
         method : str
             The method used to create the anaglyph. Options:
             'dubois', default when cmap is None, will always be red-cyan
@@ -1268,6 +1399,10 @@ class AxesAnaglyph(AxesStereoBase, AxesStereo2DBase):
             Whether to crop the image to the minimum size of the two images,
             keeping the images centered. Default is False.
         """
+        if len(images) < 2:
+            raise ValueError("imshow_stereo requires at least two images")
+        data_left, data_right = images[0], images[-1]
+
         # Check that the method is valid
         if method is None:
             if cmap is None:

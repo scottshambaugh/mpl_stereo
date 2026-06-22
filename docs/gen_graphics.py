@@ -242,7 +242,7 @@ def wiggle_sun(savedir=None, show=True):
 def plot_anaglyph_sun(savedir=None, show=True):
     sun_left_data, sun_right_data = sun_left_right()
     axstereo = AxesAnaglyph()
-    axstereo.imshow_stereo(sun_left_data, sun_right_data, cmap="gray")
+    axstereo.imshow_stereo([sun_left_data, sun_right_data], cmap="gray")
     axstereo.fig.set_size_inches(3, 3)
     if savedir is not None:
         plt.savefig(savedir / "sun_anaglyph.png", bbox_inches="tight", dpi=640)
@@ -282,7 +282,7 @@ def wiggle_church(savedir=None, show=True):
 def plot_anaglyph_church(savedir=None, show=True):
     church_left_data, church_right_data = church_left_right()
     axstereo = AxesAnaglyph()
-    axstereo.imshow_stereo(church_left_data, church_right_data)
+    axstereo.imshow_stereo([church_left_data, church_right_data])
     axstereo.fig.set_size_inches(4, 3)
     if savedir is not None:
         plt.savefig(savedir / "church_anaglyph.png", bbox_inches="tight", dpi=640)
@@ -317,7 +317,7 @@ def stereo_square_3d_trefoil(savedir=None, show=True):
 def stereo_square_church(savedir=None, show=True):
     church_left_data, church_right_data = church_left_right()
     stereosquare = StereoSquare2D()
-    stereosquare.imshow_stereo(church_left_data, church_right_data, crop=True)
+    stereosquare.imshow_stereo([church_left_data, church_right_data], crop=True)
     stereosquare.fig.set_size_inches(8, 6)
     stereosquare.fig.set_dpi(320)
     if savedir is not None:

@@ -14,7 +14,7 @@ output = curr_dir / "gas_tube_holder_stereo_square.gif"
 data_left = mpl.image.imread(image_left)
 data_right = mpl.image.imread(image_right)
 stereosquare = StereoSquare2D()
-stereosquare.imshow_stereo(data_left, data_right, crop=True)
+stereosquare.imshow_stereo([data_left, data_right], crop=True)
 stereosquare.fig.set_size_inches(6, 6)
 stereosquare.fig.set_dpi(320)
 

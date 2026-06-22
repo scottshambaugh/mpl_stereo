@@ -43,7 +43,7 @@ def test_StereoSquare2D():
 
     church_left_data, church_right_data = _testdata()["church_cropped"]
     stereosquare = StereoSquare2D()
-    stereosquare.imshow_stereo(church_left_data, church_right_data, crop=True)
+    stereosquare.imshow_stereo([church_left_data, church_right_data], crop=True)
     stereosquare.wiggle(wiggle_filepath)
     assert wiggle_filepath.exists()
     wiggle_filepath.unlink()  # remove the file

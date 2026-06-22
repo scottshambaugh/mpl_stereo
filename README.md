@@ -9,7 +9,7 @@
 <img width="320 " height="80" src="https://raw.githubusercontent.com/scottshambaugh/mpl_stereo/main/docs/mpl_stereo_logo_with_text.png">  
 </p>
 
-Matplotlib add-on to make [stereograms](https://en.wikipedia.org/wiki/Stereoscopy) and [anaglyphs](https://en.wikipedia.org/wiki/Anaglyph_3D).
+Matplotlib add-on to make [stereograms](https://en.wikipedia.org/wiki/Stereoscopy), [anaglyphs](https://en.wikipedia.org/wiki/Anaglyph_3D), and [wigglegrams](https://en.wikipedia.org/wiki/Wiggle_stereoscopy).
 
 Stereographic images can significantly enhance the interpretability of 3D data by leveraging human binocular vision. Instead of looking at a flat projection on a page, stereograms give us "3D glasses" for 2D data with just our eyes.
 
@@ -76,7 +76,7 @@ axstereo.ax_left.imshow(sun_left_data, cmap='gray')  # try other colormaps!
 axstereo.ax_right.imshow(sun_right_data, cmap='gray')
 
 axstereo = AxesAnaglyph()
-axstereo.imshow_stereo(sun_left_data, sun_right_data, cmap='gray')
+axstereo.imshow_stereo([sun_left_data, sun_right_data], cmap='gray')
 ```
 <p float="left" align="center">
 <img width="450" height="250" src="https://raw.githubusercontent.com/scottshambaugh/mpl_stereo/main/docs/sun_2d.png">
@@ -103,7 +103,7 @@ axstereo.ax_left.imshow(church_left_data)
 axstereo.ax_right.imshow(church_right_data)
 
 axstereo = AxesAnaglyph()
-axstereo.imshow_stereo(church_left_data, church_right_data)
+axstereo.imshow_stereo([church_left_data, church_right_data])
 ```
 <p float="left" align="center">
 <img width="550" height="250" src="https://raw.githubusercontent.com/scottshambaugh/mpl_stereo/main/docs/church_2d.png">
@@ -125,6 +125,8 @@ axstereo.wiggle('sun_wiggle.gif')  # saves to file
 <p float="left" align="center">
 <img width="250" height="250" src="https://raw.githubusercontent.com/scottshambaugh/mpl_stereo/main/docs/sun_wiggle.gif">
 </p>
+
+By default the wigglegram rocks between just the two eye views. The `frames` argument samples additional viewpoints across the stereo baseline, producing a smoother rocking motion that oscillates back and forth. For plotted 2D and 3D data, any number of intermediate viewpoints can be synthesized. For images you can supply more than two frames to `imshow_stereo` (ordered left-eye to right-eye) and animate all of them. The first and last are used for the static side-by-side and anaglyph views, while `frames=None` wiggles through every supplied image.
 
 ## Advanced Usage
 
@@ -179,7 +181,7 @@ The side-by-side, anaglyph, and wiggle plots all have somewhat different viewing
 ```python
 from mpl_stereo import StereoSquare2D  # or StereoSquare3D
 stereosquare = StereoSquare2D()
-stereosquare.imshow_stereo(church_left_data, church_right_data) 
+stereosquare.imshow_stereo([church_left_data, church_right_data])
 # stereosquare.imshow_stereo() is the only special method
 # For other plotting call them directly on the object, eg stereosquare.plot(x, y, z)
 ```

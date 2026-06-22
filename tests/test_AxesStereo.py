@@ -227,20 +227,20 @@ def test_AxesAnaglyph_imshow_stereo():
     sun_left_data, sun_right_data = _testdata()["sun"]
     for cmap in [None, "Oranges_r", "viridis"]:
         axstereo = AxesAnaglyph()
-        axstereo.imshow_stereo(sun_left_data, sun_right_data, cmap=cmap)
+        axstereo.imshow_stereo([sun_left_data, sun_right_data], cmap=cmap)
     assert True
 
     # Smoke test imshow_stereo for RGB data
     church_left_data, church_right_data = _testdata()["church"]
     for method in ["dubois", "photoshop", "photoshop2"]:
         axstereo = AxesAnaglyph()
-        axstereo.imshow_stereo(church_left_data, church_right_data, method=method)
+        axstereo.imshow_stereo([church_left_data, church_right_data], method=method)
     assert True
 
     # Smoke test cropping
     church_left_data, church_right_data = _testdata()["church_cropped"]
     axstereo = AxesAnaglyph()
-    axstereo.imshow_stereo(church_left_data, church_right_data, crop=True)
+    axstereo.imshow_stereo([church_left_data, church_right_data], crop=True)
     assert True
 
 
@@ -308,6 +308,39 @@ def test_wiggle_frames():
         AxesStereo3D().wiggle(wiggle_filepath, frames=1)
 
     assert not wiggle_filepath.exists()
+
+
+def test_wiggle_images():
+    from PIL import Image
+    from mpl_stereo.AxesStereo import boomerang_sequence
+
+    wiggle_filepath = Path("test.gif")
+
+    # Build several synthetic viewpoints by shifting a gradient.
+    base = np.tile(np.linspace(0, 1, 60), (40, 1))
+    views = [np.roll(base, k, axis=1) for k in range(4)]
+
+    axstereo = AxesStereo2D()
+    axstereo.imshow_stereo(views, cmap="gray")
+    assert len(axstereo.wiggle_images) == 4
+
+    # frames=None wiggles through every supplied image.
+    axstereo.wiggle(wiggle_filepath, frames=None)
+    with Image.open(wiggle_filepath) as im:
+        assert im.n_frames == len(boomerang_sequence(4))
+    wiggle_filepath.unlink()
+
+    # An integer frames count samples a subset of the images.
+    axstereo = AxesStereo2D()
+    axstereo.imshow_stereo(views, cmap="gray")
+    axstereo.wiggle(wiggle_filepath, frames=3)
+    with Image.open(wiggle_filepath) as im:
+        assert im.n_frames == len(boomerang_sequence(3))
+    wiggle_filepath.unlink()
+
+    # imshow_stereo requires at least two images.
+    with pytest.raises(ValueError):
+        AxesStereo2D().imshow_stereo([base])
 
 
 ## The following tests are for visual inspection only
@@ -395,19 +428,19 @@ def plotting_tests_anaglyph_imshow_stereo():
     sun_left_data, sun_right_data = _testdata()["sun"]
     for cmap in [None, "Oranges_r", "viridis"]:
         axstereo = AxesAnaglyph()
-        axstereo.imshow_stereo(sun_left_data, sun_right_data, cmap=cmap)
+        axstereo.imshow_stereo([sun_left_data, sun_right_data], cmap=cmap)
         axstereo.set_title(cmap)
 
     church_left_data, church_right_data = _testdata()["church"]
     for method in ["dubois", "photoshop", "photoshop2"]:
         axstereo = AxesAnaglyph()
-        axstereo.imshow_stereo(church_left_data, church_right_data, method=method)
+        axstereo.imshow_stereo([church_left_data, church_right_data], method=method)
         axstereo.set_title(method)
         axstereo.fig.set_size_inches(4, 3)
 
     church_left_data, church_right_data = _testdata()["church_cropped"]
     axstereo = AxesAnaglyph()
-    axstereo.imshow_stereo(church_left_data, church_right_data, crop=True)
+    axstereo.imshow_stereo([church_left_data, church_right_data], crop=True)
     axstereo.set_title("cropped")
 
 

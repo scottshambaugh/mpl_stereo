@@ -10,7 +10,7 @@ from mpl_stereo.AxesStereo import (
     AxesStereo3D,
     AxesStereoSideBySide,
     AxesAnaglyph,
-    sanitize_data_left_right,
+    sanitize_images,
 )
 
 
@@ -57,8 +57,7 @@ class StereoSquareBase(ABC):
 
     def imshow_stereo(
         self,
-        data_left: np.ndarray,
-        data_right: np.ndarray,
+        images: list[np.ndarray],
         method: Optional[str] = None,
         cmap: Optional[str] = None,
         crop: bool = False,
@@ -68,6 +67,11 @@ class StereoSquareBase(ABC):
         """
         From existing stereo image data, combine into an anaglyph. Any further
         args or kwargs will be passed on to the `imshow()` function.
+
+        A list of two or more images may be passed. The first is shown on the
+        left axes and the last on the right axes, and the first and last are
+        combined into the anaglyph. All of the images are kept for use by
+        `wiggle`.
 
         The data can be of shape (M, N) or (M, N, 3) or (M, N, 4). If the data
         is (M, N), then it will be converted to (M, N, 3) by stacking the data
@@ -82,10 +86,9 @@ class StereoSquareBase(ABC):
 
         Parameters
         ----------
-        data_left : numpy.ndarray
-            The data from the left image.
-        data_right : numpy.ndarray
-            The data from the right image.
+        images : list[numpy.ndarray]
+            The stereo images, ordered from the left-eye view to the right-eye
+            view.
         method : str
             The method used to create the anaglyph. Options:
             'dubois', default when cmap is None, will always be red-cyan
@@ -96,15 +99,20 @@ class StereoSquareBase(ABC):
             Only recommended for 1-D shape (M, N) scalar data rather than color
             images.
         crop : bool
-            Whether to crop the image to the minimum size of the two images,
-            keeping the images centered. Default is False.
+            Whether to crop the images to the minimum common size, keeping them
+            centered. Default is False.
         """
-        data_left, data_right = sanitize_data_left_right(data_left, data_right, crop)
-        res_left = self.axesstereo.ax_left.imshow(data_left, *args, **kwargs)
-        res_right = self.axesstereo.ax_right.imshow(data_right, *args, **kwargs)
+        if len(images) < 2:
+            raise ValueError("imshow_stereo requires a list of at least two images")
+
+        # Sanitize once over all images so the side-by-side and anaglyph views
+        # share a consistent crop.
+        images = sanitize_images(list(images), crop)
+        res_left, res_right = self.axesstereo.imshow_stereo(images, cmap=cmap, *args, **kwargs)
+        res_anaglyph = None
         if self.axesanaglyph is not None:
             res_anaglyph = self.axesanaglyph.imshow_stereo(
-                data_left, data_right, method=method, cmap=cmap, crop=crop, *args, **kwargs
+                [images[0], images[-1]], method=method, cmap=cmap, *args, **kwargs
             )
 
         return (res_left, res_right, res_anaglyph)
@@ -113,7 +121,7 @@ class StereoSquareBase(ABC):
         self,
         filepath: Union[str, Path],
         interval: float = 125,
-        frames: int = 2,
+        frames: Optional[int] = 2,
         *args: Any,
         **kwargs: dict[str, Any],
     ):
@@ -126,10 +134,9 @@ class StereoSquareBase(ABC):
             The filepath to save the figure to.
         interval : float
             The interval between frames in milliseconds, default 125.
-        frames : int
-            The number of distinct eye viewpoints to sample across the stereo
-            baseline, default 2. See `AxesStereoSideBySide.wiggle`. For 3D
-            plots any number of frames is supported; for 2D plots only 2.
+        frames : Optional[int]
+            The number of distinct viewpoints to sample across the stereo
+            baseline, default 2. See `AxesStereoSideBySide.wiggle`.
         *args : Any
             Additional arguments passed to `animation.save`.
         **kwargs : dict[str, Any]
