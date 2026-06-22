@@ -198,6 +198,22 @@ def view_init(self, elev=None, azim=None, roll=None, vertical_axis="z", share=Fa
         ax._vertical_axis = vertical_axis
 
 
+def boomerang_sequence(n: int) -> list[int]:
+    """
+    Build a "boomerang" index sequence over ``n`` frames that rocks back and
+    forth without repeating the endpoints, so the animation loops seamlessly.
+
+    For example, ``n=2`` gives ``[0, 1]`` (the classic two-frame wiggle) and
+    ``n=4`` gives ``[0, 1, 2, 3, 2, 1]``.
+
+    Parameters
+    ----------
+    n : int
+        The number of distinct frames.
+    """
+    return list(range(n)) + list(range(n - 2, 0, -1))
+
+
 def crop_image_center(data: np.ndarray, shape: tuple[int, int]):
     """
     Crop an image array to a specified shape, trimming equally on each side
@@ -443,6 +459,7 @@ class AxesStereoSideBySide(AxesStereoBase):
         self,
         filepath: Union[str, Path],
         interval: float = 125,
+        frames: int = 2,
         ax: Optional[Axes] = None,
         yaxis_off: bool = False,
         *args: Any,
@@ -457,6 +474,13 @@ class AxesStereoSideBySide(AxesStereoBase):
             The filepath to save the figure to.
         interval : float
             The interval between frames in milliseconds, default 125.
+        frames : int
+            The number of distinct eye viewpoints to sample across the stereo
+            baseline, default 2. The animation rocks back and forth between the
+            left and right views (a boomerang loop), so with ``frames > 2`` the
+            intermediate viewpoints produce a smooth rocking motion. For 3D
+            plots any number of frames is supported. For 2D plots only the
+            default of 2 is currently supported.
         ax : matplotlib.axes.Axes, optional
             The target axes to plot the wiggle stereogram on. If None (default),
             then will plot on the axes of a new Figure.
@@ -467,6 +491,9 @@ class AxesStereoSideBySide(AxesStereoBase):
         **kwargs : dict[str, Any]
             Additional keyword arguments passed to `animation.save`.
         """
+        if not isinstance(frames, int) or frames < 2:
+            raise ValueError(f"frames must be an integer >= 2, got {frames!r}")
+
         filepath = Path(filepath)
         if ax is None:
             fig, ax_target = plt.subplots()
@@ -489,30 +516,78 @@ class AxesStereoSideBySide(AxesStereoBase):
         else:
             fig_buffer.set_dpi(fig.get_dpi())
 
-        # Set up the axes to fill the figure
+        if self.is_3d:
+            ani = self._wiggle_3d(fig, fig_buffer, pos, frames, interval, yaxis_off)
+        else:
+            if frames != 2:
+                raise NotImplementedError(
+                    "frames > 2 is not yet supported for 2D wiggle stereograms; "
+                    "only 3D plots currently support more than 2 frames."
+                )
+            ani = self._wiggle_2d(fig, fig_buffer, pos, interval, yaxis_off)
+
+        ani.save(filepath, *args, **kwargs)
+
+    def _attach_axis(self, ax: Axes, fig: Figure, pos: Any, yaxis_off: bool):
+        """
+        Move a duplicated axis from the pickled buffer figure onto the target
+        figure ``fig``, sizing it to fill the position ``pos``.
+        """
+        ax._parent_figure = None
+        ax.figure = fig
+        fig.axes.append(ax)
+        fig.add_axes(ax)
+        ax.set_position(pos.bounds)
+        if yaxis_off:
+            ax.yaxis.set_visible(False)
+
+    def _wiggle_2d(
+        self, fig: Figure, fig_buffer: Figure, pos: Any, interval: float, yaxis_off: bool
+    ) -> FuncAnimation:
+        """
+        Build a 2-frame wiggle animation by toggling the visibility of the
+        duplicated left and right axes on a shared position.
+        """
         axs = fig_buffer.axes[0:2]
         for ax in axs:
-            ax._parent_figure = None
-            ax.figure = fig
-            fig.axes.append(ax)
-            fig.add_axes(ax)
-            ax.set_position(pos.bounds)
+            self._attach_axis(ax, fig, pos, yaxis_off)
             ax.set_visible(False)
-            if yaxis_off:
-                ax.yaxis.set_visible(False)
 
         def update(frame):
             axs[frame].set_visible(True)
+            return (axs[frame],)
 
-            # Don't hide the underlying left axis for 2D plots, since the right
-            # one has the y axis hidden
-            if self.is_3d and frame == 1:
-                axs[0].set_visible(False)
-            return (ax,)
+        return FuncAnimation(fig, update, frames=2, interval=interval)
 
-        ani = FuncAnimation(fig, update, frames=2, interval=interval)
+    def _wiggle_3d(
+        self,
+        fig: Figure,
+        fig_buffer: Figure,
+        pos: Any,
+        frames: int,
+        interval: float,
+        yaxis_off: bool,
+    ) -> FuncAnimation:
+        """
+        Build an ``frames``-frame wiggle animation for a 3D plot by sweeping the
+        azimuth of a single duplicated axis between the left- and right-eye
+        views and rocking back and forth (a boomerang loop).
+        """
+        # A single faithful copy of the left-eye axis is enough: every frame is
+        # just a different projection of the same 3D artists.
+        ax_wiggle = fig_buffer.axes[0]
+        self._attach_axis(ax_wiggle, fig, pos, yaxis_off)
 
-        ani.save(filepath, *args, **kwargs)
+        # Sweep the azimuth between the two eye views.
+        azims = np.linspace(self.ax_left.azim, self.ax_right.azim, frames)
+        elev, roll = ax_wiggle.elev, ax_wiggle.roll
+        sequence = boomerang_sequence(frames)
+
+        def update(i):
+            ax_wiggle.view_init(elev=elev, azim=azims[sequence[i]], roll=roll)
+            return (ax_wiggle,)
+
+        return FuncAnimation(fig, update, frames=len(sequence), interval=interval)
 
 
 class AxesStereo2DBase(ABC):

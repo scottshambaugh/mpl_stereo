@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import inspect
+import pytest
 
 from pathlib import Path
 from mpl_toolkits.mplot3d.axes3d import get_test_data
@@ -270,6 +271,39 @@ def test_wiggle():
     assert wiggle_filepath.exists()
     wiggle_filepath.unlink()  # remove the file
     assert True
+
+
+def test_wiggle_frames():
+    from PIL import Image
+    from mpl_stereo.AxesStereo import boomerang_sequence
+
+    assert boomerang_sequence(2) == [0, 1]
+    assert boomerang_sequence(4) == [0, 1, 2, 3, 2, 1]
+
+    wiggle_filepath = Path("test.gif")
+    x, y, z = _testdata()["trefoil"]
+
+    # 3D supports an arbitrary number of frames, played as a boomerang loop
+    for frames in (2, 5):
+        axstereo = AxesStereo3D()
+        axstereo.plot(x, y, z)
+        axstereo.wiggle(wiggle_filepath, frames=frames)
+        assert wiggle_filepath.exists()
+        with Image.open(wiggle_filepath) as im:
+            assert im.n_frames == len(boomerang_sequence(frames))
+        wiggle_filepath.unlink()
+
+    # 2D only supports the default of 2 frames for now
+    axstereo = AxesStereo2D()
+    axstereo.plot(x, y, z)
+    with pytest.raises(NotImplementedError):
+        axstereo.wiggle(wiggle_filepath, frames=4)
+
+    # frames must be an integer >= 2
+    with pytest.raises(ValueError):
+        AxesStereo3D().wiggle(wiggle_filepath, frames=1)
+
+    assert not wiggle_filepath.exists()
 
 
 ## The following tests are for visual inspection only

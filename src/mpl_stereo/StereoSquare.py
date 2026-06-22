@@ -113,6 +113,7 @@ class StereoSquareBase(ABC):
         self,
         filepath: Union[str, Path],
         interval: float = 125,
+        frames: int = 2,
         *args: Any,
         **kwargs: dict[str, Any],
     ):
@@ -125,13 +126,23 @@ class StereoSquareBase(ABC):
             The filepath to save the figure to.
         interval : float
             The interval between frames in milliseconds, default 125.
+        frames : int
+            The number of distinct eye viewpoints to sample across the stereo
+            baseline, default 2. See `AxesStereoSideBySide.wiggle`. For 3D
+            plots any number of frames is supported; for 2D plots only 2.
         *args : Any
             Additional arguments passed to `animation.save`.
         **kwargs : dict[str, Any]
             Additional keyword arguments passed to `animation.save`.
         """
         self.axesstereo.wiggle(
-            filepath=filepath, interval=interval, ax=self.axs[1, 1], yaxis_off=True, *args, **kwargs
+            filepath=filepath,
+            interval=interval,
+            frames=frames,
+            ax=self.axs[1, 1],
+            yaxis_off=True,
+            *args,
+            **kwargs,
         )
 
 
