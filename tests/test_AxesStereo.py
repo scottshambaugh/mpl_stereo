@@ -191,6 +191,40 @@ def test_transformed_xaxis():
     assert not np.allclose(before, ax.artists_right[0].get_xdata())
 
 
+def test_semilogx_loglog():
+    x = np.geomspace(1, 1000, 25)
+    y = np.log10(x)
+    z = np.linspace(0, 1, 25)
+    zlim, zscale = (0.0, 1.0), 2.0
+
+    # semilogx is equivalent to set_xscale("log") followed by plot
+    a = AxesStereo2D(ipd=65)
+    a.set_zlim(zlim, zscale, zautoscale=False)
+    ra = a.semilogx(x, y, z)
+    b = AxesStereo2D(ipd=65)
+    b.set_zlim(zlim, zscale, zautoscale=False)
+    b.set_xscale("log")
+    rb = b.plot(x, y, z)
+    assert a.ax_left.get_xscale() == "log"
+    assert np.allclose(ra[1][0].get_xdata(), rb[1][0].get_xdata())
+
+    # loglog log-scales both axes on both eyes
+    c = AxesStereo2D(ipd=65)
+    c.loglog(x, y, z)
+    assert c.ax_left.get_xscale() == "log" and c.ax_left.get_yscale() == "log"
+    assert c.ax_right.get_xscale() == "log" and c.ax_right.get_yscale() == "log"
+
+    # the base keyword is forwarded through to the scale
+    d = AxesStereo2D(ipd=65)
+    d.semilogx(x, y, z, base=2)
+    assert d.ax_left.xaxis.get_transform().base == 2
+
+    # the anaglyph supports them too
+    f = AxesAnaglyph(ipd=80)
+    f.loglog(x, y, z)
+    assert f.ax.get_xscale() == "log" and f.ax.get_yscale() == "log"
+
+
 def test_AxesAnaglyph_zlim():
     x = y = z = np.arange(10)
     axstereo = AxesAnaglyph()

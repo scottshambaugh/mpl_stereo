@@ -208,6 +208,25 @@ def apply_x_offset(ax: Axes, x: np.ndarray, offset: np.ndarray) -> np.ndarray:
     return tf.inverted().transform(tf.transform(np.asarray(x, dtype=float)) + offset)
 
 
+def log_scale_kwargs(kwargs: dict[str, Any], axis: str) -> dict[str, Any]:
+    """
+    Pick the log-scale keyword arguments for one axis out of ``kwargs``, to
+    forward to ``set_xscale``/``set_yscale``. Mirrors how matplotlib's
+    semilogx/semilogy/loglog split their keywords: the shared ``base``,
+    ``subs``, and ``nonpositive`` apply to either axis, plus the axis-suffixed
+    aliases (e.g. ``basex``/``basey``).
+
+    Parameters
+    ----------
+    kwargs : dict[str, Any]
+        The keyword arguments passed to the plotting method.
+    axis : str
+        Which axis to collect keywords for, "x" or "y".
+    """
+    keys = ("base", "subs", "nonpositive", f"base{axis}", f"subs{axis}", f"nonpos{axis}")
+    return {k: v for k, v in kwargs.items() if k in keys}
+
+
 def view_init(self, elev=None, azim=None, roll=None, vertical_axis="z", share=False):
     """
     Overrides the Axes3D.view_init method to link the views of the left and
@@ -1070,6 +1089,28 @@ class AxesStereo2DBase(ABC):
             ax.set_xscale(*args, **kwargs)
         if self.artist_args:
             self.redraw()
+
+    def semilogx(self, *args: Any, **kwargs: Any):
+        """
+        Stereo equivalent of `matplotlib.axes.Axes.semilogx`: log-scale the
+        x-axis (forwarding *base*, *subs*, *nonpositive*) and then plot. The
+        parallax is computed in the log-scaled x space, so it stays correct.
+        """
+        dx = log_scale_kwargs(kwargs, "x")
+        self.set_xscale("log", **dx)
+        return self.plot(*args, **{k: v for k, v in kwargs.items() if k not in dx})
+
+    def loglog(self, *args: Any, **kwargs: Any):
+        """
+        Stereo equivalent of `matplotlib.axes.Axes.loglog`: log-scale both axes
+        and then plot. The parallax is computed in the log-scaled x space, so it
+        stays correct.
+        """
+        dx = log_scale_kwargs(kwargs, "x")
+        self.set_xscale("log", **dx)
+        dy = log_scale_kwargs(kwargs, "y")
+        self.set_yscale("log", **dy)
+        return self.plot(*args, **{k: v for k, v in kwargs.items() if k not in {*dx, *dy}})
 
     def plot2d(
         self,

@@ -22,6 +22,7 @@
 * `StereoSquare3D` now fills its anaglyph cell using `AxesAnaglyph3D`
 * `step`, `fill`, `fill_between`, and `errorbar` added to the supported 2D plotting methods
 * Support for transformed x-axes (`log`, etc) on 2D stereograms. 3D transforms are handled natively.
+* `semilogx` and `loglog` plotting methods for 2D stereograms
 
 ## [0.12.0] - 2026-06-22
 ### Added    
