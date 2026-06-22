@@ -189,6 +189,25 @@ def calc_2d_offsets(
     return offset_left, offset_right, zlim, zscale
 
 
+def apply_x_offset(ax: Axes, x: np.ndarray, offset: np.ndarray) -> np.ndarray:
+    """
+    Shift ``x`` by ``offset`` within the x-axis's scaled (transformed) space, so
+    the parallax is screen-uniform for log and other non-linear x scales. For a
+    linear axis the transform is the identity, giving the original x + offset.
+
+    Parameters
+    ----------
+    ax : matplotlib.axes.Axes
+        The axes whose x-axis scale (transform) the offset is applied within.
+    x : np.ndarray
+        The x-coordinates of the data, in data units.
+    offset : np.ndarray
+        The horizontal offset to apply, in the x-axis's transformed units.
+    """
+    tf = ax.xaxis.get_transform()
+    return tf.inverted().transform(tf.transform(np.asarray(x, dtype=float)) + offset)
+
+
 def view_init(self, elev=None, azim=None, roll=None, vertical_axis="z", share=False):
     """
     Overrides the Axes3D.view_init method to link the views of the left and
@@ -1037,6 +1056,21 @@ class AxesStereo2DBase(ABC):
             getattr(self, name)(*args, **kwargs)
         self.is_redrawing = False
 
+    def set_xscale(self, *args: Any, **kwargs: Any):
+        """
+        Set the x-axis scale (e.g. "log") on all of the underlying axes and
+        redraw, so the parallax offsets are recomputed for the new scale. The
+        depth data is always treated as linear regardless of the x scale.
+        """
+        # Check __dict__ directly: __getattr__ returns a method for any missing
+        # name, so a plain getattr would not fall through. 2D has .axs, the
+        # anaglyph has a single .ax.
+        axes = self.axs if "axs" in self.__dict__ else (self.ax,)
+        for ax in axes:
+            ax.set_xscale(*args, **kwargs)
+        if self.artist_args:
+            self.redraw()
+
     def plot2d(
         self,
         ax_left: Axes,
@@ -1100,7 +1134,11 @@ class AxesStereo2DBase(ABC):
         if zlim is not None:
             self.set_zlim(zlim, zscale, redraw=False)
 
-        # Calculate the x-offsets
+        # Calculate the x-offsets. The offsets and zscale live in the x-axis's
+        # scaled (transformed) space so the parallax is correct on log and other
+        # non-linear x scales, so the x-range is transformed to match.
+        xtransform = ax_left.xaxis.get_transform()
+        xlim_scaled = xtransform.transform(np.asarray(ax_left.get_xlim(), dtype=float))
         offset_left, offset_right, zlim, zscale = calc_2d_offsets(
             self.eye_balance,
             z,
@@ -1110,7 +1148,7 @@ class AxesStereo2DBase(ABC):
             zscale=zscale,
             zlim=self.zlim,
             zzero=zzero,
-            xlim=ax_left.get_xlim(),
+            xlim=xlim_scaled,
         )
         self.zscale = zscale
         self.zlim = zlim
@@ -1119,8 +1157,12 @@ class AxesStereo2DBase(ABC):
 
         if isinstance(self, AxesStereo2D):
             # Plot the data twice, once for each subplot (2D case)
-            res_left = getattr(ax_left, name)(x + offset_left, y, *args, **kwargs)
-            res_right = getattr(ax_right, name)(x - offset_right, y, *args, **kwargs)
+            res_left = getattr(ax_left, name)(
+                apply_x_offset(ax_left, x, offset_left), y, *args, **kwargs
+            )
+            res_right = getattr(ax_right, name)(
+                apply_x_offset(ax_right, x, -offset_right), y, *args, **kwargs
+            )
         elif isinstance(self, AxesAnaglyph):
             # Clear all color arguments (anaglyph case)
             kwargs.pop("c", None)
@@ -1130,10 +1172,20 @@ class AxesStereo2DBase(ABC):
 
             # Plot the data twice, once for each color
             res_left = getattr(ax_left, name)(
-                x + offset_left, y, color=self.colors[1], alpha=self.alpha, *args, **kwargs
+                apply_x_offset(ax_left, x, offset_left),
+                y,
+                color=self.colors[1],
+                alpha=self.alpha,
+                *args,
+                **kwargs,
             )
             res_right = getattr(ax_right, name)(
-                x - offset_right, y, color=self.colors[0], alpha=self.alpha, *args, **kwargs
+                apply_x_offset(ax_right, x, -offset_right),
+                y,
+                color=self.colors[0],
+                alpha=self.alpha,
+                *args,
+                **kwargs,
             )
 
         # Keep track of the artists

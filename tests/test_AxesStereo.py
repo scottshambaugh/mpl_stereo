@@ -156,6 +156,41 @@ def test_fill_between():
     assert len(axstereo.artists_left) == 2
 
 
+def test_transformed_xaxis():
+    x = np.geomspace(1, 1000, 25)
+    y = np.log10(x)
+    z = np.linspace(0, 1, 25)
+    zlim, zscale = (0.0, 1.0), 2.0
+
+    # Linear x-axis: the transform is the identity, so the shift is in data space.
+    axlin = AxesStereo2D(ipd=65)
+    axlin.set_zlim(zlim, zscale, zautoscale=False)
+    _, rr_lin = axlin.plot(x, y, z)
+    lin_shift = x - rr_lin[0].get_xdata()
+    assert np.any(lin_shift != 0)  # there is a parallax offset
+
+    # Log x-axis with the same zscale: the offset is applied in the transformed
+    # (log) space, so the screen-uniform parallax matches the linear shift.
+    axlog = AxesStereo2D(ipd=65)
+    axlog.set_xscale("log")
+    axlog.set_zlim(zlim, zscale, zautoscale=False)
+    rl_log, rr_log = axlog.plot(x, y, z)
+    tf = axlog.ax_left.xaxis.get_transform()
+    log_shift = tf.transform(x) - tf.transform(rr_log[0].get_xdata())
+    assert np.allclose(log_shift, lin_shift)
+    assert np.allclose(rl_log[0].get_xdata(), x)  # left eye unshifted (eye_balance -1)
+    # the data-space shift is non-uniform on a log axis, unlike the linear case
+    assert not np.allclose(x - rr_log[0].get_xdata(), lin_shift)
+
+    # Setting the scale after plotting redraws and re-places the artists.
+    ax = AxesStereo2D(ipd=65)
+    ax.set_zlim(zlim, zscale, zautoscale=False)
+    ax.plot(x, y, z)
+    before = ax.artists_right[0].get_xdata().copy()
+    ax.set_xscale("log")
+    assert not np.allclose(before, ax.artists_right[0].get_xdata())
+
+
 def test_AxesAnaglyph_zlim():
     x = y = z = np.arange(10)
     axstereo = AxesAnaglyph()
