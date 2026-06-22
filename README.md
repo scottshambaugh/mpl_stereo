@@ -82,10 +82,10 @@ axstereo.imshow_stereo([sun_left_data, sun_right_data], cmap='gray')
 axstereo.save('sun_anaglyph.png', plot_area=True)
 ```
 <p float="left" align="center">
-<img width="500" height="250" src="https://raw.githubusercontent.com/scottshambaugh/mpl_stereo/main/docs/sun_2d.png">
+<img width="400" height="200" src="https://raw.githubusercontent.com/scottshambaugh/mpl_stereo/main/docs/sun_2d.png">
 </p>
 <p float="left" align="center">
-<img width="250" height="250" src="https://raw.githubusercontent.com/scottshambaugh/mpl_stereo/main/docs/sun_anaglyph.png">
+<img width="200" height="200" src="https://raw.githubusercontent.com/scottshambaugh/mpl_stereo/main/docs/sun_anaglyph.png">
 </p>
 
 Here's another example, showing how this translates to full color data. This example is a pair of photos of [St. Mary's Church](https://commons.wikimedia.org/wiki/File:St_Mary%27s_Church,_Colston_Bassett_3D-35486887876.jpg) in Colston Basset, Britain, taken by David Skinner and shared under a [CC-BY2.0 license](https://creativecommons.org/licenses/by/2.0/deed.en).
@@ -110,10 +110,10 @@ axstereo.imshow_stereo([church_left_data, church_right_data])
 axstereo.save('church_anaglyph.png', plot_area=True)
 ```
 <p float="left" align="center">
-<img width="667" height="250" src="https://raw.githubusercontent.com/scottshambaugh/mpl_stereo/main/docs/church_2d.png">
+<img width="535" height="200" src="https://raw.githubusercontent.com/scottshambaugh/mpl_stereo/main/docs/church_2d.png">
 </p>
 <p float="left" align="center">
-<img width="333" height="250" src="https://raw.githubusercontent.com/scottshambaugh/mpl_stereo/main/docs/church_anaglyph.png">
+<img width="265" height="200" src="https://raw.githubusercontent.com/scottshambaugh/mpl_stereo/main/docs/church_anaglyph.png">
 </p>
 
 ### Wiggle Stereograms
@@ -128,7 +128,7 @@ axstereo.save('sun_wiggle.gif', plot_area=True)  # a .gif animates a wiggle
 ```
 
 <p float="left" align="center">
-<img width="250" height="250" src="https://raw.githubusercontent.com/scottshambaugh/mpl_stereo/main/docs/sun_wiggle.gif">
+<img width="200" height="200" src="https://raw.githubusercontent.com/scottshambaugh/mpl_stereo/main/docs/sun_wiggle.gif">
 </p>
 
 By default the wigglegram rocks between just the two eye views. The `frames` argument samples additional viewpoints across the stereo baseline, producing a smoother rocking motion that oscillates back and forth. For plotted 2D and 3D data, any number of intermediate viewpoints can be synthesized. For images you can supply more than two frames to `imshow_stereo` (ordered left-eye to right-eye) and animate all of them. The first and last are used for the static side-by-side and anaglyph views, while `frames=None` wiggles through every supplied image.
@@ -195,7 +195,7 @@ stereosquare.save('church_2d_square.gif', plot_area=True)
 ```
 
 <p float="left" align="center">
-<img width="600" height="450" src="https://raw.githubusercontent.com/scottshambaugh/mpl_stereo/main/docs/church_2d_square.gif">
+<img width="480" height="360" src="https://raw.githubusercontent.com/scottshambaugh/mpl_stereo/main/docs/church_2d_square.gif">
 </p>
 
 ```python
@@ -207,7 +207,7 @@ stereosquare.wiggle("trefoil_2d_square.gif", interval=50, frames=5, dpi=100)
 ```
 
 <p float="left" align="center">
-<img width="600" height="450" src="https://raw.githubusercontent.com/scottshambaugh/mpl_stereo/main/docs/trefoil_2d_square.gif">
+<img width="450" height="450" src="https://raw.githubusercontent.com/scottshambaugh/mpl_stereo/main/docs/trefoil_2d_square.gif">
 </p>
 
 ### Animations
