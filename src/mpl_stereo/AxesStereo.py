@@ -48,6 +48,39 @@ def sort_by_z(x: np.ndarray, y: np.ndarray, z: np.ndarray, kwargs: dict[str, Any
     return x, y, z, kwargs
 
 
+def process_fill_between_args(args: Any, kwargs: dict[str, Any]):
+    """
+    Process the arguments to a fill_between call. fill_between has an
+    (x, y1, y2) signature, so the depth must come from a separate `z` keyword.
+    y1 is the value the offset is applied around, and y2 (plus anything else)
+    stays in args as the second fill boundary.
+
+    Parameters
+    ----------
+    args : Any
+        The positional arguments passed to fill_between.
+    kwargs : dict[str, Any]
+        The keyword arguments passed to fill_between.
+    """
+    if "x" in kwargs:
+        x = kwargs.pop("x")
+    else:
+        x, *args = args
+    if "y1" in kwargs:
+        y = kwargs.pop("y1")
+    elif "y" in kwargs:  # reconstructed call during a redraw
+        y = kwargs.pop("y")
+    else:
+        y, *args = args
+    z = kwargs.pop("z", None)
+    if z is None:
+        warnings.warn(
+            "fill_between needs the depth data passed as a `z` keyword argument "
+            "to produce a stereoscopic effect, e.g. fill_between(x, y1, y2, z=z)."
+        )
+    return x, y, z, args, kwargs
+
+
 def process_args(ax_method: Any, known_methods: list[str], args: Any, kwargs: dict[str, Any]):
     """
     Process the arguments to a method call to determine if the method is
@@ -65,6 +98,10 @@ def process_args(ax_method: Any, known_methods: list[str], args: Any, kwargs: di
         The keyword arguments passed to the ax_method.
     """
     x = y = z = None
+
+    if ax_method.__name__ == "fill_between":
+        return process_fill_between_args(args, kwargs)
+
     parameters = inspect.signature(ax_method).parameters
     if "x" in kwargs:
         x = kwargs.pop("x")
@@ -1160,7 +1197,17 @@ class AxesStereo2D(AxesStereoSideBySide, AxesStereo2DBase):
             zzero=zzero,
             is_3d=False,
         )
-        self.known_methods = ["plot", "step", "scatter", "stem", "bar", "fill", "errorbar", "text"]
+        self.known_methods = [
+            "plot",
+            "step",
+            "scatter",
+            "stem",
+            "bar",
+            "fill",
+            "fill_between",
+            "errorbar",
+            "text",
+        ]
 
         # Minimize whitespace between plots
         self.fig.subplots_adjust(wspace=0.01)
@@ -1567,7 +1614,16 @@ class AxesAnaglyph(AxesStereoBase, AxesStereo2DBase):
             self.fig = ax.figure
             self.ax = ax
 
-        self.known_methods = ["plot", "step", "scatter", "bar", "fill", "errorbar", "text"]
+        self.known_methods = [
+            "plot",
+            "step",
+            "scatter",
+            "bar",
+            "fill",
+            "fill_between",
+            "errorbar",
+            "text",
+        ]
         self.colors = colors
         self.alpha = 0.5
 

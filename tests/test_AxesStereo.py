@@ -63,6 +63,10 @@ def test_AxesStereo2D():
         if method == "text":
             getattr(axstereo, method)(0, 0, 0, "text")
             getattr(axstereo, method)(x=0, y=0, z=0, s="text")
+        elif method == "fill_between":
+            # fill_between takes (x, y1, y2) with the depth as a `z` keyword
+            getattr(axstereo, method)(x, y, z=z)
+            getattr(axstereo, method)(x, y, y * 0.5, z=z)
         else:
             getattr(axstereo, method)(x, y, z)
             getattr(axstereo, method)(x=x, y=y, z=z)
@@ -119,6 +123,37 @@ def test_AxesStereo2D_zlim():
     assert len(axstereo.artists_left) == n_artists
     assert len(axstereo.artists_right) == n_artists
     assert len(axstereo.artist_args) == n_artists
+
+
+def test_fill_between():
+    x = np.linspace(0, 1, 20)
+    y1 = np.zeros_like(x)
+    y2 = np.ones_like(x)
+    z = x  # depth increases along x
+
+    # The depth (passed as a `z` keyword) offsets the band between the two eyes,
+    # while y1 and y2 are preserved as the fill boundaries.
+    axstereo = AxesStereo2D(ipd=65)
+    res_left, res_right = axstereo.fill_between(x, y1, y2, z=z)
+    assert len(axstereo.artists_left) == 1
+    assert len(axstereo.artists_right) == 1
+    vleft = res_left.get_paths()[0].vertices
+    vright = res_right.get_paths()[0].vertices
+    assert not np.allclose(vleft[:, 0], vright[:, 0])  # horizontally shifted
+    assert axstereo.zlim == (0, 1)  # z drove the z limits
+
+    # Without a z keyword there is no stereo offset, both eyes are identical,
+    # and a warning is raised.
+    axstereo = AxesStereo2D(ipd=65)
+    with pytest.warns(UserWarning, match="z` keyword"):
+        res_left, res_right = axstereo.fill_between(x, y1, y2)
+    assert np.allclose(res_left.get_paths()[0].vertices, res_right.get_paths()[0].vertices)
+
+    # A redraw (triggered by a later plot) reproduces the band correctly.
+    axstereo = AxesStereo2D(ipd=65)
+    axstereo.fill_between(x, y1, y2, z=z)
+    axstereo.plot(x, y2, z)  # forces a redraw of earlier artists
+    assert len(axstereo.artists_left) == 2
 
 
 def test_AxesAnaglyph_zlim():
@@ -218,6 +253,10 @@ def test_AxesAnaglyph():
         if method == "text":
             getattr(axstereo, method)(0, 0, 0, "text")
             getattr(axstereo, method)(x=0, y=0, z=0, s="text")
+        elif method == "fill_between":
+            # fill_between takes (x, y1, y2) with the depth as a `z` keyword
+            getattr(axstereo, method)(x, y, z=z)
+            getattr(axstereo, method)(x, y, y * 0.5, z=z)
         else:
             getattr(axstereo, method)(x, y, z)
             getattr(axstereo, method)(x=x, y=y, z=z)

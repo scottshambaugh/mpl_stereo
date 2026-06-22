@@ -14,6 +14,7 @@
 
 ## [Unreleased]
 ### Added    
+* `step`, `fill`, `fill_between`, and `errorbar` added to the supported 2D plotting methods
 ### Changed    
 ### Removed    
 
