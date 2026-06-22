@@ -222,7 +222,7 @@ def plot_2d_sun(savedir=None, show=True):
         axstereo.ax_left.imshow(sun_right_data, cmap="gray")
     axstereo.fig.set_size_inches(6, 3)
     if savedir is not None:
-        plt.savefig(savedir / "sun_2d.png", bbox_inches="tight", dpi=640)
+        axstereo.save(savedir / "sun_2d.png", plot_area=True, dpi=640)
     if show:
         plt.show()
 
@@ -231,12 +231,9 @@ def wiggle_sun(savedir=None, show=True):
     sun_left_data, sun_right_data = sun_left_right()
 
     axstereo = AxesStereo2D()
-    axstereo.ax_left.imshow(sun_left_data, cmap="gray")
-    axstereo.ax_right.imshow(sun_right_data, cmap="gray")
-    fig, ax = plt.subplots()
-    fig.set_size_inches(3, 3)
+    axstereo.imshow_stereo([sun_left_data, sun_right_data], cmap="gray")
     if savedir is not None:
-        axstereo.wiggle(savedir / "sun_wiggle.gif", ax=ax, dpi=640)
+        axstereo.save(savedir / "sun_wiggle.gif", plot_area=True, dpi=640)
 
 
 def plot_anaglyph_sun(savedir=None, show=True):
@@ -245,7 +242,7 @@ def plot_anaglyph_sun(savedir=None, show=True):
     axstereo.imshow_stereo([sun_left_data, sun_right_data], cmap="gray")
     axstereo.fig.set_size_inches(3, 3)
     if savedir is not None:
-        plt.savefig(savedir / "sun_anaglyph.png", bbox_inches="tight", dpi=640)
+        axstereo.save(savedir / "sun_anaglyph.png", plot_area=True, dpi=640)
     if show:
         plt.show()
 
@@ -262,7 +259,7 @@ def plot_2d_church(savedir=None, show=True):
         axstereo.ax_left.imshow(church_right_data)
     axstereo.fig.set_size_inches(8, 3)
     if savedir is not None:
-        plt.savefig(savedir / "church_2d.png", bbox_inches="tight", dpi=640)
+        axstereo.save(savedir / "church_2d.png", plot_area=True, dpi=640)
     if show:
         plt.show()
 
@@ -285,7 +282,7 @@ def plot_anaglyph_church(savedir=None, show=True):
     axstereo.imshow_stereo([church_left_data, church_right_data])
     axstereo.fig.set_size_inches(4, 3)
     if savedir is not None:
-        plt.savefig(savedir / "church_anaglyph.png", bbox_inches="tight", dpi=640)
+        axstereo.save(savedir / "church_anaglyph.png", plot_area=True, dpi=640)
     if show:
         plt.show()
 
@@ -321,7 +318,7 @@ def stereo_square_church(savedir=None, show=True):
     stereosquare.fig.set_size_inches(8, 6)
     stereosquare.fig.set_dpi(320)
     if savedir is not None:
-        stereosquare.wiggle(savedir / "church_2d_square.gif")
+        stereosquare.save(savedir / "church_2d_square.gif", plot_area=True)
     if show:
         plt.show()
 

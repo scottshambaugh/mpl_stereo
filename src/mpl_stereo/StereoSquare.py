@@ -11,6 +11,7 @@ from mpl_stereo.AxesStereo import (
     AxesStereoSideBySide,
     AxesAnaglyph,
     sanitize_images,
+    ANIMATION_SUFFIXES,
 )
 
 
@@ -117,40 +118,89 @@ class StereoSquareBase(ABC):
 
         return (res_left, res_right, res_anaglyph)
 
-    def wiggle(
+    def save(
         self,
         filepath: Union[str, Path],
+        plot_area: bool = False,
+        animate: Optional[bool] = None,
         interval: float = 125,
         frames: Optional[int] = 2,
         *args: Any,
         **kwargs: dict[str, Any],
     ):
         """
-        Save the figure with a wiggle stereogram in the bottom right plot.
+        Save the stereo square to a file. This is the single entry point for both
+        a static image and an animated version with a wiggle in the bottom right
+        plot. Whether to animate is chosen from the file extension (e.g. ``.gif``
+        animates) or forced with the ``animate`` argument.
 
         Parameters
         ----------
         filepath : str | pathlib.Path
-            The filepath to save the figure to.
+            The filepath to save to. The extension selects the format.
+        plot_area : bool
+            If True, strip all spines, ticks, and labels from every panel and
+            remove the surrounding padding, so the 2x2 grid of plot areas fills
+            the frame. Default is False.
+        animate : Optional[bool]
+            Force (True) or forbid (False) the wiggle animation. If None
+            (default), inferred from the file extension.
         interval : float
-            The interval between frames in milliseconds, default 125.
+            The interval between wiggle frames in milliseconds, default 125.
+            Only used when animating.
         frames : Optional[int]
             The number of distinct viewpoints to sample across the stereo
-            baseline, default 2. See `AxesStereoSideBySide.wiggle`.
+            baseline, default 2. See `AxesStereoSideBySide.wiggle`. Only used
+            when animating.
         *args : Any
-            Additional arguments passed to `animation.save`.
+            Additional positional arguments passed to the save call.
         **kwargs : dict[str, Any]
-            Additional keyword arguments passed to `animation.save`.
+            Additional keyword arguments. For animations, passed to
+            `animation.save`; for static images, passed to `savefig`.
         """
-        self.axesstereo.wiggle(
-            filepath=filepath,
-            interval=interval,
-            frames=frames,
-            ax=self.axs[1, 1],
-            yaxis_off=True,
-            *args,
-            **kwargs,
-        )
+        filepath = Path(filepath)
+        if animate is None:
+            animate = filepath.suffix.lower() in ANIMATION_SUFFIXES
+
+        if plot_area:
+            # Strip the static cells and collapse the surrounding padding so the
+            # grid of plot areas fills the frame. The wiggle cell is stripped by
+            # passing plot_area through to the inner wiggle below.
+            self.axesstereo.ax_left.set_axis_off()
+            self.axesstereo.ax_right.set_axis_off()
+            if self.axesanaglyph is not None:
+                self.axesanaglyph.ax.set_axis_off()
+            self.fig.subplots_adjust(left=0, right=1, top=1, bottom=0, wspace=0, hspace=0)
+
+        if animate:
+            self.axesstereo._run_wiggle(
+                filepath,
+                interval=interval,
+                frames=frames,
+                ax=self.axs[1, 1],
+                yaxis_off=True,
+                plot_area=plot_area,
+                *args,
+                **kwargs,
+            )
+        else:
+            self.fig.savefig(filepath, *args, **kwargs)
+
+    def wiggle(
+        self,
+        filepath: Union[str, Path],
+        interval: float = 125,
+        frames: Optional[int] = 2,
+        plot_area: bool = False,
+        *args: Any,
+        **kwargs: dict[str, Any],
+    ):
+        """
+        Save the figure with a wiggle stereogram in the bottom right plot.
+        Convenience wrapper, equivalent to ``save`` with ``animate=True``. See
+        `save` for the meaning of each argument.
+        """
+        self.save(filepath, plot_area, True, interval, frames, *args, **kwargs)
 
 
 class StereoSquare2D(StereoSquareBase):

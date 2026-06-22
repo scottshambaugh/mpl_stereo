@@ -343,6 +343,89 @@ def test_wiggle_images():
         AxesStereo2D().imshow_stereo([base])
 
 
+def test_save_plot_area(tmp_path):
+    from PIL import Image
+
+    x, y, z = _testdata()["trefoil"]
+    dpi = 100
+
+    # Anaglyph: a normal save keeps decorations; plot_area=True crops to the
+    # plot area and leaves the original figure untouched.
+    axstereo = AxesAnaglyph()
+    axstereo.plot(x, y, z)
+    axstereo.fig.set_size_inches(3, 3)
+
+    axstereo.save(tmp_path / "full.png", dpi=dpi)
+    with Image.open(tmp_path / "full.png") as im:
+        assert im.size == (300, 300)
+
+    axstereo.save(tmp_path / "area.png", plot_area=True, dpi=dpi)
+    with Image.open(tmp_path / "area.png") as im:
+        assert im.size == (232, 231)
+    assert axstereo.ax.axison  # original figure untouched
+
+    # Side-by-side 2D: cropped to the two-panel plot area, with no gap between.
+    axstereo = AxesStereo2D()
+    axstereo.plot(x, y, z)
+    axstereo.fig.set_size_inches(6, 3)
+    axstereo.save(tmp_path / "sbs.png", plot_area=True, dpi=dpi)
+    with Image.open(tmp_path / "sbs.png") as im:
+        assert im.size == (462, 231)
+
+    # plot_area is not supported for 3D static plots.
+    axstereo = AxesStereo3D()
+    axstereo.plot(x, y, z)
+    with pytest.raises(NotImplementedError):
+        axstereo.save(tmp_path / "no.png", plot_area=True)
+
+
+def test_save_animate_dispatch(tmp_path):
+    from PIL import Image
+
+    x, y, z = _testdata()["trefoil"]
+
+    # A .png extension saves a static image (one frame).
+    axstereo = AxesStereo2D()
+    axstereo.plot(x, y, z)
+    axstereo.save(tmp_path / "static.png", dpi=100)
+    with Image.open(tmp_path / "static.png") as im:
+        assert getattr(im, "n_frames", 1) == 1
+
+    # A .gif extension animates a wiggle.
+    axstereo.save(tmp_path / "anim.gif", dpi=100)
+    with Image.open(tmp_path / "anim.gif") as im:
+        assert im.n_frames == 2
+
+
+def test_save_wiggle_plot_area(tmp_path):
+    from PIL import Image
+
+    x, y, z = _testdata()["trefoil"]
+
+    # 2D plotted wiggle with plot_area keeps sensible (landscape) proportions
+    # rather than the narrow side-by-side panel.
+    axstereo = AxesStereo2D()
+    axstereo.plot(x, y, z)
+    axstereo.save(tmp_path / "plotted.gif", plot_area=True, dpi=100)
+    with Image.open(tmp_path / "plotted.gif") as im:
+        assert im.n_frames == 2
+        assert im.size == (640, 480)
+
+    # Image wiggle of a square image yields a square frame (no letterboxing).
+    square = np.tile(np.linspace(0, 1, 50), (50, 1))
+    axstereo = AxesStereo2D()
+    axstereo.imshow_stereo([square, np.roll(square, 5, axis=1)], cmap="gray")
+    axstereo.save(tmp_path / "image.gif", plot_area=True, dpi=100)
+    with Image.open(tmp_path / "image.gif") as im:
+        assert im.size == (400, 400)
+
+    # plot_area is not supported for 3D wiggles.
+    axstereo = AxesStereo3D()
+    axstereo.plot(x, y, z)
+    with pytest.raises(NotImplementedError):
+        axstereo.save(tmp_path / "no.gif", plot_area=True)
+
+
 ## The following tests are for visual inspection only
 def plotting_tests_2d_pairwise():
     # test plot and scatter

@@ -214,6 +214,55 @@ def boomerang_sequence(n: int) -> list[int]:
     return list(range(n)) + list(range(n - 2, 0, -1))
 
 
+# File suffixes that `save` treats as animated wiggle stereograms.
+ANIMATION_SUFFIXES = {".gif", ".mp4", ".mov", ".avi", ".mkv", ".webm", ".apng", ".html"}
+
+
+def crop_fig_to_plot_area(fig: Figure, ax_indices: list[int]) -> Figure:
+    """
+    Modify ``fig`` in place so it contains only the plot area of the given axes:
+    strip those axes' spines, ticks, and labels, drop every other axis, and pack
+    the kept axes left-to-right with no gap or surrounding padding. Each axis
+    keeps its original size (nothing is squeezed).
+
+    Parameters
+    ----------
+    fig : matplotlib.figure.Figure
+        The figure to crop. Usually a throwaway copy of a live figure.
+    ax_indices : list[int]
+        Indices into ``fig.axes`` of the axes whose plot area to keep, in
+        left-to-right order.
+
+    Returns
+    -------
+    fig : matplotlib.figure.Figure
+        The same figure, cropped to the plot area.
+    """
+    fig.canvas.draw()
+    keep = [fig.axes[i] for i in ax_indices]
+    for ax in list(fig.axes):
+        if ax not in keep:
+            fig.delaxes(ax)
+
+    # Pack the kept axes left-to-right with no gaps, each keeping its own width
+    # and height, aligned along a common row.
+    ordered = sorted(zip(keep, [a.get_position() for a in keep]), key=lambda kp: kp[1].x0)
+    total_w = sum(p.width for _, p in ordered)
+    max_h = max(p.height for _, p in ordered)
+
+    x = 0.0
+    for ax, p in ordered:
+        w = p.width / total_w
+        ax.set_axis_off()
+        ax.set_anchor("C")  # keep the (aspect-constrained) image centered in its slot
+        ax.set_position((x, 0.0, w, p.height / max_h))
+        x += w
+
+    fw, fh = fig.get_size_inches()
+    fig.set_size_inches(total_w * fw, max_h * fh)
+    return fig
+
+
 def crop_image_center(data: np.ndarray, shape: tuple[int, int]):
     """
     Crop an image array to a specified shape, trimming equally on each side
@@ -383,6 +432,69 @@ class AxesStereoBase(ABC):
         self.wiggle_imshow_args: tuple = ()
         self.wiggle_imshow_kwargs: dict[str, Any] = {}
 
+    def _copy_fig(self) -> Figure:
+        """
+        Return a deep copy of ``self.fig`` (via pickle), so it can be modified
+        without affecting the live figure.
+        """
+        buf = io.BytesIO()
+        pickle.dump(self.fig, buf)
+        buf.seek(0)
+        return pickle.load(buf)
+
+    def save(
+        self,
+        filepath: Union[str, Path],
+        plot_area: bool = False,
+        animate: Optional[bool] = None,
+        *args: Any,
+        **kwargs: Any,
+    ):
+        """
+        Save the stereogram to a file. This is the single entry point for both
+        static images and animated wiggle stereograms.
+
+        Whether to write an animation is chosen from the file extension (e.g.
+        ``.gif`` or ``.mp4`` animate; ``.png`` does not), or forced with the
+        ``animate`` argument.
+
+        Parameters
+        ----------
+        filepath : str | pathlib.Path
+            The filepath to save to. The extension selects the format.
+        plot_area : bool
+            If True, save only the plot area: strip all spines, ticks, and
+            labels and remove the surrounding padding. Default is False.
+        animate : Optional[bool]
+            Force (True) or forbid (False) writing a wiggle animation. If None
+            (default), inferred from the file extension.
+        *args : Any
+            Additional positional arguments. For animations, passed to
+            `animation.save`; for static images, passed to `Figure.savefig`.
+        **kwargs : Any
+            For animations, the wiggle options (``interval``, ``frames``, ...,
+            see `wiggle`) plus any `animation.save` arguments. For static images,
+            arguments passed to `Figure.savefig`.
+        """
+        filepath = Path(filepath)
+        if animate is None:
+            animate = filepath.suffix.lower() in ANIMATION_SUFFIXES
+
+        if animate:
+            self._run_wiggle(filepath, *args, plot_area=plot_area, **kwargs)
+        elif plot_area:
+            self._plot_area_fig().savefig(filepath, *args, **kwargs)
+        else:
+            self.fig.savefig(filepath, *args, **kwargs)
+
+    def _run_wiggle(self, filepath: Path, *args: Any, **kwargs: Any):
+        """Animate a wiggle stereogram. Only supported for side-by-side plots."""
+        raise NotImplementedError(f"{type(self).__name__} cannot be animated")
+
+    def _plot_area_fig(self) -> Figure:
+        """Return a copy of the figure cropped to its plot area(s)."""
+        raise NotImplementedError(f"plot_area is not supported for {type(self).__name__}")
+
     def log_artists(
         self, res_left: Any, res_right: Any, name: str, args: Any, kwargs: dict[str, Any]
     ):
@@ -502,16 +614,37 @@ class AxesStereoSideBySide(AxesStereoBase):
         frames: Optional[int] = 2,
         ax: Optional[Axes] = None,
         yaxis_off: bool = False,
+        plot_area: bool = False,
+        *args: Any,
+        **kwargs: Any,
+    ):
+        """
+        Save the figure as a wiggle stereogram. This is a convenience wrapper,
+        equivalent to ``save`` with ``animate=True``. See `_run_wiggle` for the
+        meaning of each argument.
+        """
+        self._run_wiggle(
+            Path(filepath), interval, frames, ax, yaxis_off, plot_area, *args, **kwargs
+        )
+
+    def _run_wiggle(
+        self,
+        filepath: Path,
+        interval: float = 125,
+        frames: Optional[int] = 2,
+        ax: Optional[Axes] = None,
+        yaxis_off: bool = False,
+        plot_area: bool = False,
         *args: Any,
         **kwargs: dict[str, Any],
     ):
         """
-        Save the figure as a wiggle stereogram.
+        Write a wiggle-stereogram animation to ``filepath``.
 
         Parameters
         ----------
-        filepath : str | pathlib.Path
-            The filepath to save the figure to.
+        filepath : pathlib.Path
+            The filepath to save the animation to.
         interval : float
             The interval between frames in milliseconds, default 125.
         frames : Optional[int]
@@ -527,8 +660,11 @@ class AxesStereoSideBySide(AxesStereoBase):
             then will plot on the axes of a new Figure.
         yaxis_off : bool
             Whether to hide the y-axis. Default is False.
-        *args : Any
-            Additional arguments passed to `animation.save`.
+        plot_area : bool
+            If True, save only the plot area: strip all spines, ticks, and
+            labels. When ``ax`` is None, the output figure is also sized to the
+            content so it fills the frame without being squished. Only supported
+            for 2D wiggles. Default is False.
         **kwargs : dict[str, Any]
             Additional keyword arguments passed to `animation.save`.
         """
@@ -539,8 +675,23 @@ class AxesStereoSideBySide(AxesStereoBase):
         if not isinstance(frames, int) or frames < 2:
             raise ValueError(f"frames must be an integer >= 2 or None, got {frames!r}")
 
+        if plot_area and self.is_3d:
+            raise NotImplementedError("plot_area=True is only supported for 2D wiggles")
+
         filepath = Path(filepath)
-        if ax is None:
+        if ax is None and plot_area:
+            # Build a single full-bleed axis. Match the figure's aspect to the
+            # content so the data fills the frame without being squished: for
+            # images use the image's aspect, otherwise use the default figure
+            # proportions (the same proportions a normal wiggle is drawn at).
+            if self.wiggle_images:
+                h, w = self.wiggle_images[0].shape[:2]
+                base = 4.0
+                fig = plt.figure(figsize=(base * w / max(w, h), base * h / max(w, h)))
+            else:
+                fig = plt.figure()
+            ax_target = fig.add_axes((0, 0, 1, 1))
+        elif ax is None:
             fig, ax_target = plt.subplots()
         else:
             ax_target = ax
@@ -552,36 +703,39 @@ class AxesStereoSideBySide(AxesStereoBase):
         if self.is_3d:
             ani = self._wiggle_3d(fig, pos, frames, interval, yaxis_off, kwargs)
         elif self.wiggle_images:
-            ani = self._wiggle_images(fig, pos, frames, interval, yaxis_off, kwargs)
+            ani = self._wiggle_images(fig, pos, frames, interval, yaxis_off, plot_area, kwargs)
         else:
-            ani = self._wiggle_2d(fig, pos, frames, interval, yaxis_off, kwargs)
+            ani = self._wiggle_2d(fig, pos, frames, interval, yaxis_off, plot_area, kwargs)
 
         ani.save(filepath, *args, **kwargs)
 
     def _duplicate_fig(self, fig: Figure, kwargs: dict[str, Any]) -> Figure:
         """
-        Return a deep copy of ``self.fig`` (via pickle), sized and dpi-matched to
-        the target figure ``fig``.
+        Return a deep copy of ``self.fig``, sized and dpi-matched to the target
+        figure ``fig``.
         """
-        buf = io.BytesIO()
-        pickle.dump(self.fig, buf)
-        buf.seek(0)
-        fig_buffer = pickle.load(buf)
+        fig_buffer = self._copy_fig()
         fig_buffer.set_size_inches(fig.get_size_inches())
         fig_buffer.set_dpi(kwargs.get("dpi", fig.get_dpi()))
         return fig_buffer
 
-    def _attach_axis(self, ax: Axes, fig: Figure, pos: Any, yaxis_off: bool):
+    def _attach_axis(
+        self, ax: Axes, fig: Figure, pos: Any, yaxis_off: bool, plot_area: bool = False
+    ):
         """
         Move a duplicated axis from a pickled buffer figure onto the target
-        figure ``fig``, sizing it to fill the position ``pos``.
+        figure ``fig``, sizing it to fill the position ``pos``. When
+        ``plot_area`` is True, strip all of the axis decorations so only the
+        plot area remains.
         """
         ax._parent_figure = None
         ax.figure = fig
         fig.axes.append(ax)
         fig.add_axes(ax)
         ax.set_position(pos.bounds)
-        if yaxis_off:
+        if plot_area:
+            ax.set_axis_off()
+        elif yaxis_off:
             ax.yaxis.set_visible(False)
 
     def _wiggle_2d(
@@ -591,6 +745,7 @@ class AxesStereoSideBySide(AxesStereoBase):
         frames: int,
         interval: float,
         yaxis_off: bool,
+        plot_area: bool,
         kwargs: dict[str, Any],
     ) -> FuncAnimation:
         """
@@ -605,7 +760,7 @@ class AxesStereoSideBySide(AxesStereoBase):
             fig_buffer = self._duplicate_fig(fig, kwargs)
             axs = fig_buffer.axes[0:2]
             for ax in axs:
-                self._attach_axis(ax, fig, pos, yaxis_off)
+                self._attach_axis(ax, fig, pos, yaxis_off, plot_area)
                 ax.set_visible(False)
 
             def update(frame):
@@ -631,7 +786,7 @@ class AxesStereoSideBySide(AxesStereoBase):
                 self.redraw()
                 fig_buffer = self._duplicate_fig(fig, kwargs)
                 ax_wiggle = fig_buffer.axes[0]  # the left-eye axis
-                self._attach_axis(ax_wiggle, fig, pos, yaxis_off)
+                self._attach_axis(ax_wiggle, fig, pos, yaxis_off, plot_area)
                 ax_wiggle.set_visible(False)
                 frame_axes.append(ax_wiggle)
         finally:
@@ -725,6 +880,7 @@ class AxesStereoSideBySide(AxesStereoBase):
         frames: int,
         interval: float,
         yaxis_off: bool,
+        plot_area: bool,
         kwargs: dict[str, Any],
     ) -> FuncAnimation:
         """
@@ -740,7 +896,7 @@ class AxesStereoSideBySide(AxesStereoBase):
 
         fig_buffer = self._duplicate_fig(fig, kwargs)
         ax_wiggle = fig_buffer.axes[0]  # left-eye axis
-        self._attach_axis(ax_wiggle, fig, pos, yaxis_off)
+        self._attach_axis(ax_wiggle, fig, pos, yaxis_off, plot_area)
 
         # Replace the displayed image with one artist per sampled frame.
         for image in list(ax_wiggle.images):
@@ -1074,6 +1230,10 @@ class AxesStereo2D(AxesStereoSideBySide, AxesStereo2DBase):
         elif self.eye_balance != 1:
             for label in self.ax_right.get_xticklabels():
                 label.set_alpha(alpha)
+
+    def _plot_area_fig(self) -> Figure:
+        """Return a copy of the figure cropped to the two side-by-side panels."""
+        return crop_fig_to_plot_area(self._copy_fig(), [0, 1])
 
 
 class AxesStereo3D(AxesStereoSideBySide):
@@ -1530,3 +1690,7 @@ class AxesAnaglyph(AxesStereoBase, AxesStereo2DBase):
         elif self.eye_balance == 1:
             for label in self.ax.get_xticklabels():
                 label.set_color(self.colors[0])
+
+    def _plot_area_fig(self) -> Figure:
+        """Return a copy of the figure cropped to the anaglyph plot area."""
+        return crop_fig_to_plot_area(self._copy_fig(), [0])
