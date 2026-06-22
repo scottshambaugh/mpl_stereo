@@ -17,6 +17,15 @@
 ### Changed    
 ### Removed    
 
+## [0.12.0] - 2026-06-22
+### Added    
+* `frames` argument to wigglegrams to sample more than two viewpoints as a smooth boomerang loop
+* `imshow_stereo()` now accepts a list of any number of images, and `wiggle`/`save` with `frames=None` animates through all of them
+* `save()` method as the single entry point for writing static images and wiggle animations, with a `plot_area=True` option to save just the plot area (no spines, ticks, labels, or padding)
+* Wiggle animations can be saved to formats beyond `.gif` (`.mp4`, `.mov`, `.avi`, `.mkv`, `.webm`, `.apng`, `.html`)
+### Changed    
+* `imshow_stereo()` takes a single list of images instead of two positional arguments
+
 ## [0.11.1] - 2026-06-15
 ### Changed    
 * Switched from flake8 to ruff for linting
