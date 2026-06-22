@@ -82,7 +82,7 @@ axstereo.imshow_stereo([sun_left_data, sun_right_data], cmap='gray')
 axstereo.save('sun_anaglyph.png', plot_area=True)
 ```
 <p float="left" align="center">
-<img width="450" height="250" src="https://raw.githubusercontent.com/scottshambaugh/mpl_stereo/main/docs/sun_2d.png">
+<img width="500" height="250" src="https://raw.githubusercontent.com/scottshambaugh/mpl_stereo/main/docs/sun_2d.png">
 </p>
 <p float="left" align="center">
 <img width="250" height="250" src="https://raw.githubusercontent.com/scottshambaugh/mpl_stereo/main/docs/sun_anaglyph.png">
@@ -110,10 +110,10 @@ axstereo.imshow_stereo([church_left_data, church_right_data])
 axstereo.save('church_anaglyph.png', plot_area=True)
 ```
 <p float="left" align="center">
-<img width="550" height="250" src="https://raw.githubusercontent.com/scottshambaugh/mpl_stereo/main/docs/church_2d.png">
+<img width="667" height="250" src="https://raw.githubusercontent.com/scottshambaugh/mpl_stereo/main/docs/church_2d.png">
 </p>
 <p float="left" align="center">
-<img width="300" height="250" src="https://raw.githubusercontent.com/scottshambaugh/mpl_stereo/main/docs/church_anaglyph.png">
+<img width="333" height="250" src="https://raw.githubusercontent.com/scottshambaugh/mpl_stereo/main/docs/church_anaglyph.png">
 </p>
 
 ### Wiggle Stereograms
@@ -196,6 +196,18 @@ stereosquare.save('church_2d_square.gif', plot_area=True)
 
 <p float="left" align="center">
 <img width="600" height="450" src="https://raw.githubusercontent.com/scottshambaugh/mpl_stereo/main/docs/church_2d_square.gif">
+</p>
+
+```python
+stereosquare = StereoSquare2D()
+stereosquare.plot(x, y, z, c="k", alpha=0.2)
+stereosquare.scatter(x, y, z, c=z, cmap="viridis", s=10)
+# We set more frames and a smaller interval for a smoother wiggle
+stereosquare.wiggle("trefoil_2d_square.gif", interval=50, frames=5, dpi=100)
+```
+
+<p float="left" align="center">
+<img width="600" height="450" src="https://raw.githubusercontent.com/scottshambaugh/mpl_stereo/main/docs/trefoil_2d_square.gif">
 </p>
 
 ### Animations

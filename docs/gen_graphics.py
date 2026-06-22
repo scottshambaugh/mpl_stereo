@@ -294,7 +294,7 @@ def stereo_square_2d_trefoil(savedir=None, show=True):
     stereosquare.scatter(x, y, z, c=z, cmap="viridis", s=10)
     stereosquare.fig.set_size_inches(6, 6)
     if savedir is not None:
-        stereosquare.wiggle(savedir / "trefoil_2d_square.gif", dpi=100)
+        stereosquare.wiggle(savedir / "trefoil_2d_square.gif", interval=50, frames=5, dpi=100)
     if show:
         plt.show()
 
@@ -306,7 +306,7 @@ def stereo_square_3d_trefoil(savedir=None, show=True):
     stereosquare.scatter(x, y, z, c=z, cmap="viridis", s=10)
     stereosquare.fig.set_size_inches(6, 6)
     if savedir is not None:
-        stereosquare.wiggle(savedir / "trefoil_3d_square.gif", dpi=100)
+        stereosquare.wiggle(savedir / "trefoil_3d_square.gif", interval=50, frames=5, dpi=100)
     if show:
         plt.show()
 
