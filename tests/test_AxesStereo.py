@@ -357,11 +357,13 @@ def test_save_plot_area(tmp_path):
 
     axstereo.save(tmp_path / "full.png", dpi=dpi)
     with Image.open(tmp_path / "full.png") as im:
-        assert im.size == (300, 300)
+        assert im.size == (300, 300)  # exact: 3in * 100dpi
 
+    # The cropped plot-area sizes come from the axes' rendered extent, which can
+    # vary by a pixel across platforms (fonts/freetype), so allow a 1px margin.
     axstereo.save(tmp_path / "area.png", plot_area=True, dpi=dpi)
     with Image.open(tmp_path / "area.png") as im:
-        assert im.size == (232, 231)
+        assert tuple(im.size) == pytest.approx((232, 231), abs=1)
     assert axstereo.ax.axison  # original figure untouched
 
     # Side-by-side 2D: cropped to the two-panel plot area, with no gap between.
@@ -370,7 +372,7 @@ def test_save_plot_area(tmp_path):
     axstereo.fig.set_size_inches(6, 3)
     axstereo.save(tmp_path / "sbs.png", plot_area=True, dpi=dpi)
     with Image.open(tmp_path / "sbs.png") as im:
-        assert im.size == (462, 231)
+        assert tuple(im.size) == pytest.approx((462, 231), abs=1)
 
     # plot_area is not supported for 3D static plots.
     axstereo = AxesStereo3D()
