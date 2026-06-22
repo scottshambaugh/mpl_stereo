@@ -5,8 +5,7 @@
 - Add on more known 2D plotting functions
 - Flesh out testing of 3D plotting
 - AxesAnaglyph.imshow_stereo() nonlinear color mapping methods
-- 3D plot analglyphs
-- More frames for plotted wigglegrams
+- 3D plot anaglyphs
 
 ### Known issues:
 - Inconsistent coloring across redraws if not specified

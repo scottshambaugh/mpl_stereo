@@ -41,7 +41,7 @@ def wiggle_2d_trefoil(savedir=None, show=True):
     axstereo.scatter(x, y, z, c=z, cmap="viridis", s=10)
     axstereo.fig.set_size_inches(3, 3)
     if savedir is not None:
-        axstereo.wiggle(savedir / "trefoil_2d_wiggle.gif", dpi=100)
+        axstereo.wiggle(savedir / "trefoil_2d_wiggle.gif", frames=8, interval=50, dpi=100)
 
 
 def plot_3d_trefoil(savedir=None, show=True):

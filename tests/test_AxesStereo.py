@@ -283,19 +283,23 @@ def test_wiggle_frames():
     wiggle_filepath = Path("test.gif")
     x, y, z = _testdata()["trefoil"]
 
-    # 3D supports an arbitrary number of frames, played as a boomerang loop
-    for frames in (2, 5):
-        axstereo = AxesStereo3D()
-        axstereo.plot(x, y, z)
-        axstereo.wiggle(wiggle_filepath, frames=frames)
-        assert wiggle_filepath.exists()
-        with Image.open(wiggle_filepath) as im:
-            assert im.n_frames == len(boomerang_sequence(frames))
-        wiggle_filepath.unlink()
+    # Both 2D and 3D plotted data support an arbitrary number of frames, played
+    # as a boomerang loop.
+    for cls in (AxesStereo2D, AxesStereo3D):
+        for frames in (2, 5):
+            axstereo = cls()
+            axstereo.plot(x, y, z)
+            axstereo.wiggle(wiggle_filepath, frames=frames)
+            assert wiggle_filepath.exists()
+            with Image.open(wiggle_filepath) as im:
+                assert im.n_frames == len(boomerang_sequence(frames))
+            wiggle_filepath.unlink()
 
-    # 2D only supports the default of 2 frames for now
+    # Image-based wiggles have no intermediate viewpoints, so frames > 2 errors
+    church_left_data, church_right_data = _testdata()["church"]
     axstereo = AxesStereo2D()
-    axstereo.plot(x, y, z)
+    axstereo.ax_left.imshow(church_left_data)
+    axstereo.ax_right.imshow(church_right_data)
     with pytest.raises(NotImplementedError):
         axstereo.wiggle(wiggle_filepath, frames=4)
 
