@@ -1160,7 +1160,7 @@ class AxesStereo2D(AxesStereoSideBySide, AxesStereo2DBase):
             zzero=zzero,
             is_3d=False,
         )
-        self.known_methods = ["plot", "scatter", "stem", "bar", "text"]
+        self.known_methods = ["plot", "step", "scatter", "stem", "bar", "fill", "errorbar", "text"]
 
         # Minimize whitespace between plots
         self.fig.subplots_adjust(wspace=0.01)
@@ -1567,7 +1567,7 @@ class AxesAnaglyph(AxesStereoBase, AxesStereo2DBase):
             self.fig = ax.figure
             self.ax = ax
 
-        self.known_methods = ["plot", "scatter", "bar", "text"]
+        self.known_methods = ["plot", "step", "scatter", "bar", "fill", "errorbar", "text"]
         self.colors = colors
         self.alpha = 0.5
 

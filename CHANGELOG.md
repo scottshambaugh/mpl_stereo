@@ -3,6 +3,7 @@
 ## Future Work
 ### Features & Maintenance:
 - Add on more known 2D plotting functions
+- Support for 2D transformed axes (log, etc)
 - Flesh out testing of 3D plotting
 - AxesAnaglyph.imshow_stereo() nonlinear color mapping methods
 
@@ -13,10 +14,14 @@
 
 ## [Unreleased]
 ### Added    
-* `AxesAnaglyph3D` class for stereoscopic 3D red-cyan anaglyph plots
-* `StereoSquare3D` now fills its anaglyph cell using `AxesAnaglyph3D`
 ### Changed    
 ### Removed    
+
+## [0.13.0] - 2026-06-22
+### Added    
+* `AxesAnaglyph3D` class for stereoscopic 3D red-cyan anaglyph plots
+* `StereoSquare3D` now fills its anaglyph cell using `AxesAnaglyph3D`
+* `step`, `fill`, and `errorbar` added to the supported 2D plotting methods
 
 ## [0.12.0] - 2026-06-22
 ### Added    
