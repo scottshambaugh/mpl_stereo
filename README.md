@@ -214,7 +214,7 @@ stereosquare = StereoSquare3D()
 stereosquare.plot(x, y, z, c="k", alpha=0.2)
 stereosquare.scatter(x, y, z, c=z, cmap="viridis", s=10)
 # We set more frames and a smaller interval for a smoother wiggle
-stereosquare.wiggle("trefoil_2d_square.gif", interval=50, frames=5, dpi=100)
+stereosquare.wiggle("trefoil_3d_square.gif", interval=50, frames=5, dpi=100)
 ```
 
 <p float="left" align="center">
