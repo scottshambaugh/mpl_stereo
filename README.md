@@ -101,7 +101,7 @@ axstereo.save('sun_anaglyph.png', plot_area=True)
 
 Here's another example, showing how this translates to full color data. This example is a pair of photos of [St. Mary's Church](https://commons.wikimedia.org/wiki/File:St_Mary%27s_Church,_Colston_Bassett_3D-35486887876.jpg) in Colston Basset, Britain, taken by David Skinner and shared under a [CC-BY2.0 license](https://creativecommons.org/licenses/by/2.0/deed.en).
 
-Color anaglyph algorithms can be chosen from the methods `'dubois'`, `'photoshop'`, and `'photoshop2'`, as described in the paper [Sanders, William R., and David F. McAllister. "Producing anaglyphs from synthetic images." *Stereoscopic displays and virtual reality systems X.* Vol. 5006. SPIE, 2003.](https://research.csc.ncsu.edu/stereographics/ei03.pdf)
+Color anaglyph algorithms can be chosen from the methods `'dubois'`, `'photoshop'`, and `'photoshop2'`, as described in the paper [Sanders, William R., and David F. McAllister. "Producing anaglyphs from synthetic images." *Stereoscopic displays and virtual reality systems X.* Vol. 5006. SPIE, 2003.](https://www.david-romeuf.fr/3D/Anaglyphes/TCAnaglypheLSDubois/ei03.pdf)
 
 ```python
 from mpl_stereo.example_data import church_left_right
@@ -130,7 +130,7 @@ axstereo.save('church_anaglyph.png', plot_area=True)
 ### Wiggle Stereograms
 As a final way to show off the stereoscopic effect, we can make a [wiggle stereogram](https://en.wikipedia.org/wiki/Wiggle_stereoscopy) or "wigglegram". This isn't as useful for examining data, but allows seeing the effect without having to train your eyes or using 3D glasses. The sense of depth may be enhanced if you close one eye.
 
-`save()` writes a wiggle animation whenever the filename has an animated extension like `.gif` (this works for both `AxesStereo2D` and `AxesStereo3D`). `plot_area=True` works here too.
+`save()` writes a wiggle animation whenever the filename has an animated extension like `.gif`.
 
 ```python
 axstereo = AxesStereo2D()  # wiggle also works with AxesStereo3D
@@ -154,7 +154,7 @@ axstereo.axs  # (ax_left, ax_right), for AxesStereo2D and AxesStereo3D
 axstereo.ax  # for AxesAnaglyph
 ```
 
-Use `save()` to write the stereogram to file. It is the single entry point for both static images and animated wigglegrams — the format is chosen from the file extension (e.g. `.png` saves a static image, `.gif` animates a wiggle), or forced with `animate=True`/`animate=False`. Pass `plot_area=True` to save just the plot area. You can also reach the underlying matplotlib figure directly at `axstereo.fig`.
+Use `save()` to write the stereogram to file. Whether the result is a static image or animated wigglegrams is chosen from the file extension (e.g. `.png` saves a static image, `.gif` animates a wiggle), or forced with `animate=True`/`animate=False`. Pass `plot_area=True` to save just the plot area without axis decorations. You can also reach the underlying matplotlib figure directly at `axstereo.fig`.
 
 ```python
 axstereo.save('stereogram.png')              # static image
@@ -210,7 +210,7 @@ stereosquare.save('church_2d_square.gif', plot_area=True)
 </p>
 
 ```python
-stereosquare = StereoSquare2D()
+stereosquare = StereoSquare3D()
 stereosquare.plot(x, y, z, c="k", alpha=0.2)
 stereosquare.scatter(x, y, z, c=z, cmap="viridis", s=10)
 # We set more frames and a smaller interval for a smoother wiggle
@@ -218,7 +218,7 @@ stereosquare.wiggle("trefoil_2d_square.gif", interval=50, frames=5, dpi=100)
 ```
 
 <p float="left" align="center">
-<img width="450" height="450" src="https://raw.githubusercontent.com/scottshambaugh/mpl_stereo/main/docs/trefoil_2d_square.gif">
+<img width="450" height="450" src="https://raw.githubusercontent.com/scottshambaugh/mpl_stereo/main/docs/trefoil_3d_square.gif">
 </p>
 
 ### Animations
