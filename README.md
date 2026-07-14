@@ -259,3 +259,11 @@ D / d = (IPD / 2) / (d - z)
 <p float="left" align="center">
 <img width="375" height="450" src="https://raw.githubusercontent.com/scottshambaugh/mpl_stereo/main/docs/geometry.png">
 </p>
+
+
+## Related reading (print-scale SIRDS)
+
+If you want to see what single-image random-dot / pattern stereograms do outside a plot window:
+
+- [Thimbleby, Inglis & Witten (1994)](https://www.cs.waikato.ac.nz/~hinze/Displaying3DImages.pdf) — classic SIRDS algorithm paper
+- [Visual Enlightenment](https://visualenlightenment.art) — contemporary printed autostereogram art / book (disclosure: optional print-scale example of the medium; not affiliated with this package)
